@@ -171,3 +171,76 @@ Examples:
   - what/why
   - how tested (exact commands)
   - any risks + rollback plan
+
+
+## Repo Directory Guide (Orbit MVP)
+
+This repo is intentionally minimal. Follow these rules so we don’t create a messy file jungle.
+
+### Main directories and what they’re for
+- `apps/`
+  - Executable apps only.
+  - `apps/api/` = Python backend (FastAPI). Routes + services. No extraction logic here.
+  - `apps/worker/` = Python extraction runner (parsers + AI merge + validation). All extraction happens here.
+  - `apps/web/` = TypeScript frontend (Next.js). UI only.
+
+- `packages/`
+  - Shared, reusable code only.
+  - `packages/contracts/` = canonical schemas + API contracts. This is the single source of truth for data shapes.
+
+- `prompts/`
+  - Versioned prompts treated like code (reviewed, small diffs).
+  - Do not embed long prompts inside random `.py` files; reference prompts by path.
+
+- `docs/`
+  - Human documentation (MVP scope, architecture, decisions, API usage).
+  - If a rule affects how people/code behave, put it here or in `AGENTS.md`.
+
+- `eval/`
+  - Small golden examples + quick checks to prevent regressions (especially hallucinations).
+  - Add cases only when you find a recurring failure.
+
+- `storage/` (dev only)
+  - Local uploads/artifacts. Must be gitignored. Never commit real files here.
+
+---
+
+## Agent Rules for Working in This Repo (No Mess)
+
+### Always (structure discipline)
+- Put new code in the correct top-level directory (`apps/`, `packages/`, `prompts/`, `docs/`, `eval/`).
+- Prefer adding code to an existing module/file rather than creating a new file.
+- Keep diffs small and local. Avoid repo-wide rewrites.
+
+### File creation policy (strict)
+- Do NOT create new folders unless explicitly requested.
+- Do NOT create “misc”, “tmp”, “new”, “test2”, “draft”, “backup”, “old”, or date-stamped folders.
+- Do NOT generate multiple alternative files (“v1”, “v2”, “final2”) — pick one approach.
+- If you need a new file, create **at most 1–2 files per task** unless the task explicitly requires more.
+
+### Before creating any new file, do this checklist
+1) Can I implement this inside an existing file/module? If yes, do that.
+2) If not, is there already a directory that matches this purpose? Use it.
+3) Name the file by responsibility, not by experiment name:
+   - ✅ `profile_service.py`, `extract_title_block.py`, `canonical_profile.schema.json`
+   - ❌ `try_fix.py`, `temp_extractor.py`, `new_merge_logic2.py`
+
+### When adding prompts
+- Add prompts only in `prompts/`.
+- Prompts must be short, specific, and diffable.
+- Do not duplicate prompt text across files — reference the prompt file.
+
+### When adding shared types/contracts
+- Shared schemas/types go in `packages/contracts/`.
+- Apps should import/use contracts rather than redefining types in multiple places.
+
+### When you’re unsure where something goes
+- STOP and propose a short plan (max 5 bullets) listing:
+  - which directories you’ll touch
+  - which files you’ll modify
+  - which new files (if any) you’ll create
+Then proceed with the minimal file count.
+
+### Cleanup rule
+- If you created a new helper file but ended up not using it: delete it before finishing.
+- No orphaned files.

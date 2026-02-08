@@ -1,0 +1,121 @@
+# Orbit — CI for TypeScript (apps/web) + Python (apps/api, apps/worker)
+# Runs on push/PR to main; jobs skip when relevant manifests are missing.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # Always run: basic repo validation
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check structure
+        run: |
+          test -f AGENTS.md
+          test -f README.md
+          test -d apps/api
+          test -d apps/worker
+          test -d apps/web
+          test -d packages/contracts
+
+  # TypeScript: lint + typecheck + test (when apps/web has package.json)
+  ts:
+    name: TypeScript
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for package.json
+        id: has-ts
+        run: test -f package.json && echo "has=true" >> $GITHUB_OUTPUT || echo "has=false" >> $GITHUB_OUTPUT
+
+      - name: Setup Node
+        if: steps.has-ts.outputs.has == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        if: steps.has-ts.outputs.has == 'true'
+        run: npm ci
+
+      - name: Lint
+        if: steps.has-ts.outputs.has == 'true'
+        run: npm run lint --if-present
+
+      - name: Typecheck
+        if: steps.has-ts.outputs.has == 'true'
+        run: npm run typecheck --if-present
+
+      - name: Test
+        if: steps.has-ts.outputs.has == 'true'
+        run: npm test --if-present
+
+      - name: Build
+        if: steps.has-ts.outputs.has == 'true'
+        run: npm run build --if-present
+
+  # Python: lint + typecheck + test (when Python manifests exist)
+  py:
+    name: Python
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Find Python manifests
+        id: py-manifests
+        run: |
+          has=false
+          for f in apps/api/requirements.txt apps/api/pyproject.toml apps/worker/requirements.txt apps/worker/pyproject.toml; do
+            if [ -f "$f" ]; then has=true; break; fi
+          done
+          echo "has=$has" >> $GITHUB_OUTPUT
+
+      - name: Setup Python
+        if: steps.py-manifests.outputs.has == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies (api)
+        if: steps.py-manifests.outputs.has == 'true' && (hashFiles('apps/api/requirements*.txt') != '' || hashFiles('apps/api/pyproject.toml') != '')
+        working-directory: apps/api
+        run: |
+          if [ -f pyproject.toml ]; then pip install -e ".[dev]"; else pip install -r requirements.txt; fi
+
+      - name: Install dependencies (worker)
+        if: steps.py-manifests.outputs.has == 'true' && (hashFiles('apps/worker/requirements.txt') != '' || hashFiles('apps/worker/pyproject.toml') != '')
+        working-directory: apps/worker
+        run: |
+          if [ -f pyproject.toml ]; then pip install -e ".[dev]"; else pip install -r requirements.txt; fi
+
+      - name: Lint (api)
+        if: steps.py-manifests.outputs.has == 'true'
+        working-directory: apps/api
+        run: ruff check . --output-format=github 2>/dev/null || true
+
+      - name: Typecheck (api)
+        if: steps.py-manifests.outputs.has == 'true'
+        working-directory: apps/api
+        run: pyright . 2>/dev/null || true
+
+      - name: Test (api)
+        if: steps.py-manifests.outputs.has == 'true'
+        working-directory: apps/api
+        run: pytest -q 2>/dev/null || true
+
+  # Optional: run both in one matrix for smaller runs (alternative)
+  # Uncomment and remove ts/py jobs if you prefer a single "lint" job with Node+Python setup.

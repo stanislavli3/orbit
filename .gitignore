@@ -1,0 +1,63 @@
+# Orbit
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Storage (local dev); keep directory, ignore contents
+storage/*
+!storage/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.venv/
+venv/
+ENV/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+.nuxt/
+.cache/
+*.tsbuildinfo
+
+# IDE / editor
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs / temp
+*.log
+*.tmp
+.cache/
+
+# Eval / test outputs (optional; uncomment if you want to ignore)
+# eval/output/
+# eval/golden/actual/
