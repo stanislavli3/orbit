@@ -16,6 +16,7 @@ Goal: fast iteration WITHOUT corrupting data or inventing facts.
 - If not supported by evidence: output **"Unknown"** (never guess).
 - Keep changes **small and local** (small diffs, small files, minimal rewrites).
 - Add/adjust tests when behavior changes.
+- Run the relevant automated tests locally before pushing or opening a PR (for `apps/web/`, at minimum `cd apps/web && npm run build`).
 
 ### Never
 - Never fabricate dimensions, materials, tolerances, revisions, part numbers, or units.
@@ -182,7 +183,7 @@ This repo is intentionally minimal. Follow these rules so we don’t create a me
   - Executable apps only.
   - `apps/api/` = Python backend (FastAPI). Routes + services. No extraction logic here.
   - `apps/worker/` = Python extraction runner (parsers + AI merge + validation). All extraction happens here.
-  - `apps/web/` = TypeScript frontend (Next.js). UI only.
+  - `apps/web/` = TypeScript frontend (Vite React). UI only. Run `npm run build` before pushing changes here so CI/frontend stay green.
 
 - `packages/`
   - Shared, reusable code only.

@@ -26,9 +26,9 @@ jobs:
           test -d apps/web
           test -d packages/contracts
 
-  # TypeScript: lint + typecheck + test (when apps/web has package.json)
-  ts:
-    name: TypeScript
+  # Frontend (apps/web): install + build/test TypeScript UI (when apps/web has package.json)
+  frontend:
+    name: Frontend (apps/web)
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -50,7 +50,12 @@ jobs:
 
       - name: Install dependencies
         if: steps.has-ts.outputs.has == 'true'
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
       - name: Lint
         if: steps.has-ts.outputs.has == 'true'
