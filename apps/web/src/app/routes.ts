@@ -4,8 +4,13 @@ import { AssistantPage } from './components/AssistantPage';
 import { VaultPage } from './components/VaultPage';
 import { HistoryPage } from './components/HistoryPage';
 import { ProjectDetailPage } from './components/ProjectDetailPage';
+import { SignInPage } from './components/SignInPage';
 
 export const router = createBrowserRouter([
+  {
+    path: '/signin',
+    Component: SignInPage,
+  },
   {
     path: '/',
     Component: Root,

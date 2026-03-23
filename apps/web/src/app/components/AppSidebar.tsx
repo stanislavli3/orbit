@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronLeft,
   User,
+  LogOut,
   Clock,
   Star,
   FolderOpen,
@@ -559,9 +560,15 @@ const iconNavItems = [
 
 function IconNavigation({ activeSection }: { activeSection: string }) {
   const navigate = useNavigate();
+  const [showSignOut, setShowSignOut] = useState(false);
+
+  const handleSignOut = () => {
+    setShowSignOut(false);
+    navigate('/signin');
+  };
 
   return (
-    <div className="bg-[#F4F4F4] flex flex-col gap-2 h-full items-center justify-start overflow-hidden p-3 relative shrink-0 w-16 border-r border-[#E6E6E6]">
+    <div className="bg-[#F4F4F4] flex flex-col gap-2 h-full items-center justify-start overflow-visible p-3 relative shrink-0 w-16 border-r border-[#E6E6E6] z-50">
       {/* Logo */}
       <div className="mb-2 size-10 flex items-center justify-center">
         <OrbitLogo />
@@ -593,8 +600,39 @@ function IconNavigation({ activeSection }: { activeSection: string }) {
         >
           <Settings size={16} />
         </IconNavButton>
-        <div className="size-8 bg-[#E6E6E6] rounded-full flex items-center justify-center border border-[#D1D1D1]">
-          <User size={14} className="text-[#6B7280]" />
+
+        {/* Avatar with sign-out popover */}
+        <div className="relative">
+          {showSignOut && (
+            <>
+              {/* Backdrop to close on outside click */}
+              <div
+                className="fixed inset-0 z-10"
+                onClick={() => setShowSignOut(false)}
+              />
+              {/* Popover */}
+              <div className="absolute bottom-0 left-full ml-2 z-20 bg-white border border-[#E6E6E6] rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.10)] overflow-hidden w-36">
+                <button
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[#111111] hover:bg-[#F7F7F7] transition-colors duration-100"
+                >
+                  <LogOut size={14} className="text-[#6B7280] shrink-0" />
+                  Sign out
+                </button>
+              </div>
+            </>
+          )}
+          <button
+            onClick={() => setShowSignOut((v) => !v)}
+            title="Account"
+            className={`size-8 rounded-full flex items-center justify-center border transition-all duration-150 ${
+              showSignOut
+                ? 'bg-[#111111] border-[#111111]'
+                : 'bg-[#E6E6E6] border-[#D1D1D1] hover:bg-[#D9D9D9] hover:border-[#BEBEBE]'
+            }`}
+          >
+            <User size={14} className={showSignOut ? 'text-white' : 'text-[#6B7280]'} />
+          </button>
         </div>
       </div>
     </div>
