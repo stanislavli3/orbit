@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
@@ -35,7 +34,7 @@ class FileUploadView(APIView):
 
         file_record = UploadedFile.objects.create(
             project=project,
-            uploaded_by=user,
+            uploaded_by=request.user,
             original_name=uploaded_file.name,
             file_type=file_type,
             s3_key=s3_key,
@@ -48,9 +47,14 @@ class FileUploadView(APIView):
 
 
 class ProjectFileListView(APIView):
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request, project_id):
-        files = UploadedFile.objects.filter(project_id=project_id).order_by("-created_at")
+        try:
+            project = Project.objects.get(id=project_id, owner=request.user)
+        except Project.DoesNotExist:
+            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        files = UploadedFile.objects.filter(project=project).order_by("-created_at")
         serializer = UploadedFileSerializer(files, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
