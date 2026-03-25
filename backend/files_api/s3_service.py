@@ -3,6 +3,7 @@ import uuid
 import boto3
 from botocore.client import Config
 
+
 def get_s3_client():
     return boto3.client(
         "s3",
@@ -12,6 +13,7 @@ def get_s3_client():
         region_name=os.getenv("AWS_S3_REGION_NAME"),
         config=Config(signature_version="s3v4"),
     )
+
 
 def upload_file_to_s3(file_obj, project_id):
     s3 = get_s3_client()

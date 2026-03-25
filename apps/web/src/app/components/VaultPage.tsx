@@ -1,26 +1,41 @@
-import { Search, FolderPlus, Database } from 'lucide-react';
+import { Search, FolderPlus, Database, Folder } from 'lucide-react';
 import { TopBar } from './TopBar';
 import { ActionCard } from './ActionCard';
 import { ProjectCard } from './ProjectCard';
 import { Link } from 'react-router';
+import { useQuery } from '@tanstack/react-query';
+import { useApiClient } from '../../api/client';
+import type { Project } from '../../api/types';
 
-const projects = [
-  { id: 'gearbox-assembly', name: 'Gearbox Assembly', fileCount: 47, status: 'Extracted' as const },
-  { id: 'pump-housing', name: 'Pump Housing Rev B', fileCount: 23, status: 'Processing' as const },
-  { id: 'sheet-metal', name: 'Sheet Metal Brackets', fileCount: 156 },
-  { id: 'fastener-library', name: 'Fastener Library', fileCount: 892 },
-  { id: 'test-fixtures', name: 'Test Fixtures', fileCount: 34 },
-  { id: 'supplier-drawings', name: 'Supplier Drawings', fileCount: 67, status: 'Extracted' as const },
-];
+function SkeletonCard() {
+  return (
+    <div className="bg-white border border-[#E6E6E6] rounded-xl p-5 animate-pulse">
+      <div className="w-10 h-10 bg-[#F4F4F4] rounded-lg mb-4" />
+      <div className="h-4 bg-[#F4F4F4] rounded w-3/4 mb-2" />
+      <div className="h-3 bg-[#F4F4F4] rounded w-1/2" />
+    </div>
+  );
+}
 
 export function VaultPage() {
+  const apiFetch = useApiClient();
+
+  const { data: projects, isLoading, isError } = useQuery<Project[]>({
+    queryKey: ['projects'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/projects/');
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      return res.json();
+    },
+  });
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
-      <TopBar 
-        title="Vault" 
+      <TopBar
+        title="Vault"
         subtitle="Upload, store, and analyze engineering files and their extracted profiles."
       />
-      
+
       <div className="flex-1 overflow-auto">
         <div className="max-w-[1400px] mx-auto px-8 py-8">
           {/* Action Cards */}
@@ -50,7 +65,7 @@ export function VaultPage() {
                 Shared with you
               </button>
             </div>
-            
+
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
               <input
@@ -62,17 +77,41 @@ export function VaultPage() {
           </div>
 
           {/* Project Grid */}
-          <div className="grid grid-cols-4 gap-4">
-            {projects.map((project) => (
-              <Link key={project.id} to={`/project/${project.id}`}>
-                <ProjectCard
-                  name={project.name}
-                  fileCount={project.fileCount}
-                  status={project.status}
-                />
-              </Link>
-            ))}
-          </div>
+          {isLoading && (
+            <div className="grid grid-cols-4 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+            </div>
+          )}
+
+          {isError && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <p className="text-[#111111] font-medium mb-1">Failed to load projects</p>
+              <p className="text-[#6B7280] text-sm">Check that the API server is running on port 8000.</p>
+            </div>
+          )}
+
+          {projects && projects.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <div className="w-12 h-12 bg-[#F4F4F4] rounded-xl flex items-center justify-center mb-4">
+                <Folder className="w-6 h-6 text-[#6B7280]" strokeWidth={1.5} />
+              </div>
+              <p className="text-[#111111] font-medium mb-1">No projects yet</p>
+              <p className="text-[#6B7280] text-sm">Create a project to get started.</p>
+            </div>
+          )}
+
+          {projects && projects.length > 0 && (
+            <div className="grid grid-cols-4 gap-4">
+              {projects.map((project) => (
+                <Link key={project.id} to={`/project/${project.id}`}>
+                  <ProjectCard
+                    name={project.name}
+                    fileCount={project.file_count}
+                  />
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

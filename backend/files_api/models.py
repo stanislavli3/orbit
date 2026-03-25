@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from projects.models import Project
 
+
 class UploadedFile(models.Model):
     STATUS_CHOICES = [
         ("uploaded", "Uploaded"),
@@ -11,7 +12,9 @@ class UploadedFile(models.Model):
     ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="files")
-    uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="uploaded_files")
+    uploaded_by = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="uploaded_files"
+    )
     original_name = models.CharField(max_length=255)
     file_type = models.CharField(max_length=50, blank=True)
     s3_key = models.CharField(max_length=500, unique=True)
