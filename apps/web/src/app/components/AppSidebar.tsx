@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { UserButton } from "@clerk/clerk-react";
 import {
   Bot,
   Vault,
@@ -593,9 +594,7 @@ function IconNavigation({ activeSection }: { activeSection: string }) {
         >
           <Settings size={16} />
         </IconNavButton>
-        <div className="size-8 bg-[#E6E6E6] rounded-full flex items-center justify-center border border-[#D1D1D1]">
-          <User size={14} className="text-[#6B7280]" />
-        </div>
+        <UserButton />
       </div>
     </div>
   );
