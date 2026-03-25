@@ -3,6 +3,7 @@ import jwt
 from django.contrib.auth.models import User
 
 CLERK_JWT_KEY = os.getenv("CLERK_JWT_KEY")
+CLERK_ISSUER = os.getenv("CLERK_ISSUER")
 
 def verify_clerk_token(token: str):
     if not CLERK_JWT_KEY:
@@ -12,7 +13,7 @@ def verify_clerk_token(token: str):
         token,
         CLERK_JWT_KEY,
         algorithms=["RS256"],
-        options={"verify_aud": False},
+        issuer=CLERK_ISSUER,
     )
     return payload
 
