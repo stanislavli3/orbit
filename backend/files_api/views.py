@@ -22,21 +22,33 @@ class FileUploadView(APIView):
         project_id = request.data.get("project_id")
 
         if not uploaded_file:
-            return Response({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         if not project_id:
-            return Response({"error": "No project_id provided"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "No project_id provided"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         if uploaded_file.size > MAX_UPLOAD_BYTES:
             return Response(
-                {"error": f"File exceeds maximum allowed size of {MAX_UPLOAD_BYTES // 1_000_000} MB"},
+                {
+                    "error": f"File exceeds maximum allowed size of {MAX_UPLOAD_BYTES // 1_000_000} MB"
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        ext = uploaded_file.name.rsplit(".", 1)[-1].lower() if "." in uploaded_file.name else ""
+        ext = (
+            uploaded_file.name.rsplit(".", 1)[-1].lower()
+            if "." in uploaded_file.name
+            else ""
+        )
         if ext not in ALLOWED_EXTENSIONS:
             return Response(
-                {"error": f"Unsupported file type '.{ext}'. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}"},
+                {
+                    "error": f"Unsupported file type '.{ext}'. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -65,7 +77,9 @@ class ProjectFileListView(APIView):
         try:
             project = Project.objects.get(id=project_id, owner=request.user)
         except Project.DoesNotExist:
-            return Response({"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND
+            )
 
         files = UploadedFile.objects.filter(project=project).order_by("-created_at")
         serializer = UploadedFileSerializer(files, many=True)

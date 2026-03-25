@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class FilesApiConfig(AppConfig):
-    name = 'files_api'
+    name = "files_api"
