@@ -1,0 +1,9 @@
+# Dev / CI dependencies — not needed in production
+-r requirements.txt
+
+# Linting & formatting
+ruff==0.9.10
+
+# Testing
+pytest==8.3.5
+pytest-django==4.10.0

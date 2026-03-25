@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import UploadedFile
 
+
 class UploadedFileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UploadedFile
@@ -10,7 +11,6 @@ class UploadedFileSerializer(serializers.ModelSerializer):
             "uploaded_by",
             "original_name",
             "file_type",
-            "s3_key",
             "file_size",
             "status",
             "created_at",
@@ -20,7 +20,6 @@ class UploadedFileSerializer(serializers.ModelSerializer):
             "uploaded_by",
             "original_name",
             "file_type",
-            "s3_key",
             "file_size",
             "status",
             "created_at",

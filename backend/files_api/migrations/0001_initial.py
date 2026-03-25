@@ -6,27 +6,60 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('projects', '0001_initial'),
+        ("projects", "0001_initial"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UploadedFile',
+            name="UploadedFile",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('original_name', models.CharField(max_length=255)),
-                ('file_type', models.CharField(blank=True, max_length=50)),
-                ('s3_key', models.CharField(max_length=500, unique=True)),
-                ('file_size', models.BigIntegerField()),
-                ('status', models.CharField(choices=[('uploaded', 'Uploaded'), ('processing', 'Processing'), ('processed', 'Processed'), ('failed', 'Failed')], default='uploaded', max_length=20)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='files', to='projects.project')),
-                ('uploaded_by', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='uploaded_files', to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("original_name", models.CharField(max_length=255)),
+                ("file_type", models.CharField(blank=True, max_length=50)),
+                ("s3_key", models.CharField(max_length=500, unique=True)),
+                ("file_size", models.BigIntegerField()),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[
+                            ("uploaded", "Uploaded"),
+                            ("processing", "Processing"),
+                            ("processed", "Processed"),
+                            ("failed", "Failed"),
+                        ],
+                        default="uploaded",
+                        max_length=20,
+                    ),
+                ),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                (
+                    "project",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="files",
+                        to="projects.project",
+                    ),
+                ),
+                (
+                    "uploaded_by",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="uploaded_files",
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
         ),
     ]
