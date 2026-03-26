@@ -5,11 +5,16 @@ import { VaultPage } from './components/VaultPage';
 import { HistoryPage } from './components/HistoryPage';
 import { ProjectDetailPage } from './components/ProjectDetailPage';
 import { SignInPage } from './components/SignInPage';
+import { SsoCallbackPage } from './components/SsoCallbackPage';
 
 export const router = createBrowserRouter([
   {
     path: '/signin',
     Component: SignInPage,
+  },
+  {
+    path: '/sso-callback',
+    Component: SsoCallbackPage,
   },
   {
     path: '/',
