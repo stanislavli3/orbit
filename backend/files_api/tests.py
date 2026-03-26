@@ -34,7 +34,9 @@ def uploaded_file(db, project, user):
 @pytest.fixture
 def mock_s3():
     """Prevent any real S3 calls during tests."""
-    with patch("files_api.views.upload_file_to_s3", return_value="projects/test/fake.step") as m:
+    with patch(
+        "files_api.views.upload_file_to_s3", return_value="projects/test/fake.step"
+    ) as m:
         yield m
 
 
@@ -114,7 +116,9 @@ def test_file_upload_rejects_missing_project_id(auth_client):
 
 @pytest.mark.django_db
 def test_file_upload_rejects_disallowed_extension(auth_client, project):
-    bad_file = SimpleUploadedFile("malware.exe", b"MZ", content_type="application/octet-stream")
+    bad_file = SimpleUploadedFile(
+        "malware.exe", b"MZ", content_type="application/octet-stream"
+    )
     response = auth_client.post(
         "/api/files/upload/",
         {"file": bad_file, "project_id": project.id},
@@ -139,9 +143,14 @@ def test_file_upload_rejects_other_users_project(auth_client, other_project):
 def test_file_upload_rejects_oversized_file(auth_client, project, monkeypatch):
     """Files exceeding MAX_UPLOAD_BYTES must be rejected before reaching S3."""
     import files_api.views as views_module
+
     monkeypatch.setattr(views_module, "MAX_UPLOAD_BYTES", 10)
 
-    big_file = SimpleUploadedFile("big.step", b"ISO-10303-21;" + b"x" * 100, content_type="application/octet-stream")
+    big_file = SimpleUploadedFile(
+        "big.step",
+        b"ISO-10303-21;" + b"x" * 100,
+        content_type="application/octet-stream",
+    )
     response = auth_client.post(
         "/api/files/upload/",
         {"file": big_file, "project_id": project.id},
@@ -165,5 +174,7 @@ def test_file_upload_success(auth_client, project, mock_s3):
     assert data["file_type"] == "step"
     assert data["status"] == "uploaded"
     assert "s3_key" not in data
-    assert UploadedFile.objects.filter(project=project, original_name="part.step").exists()
+    assert UploadedFile.objects.filter(
+        project=project, original_name="part.step"
+    ).exists()
     mock_s3.assert_called_once()

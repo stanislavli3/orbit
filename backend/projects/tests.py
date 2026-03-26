@@ -12,7 +12,9 @@ def project(db, user):
 
 @pytest.fixture
 def other_project(db, other_user):
-    return Project.objects.create(name="Other Project", description="", owner=other_user)
+    return Project.objects.create(
+        name="Other Project", description="", owner=other_user
+    )
 
 
 # ── List ───────────────────────────────────────────────────────────────────
@@ -53,7 +55,9 @@ def test_project_create_requires_auth(api_client):
 
 @pytest.mark.django_db
 def test_project_create_sets_owner(auth_client, user):
-    response = auth_client.post("/api/projects/", {"name": "New Project"}, format="json")
+    response = auth_client.post(
+        "/api/projects/", {"name": "New Project"}, format="json"
+    )
     assert response.status_code == 201
     assert response.json()["owner"] == user.id
     assert Project.objects.filter(name="New Project", owner=user).exists()
