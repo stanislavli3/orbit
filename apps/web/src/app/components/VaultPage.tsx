@@ -1,11 +1,20 @@
+'use client';
+import { useState } from 'react';
 import { Search, FolderPlus, Database, Folder } from 'lucide-react';
 import { TopBar } from './TopBar';
 import { ActionCard } from './ActionCard';
 import { ProjectCard } from './ProjectCard';
 import { Link } from 'react-router';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
 import type { Project } from '../../api/types';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from '../components/ui/dialog';
 
 function SkeletonCard() {
   return (
@@ -19,6 +28,12 @@ function SkeletonCard() {
 
 export function VaultPage() {
   const apiFetch = useApiClient();
+  const queryClient = useQueryClient();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [projectName, setProjectName] = useState('');
+  const [projectDesc, setProjectDesc] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [createError, setCreateError] = useState('');
 
   const { data: projects, isLoading, isError } = useQuery<Project[]>({
     queryKey: ['projects'],
@@ -28,6 +43,30 @@ export function VaultPage() {
       return res.json();
     },
   });
+
+  const handleCreateProject = async () => {
+    if (!projectName.trim()) return;
+    setSubmitting(true);
+    setCreateError('');
+    try {
+      const res = await apiFetch('/api/projects/', {
+        method: 'POST',
+        body: JSON.stringify({ name: projectName.trim(), description: projectDesc.trim() }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.name?.[0] ?? `Error ${res.status}`);
+      }
+      await queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setDialogOpen(false);
+      setProjectName('');
+      setProjectDesc('');
+    } catch (err) {
+      setCreateError(err instanceof Error ? err.message : 'Failed to create project');
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
@@ -44,6 +83,7 @@ export function VaultPage() {
               icon={FolderPlus}
               title="Create project"
               description="Upload a new collection of parts, drawings, and assemblies."
+              onClick={() => setDialogOpen(true)}
             />
             <ActionCard
               icon={Database}
@@ -96,7 +136,7 @@ export function VaultPage() {
                 <Folder className="w-6 h-6 text-[#6B7280]" strokeWidth={1.5} />
               </div>
               <p className="text-[#111111] font-medium mb-1">No projects yet</p>
-              <p className="text-[#6B7280] text-sm">Create a project to get started.</p>
+              <p className="text-[#6B7280] text-sm">Click "Create project" to get started.</p>
             </div>
           )}
 
@@ -114,6 +154,61 @@ export function VaultPage() {
           )}
         </div>
       </div>
+
+      {/* Create Project Dialog */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create project</DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            {createError && (
+              <p className="text-sm text-[#DC2626] bg-[#FEF2F2] border border-[#FECACA] rounded-lg px-3 py-2">
+                {createError}
+              </p>
+            )}
+            <div className="space-y-1.5">
+              <label className="text-[#374151] text-xs font-medium">Project name</label>
+              <input
+                type="text"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleCreateProject()}
+                placeholder="e.g. Gearbox Assembly Rev B"
+                autoFocus
+                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[#374151] text-xs font-medium">Description <span className="text-[#9CA3AF]">(optional)</span></label>
+              <textarea
+                value={projectDesc}
+                onChange={(e) => setProjectDesc(e.target.value)}
+                placeholder="What is this project for?"
+                rows={3}
+                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all resize-none"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <button
+              onClick={() => setDialogOpen(false)}
+              className="px-4 py-2 text-sm text-[#6B7280] hover:text-[#111111] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCreateProject}
+              disabled={!projectName.trim() || submitting}
+              className="px-4 py-2 bg-[#111111] text-white text-sm font-medium rounded-lg hover:bg-[#1F1F1F] disabled:opacity-50 transition-colors"
+            >
+              {submitting ? 'Creating...' : 'Create project'}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

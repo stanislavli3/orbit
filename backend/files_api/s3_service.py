@@ -28,3 +28,10 @@ def upload_file_to_s3(file_obj, project_id):
     s3.upload_fileobj(file_obj, bucket_name, key)
 
     return key
+
+
+def download_file_from_s3(s3_key: str) -> bytes:
+    s3 = get_s3_client()
+    bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    response = s3.get_object(Bucket=bucket_name, Key=s3_key)
+    return response["Body"].read()
