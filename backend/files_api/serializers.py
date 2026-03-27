@@ -10,6 +10,7 @@ class UploadedFileSerializer(serializers.ModelSerializer):
             "project",
             "uploaded_by",
             "original_name",
+            "description",
             "file_type",
             "file_size",
             "status",

@@ -16,6 +16,7 @@ class UploadedFile(models.Model):
         User, on_delete=models.CASCADE, related_name="uploaded_files"
     )
     original_name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
     file_type = models.CharField(max_length=50, blank=True)
     s3_key = models.CharField(max_length=500, unique=True)
     file_size = models.BigIntegerField()
@@ -24,3 +25,14 @@ class UploadedFile(models.Model):
 
     def __str__(self):
         return self.original_name
+
+
+class ExtractionResult(models.Model):
+    file = models.OneToOneField(
+        UploadedFile, on_delete=models.CASCADE, related_name="result"
+    )
+    result_json = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Result for {self.file.original_name}"
