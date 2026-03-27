@@ -1,97 +1,205 @@
 # Orbit
 
-## Tasks
-1. Database
-2. Python Django
-3. PRD for AI agent
-4. use localstack for MVP 
+Agentic metadata extraction for mechanical engineering files. Upload a STEP/CAD file, get an AI-generated description and structured extraction results back automatically.
 
+---
 
-1. Authentification
-2. Uploading files
-3. R&D AI
-4. 
+## Stack
 
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, TypeScript, Vite, Tailwind CSS, shadcn/ui, Clerk |
+| Backend | Python 3.11, Django 5, Django REST Framework |
+| Auth | Clerk (Google OAuth + email magic link) |
+| Storage | AWS S3 (LocalStack for local dev) |
+| AI | Claude Haiku (auto-generated file descriptions) |
 
-Bash Check project structure and docker-compose
-IN
-cat docker-compose.yml 2>/dev/null || echo "no docker-compose.yml at root" && ls
+---
 
-OUT
-version: "3.8"
+## Prerequisites
 
-services:
-  localstack:
-    image: localstack/localstack:latest
-    container_name: localstack
-    ports:
-      - "4566:4566"
-    environment:
-      - SERVICES=s3,dynamodb
-      - DEBUG=1
-      - AWS_DEFAULT_REGION=us-east-1
-    volumes:
-      - ./localstack-data:/var/lib/localstack
-      - /var/run/docker.sock:/var/run/docker.sockAGENTS.md
-LICENSE
-README.md
-apps
-backend
-docker-compose.yml
-docs
-eval
-infra
-localstack-data
-packages
-prompts
-storage
-tasks
-Bash Check running Docker containers
-IN
-docker ps --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}" 2>/dev/null
+- Python 3.11+
+- Node.js 18+
+- Docker (for LocalStack S3)
+- A [Clerk](https://clerk.com) application (free tier is fine)
+- An [Anthropic API key](https://console.anthropic.com) (optional — upload works without it, AI descriptions will be skipped)
 
-OUT
-Tool permission request failed: Error: Stream closed
-Bash Check Docker Compose service status
-IN
-docker compose ps 2>&1 | head -20
+---
 
-OUT
-Tool permission request failed: Error: Stream closed
-Bash Check backend env vars (non-sensitive)
-IN
-cat /Users/stanislav/orbit/backend/.env 2>/dev/null | grep -v "KEY\|SECRET\|PASSWORD" || echo "no .env or sensitive only"
+## 1. Clone and install
 
-OUT
+```bash
+git clone https://github.com/stanislavli3/orbit.git
+cd orbit
+```
+
+### Backend dependencies
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### Frontend dependencies
+
+```bash
+cd apps/web
+npm install
+```
+
+---
+
+## 2. Environment variables
+
+### Backend — `backend/.env`
+
+Copy and fill in:
+
+```env
 DEBUG=True
+SECRET_KEY=replace-with-a-long-random-string
 ALLOWED_HOSTS=127.0.0.1,localhost
 
-# Clerk — fill in from Clerk Dashboard
-CLERK_ISSUER=
+# Clerk — Dashboard → API Keys → JWT public key (PEM format)
+CLERK_JWT_KEY=-----BEGIN PUBLIC KEY-----\n...\n-----END PUBLIC KEY-----
+CLERK_ISSUER=https://<your-clerk-domain>.clerk.accounts.dev
 
 # CORS
 CORS_ALLOWED_ORIGINS=http://localhost:5173
 
-# LocalStack S3 (docker compose up)
+# LocalStack S3 (matches docker-compose.yml)
 AWS_S3_ENDPOINT_URL=http://localhost:4566
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
 AWS_S3_REGION_NAME=us-east-1
 AWS_STORAGE_BUCKET_NAME=orbit-local
-To run the full stack you need 3 services. Here's the startup order:
 
-1. LocalStack (S3)
+# AI descriptions (optional — skip to disable)
+ANTHROPIC_API_KEY=sk-ant-...
+```
 
+### Frontend — `apps/web/.env`
 
-cd /Users/stanislav/orbit
+```bash
+cp apps/web/.env.example apps/web/.env
+```
+
+Then fill in:
+
+```env
+# Clerk — Dashboard → API Keys → Publishable key
+VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
+
+# Django backend
+VITE_API_URL=http://localhost:8000
+```
+
+---
+
+## 3. Start LocalStack (S3)
+
+```bash
+# from repo root
 docker compose up -d
-2. Django backend
+```
 
+Create the S3 bucket on first run:
 
-cd /Users/stanislav/orbit/backend
-source .env  # or set env vars manually
+```bash
+aws --endpoint-url=http://localhost:4566 s3 mb s3://orbit-local --region us-east-1
+```
+
+> If you don't have the AWS CLI, install it or use `pip install awscli-local` and replace `aws` with `awslocal`.
+
+---
+
+## 4. Run the backend
+
+```bash
+cd backend
+source .venv/bin/activate
+
+# Apply database migrations (first time and after pulls)
 python manage.py migrate
+
+# Start the dev server
 python manage.py runserver
-3. React frontend
+```
 
+Backend is now at **http://localhost:8000**
 
-cd /Users/stanislav/orbit/apps/web
+---
+
+## 5. Run the frontend
+
+```bash
+cd apps/web
 npm run dev
+```
+
+Frontend is now at **http://localhost:5173**
+
+---
+
+## 6. Full demo flow
+
+1. Open [http://localhost:5173](http://localhost:5173)
+2. Sign in with Google or email magic link
+3. Click **Create project** → enter a name → project appears in the grid
+4. Open the project → click **Upload files** → pick a `.step` or `.stp` file
+5. The file row shows a spinner while extraction runs in the background
+6. When done, status flips to **Extracted** and an AI-generated description appears below the filename
+7. Click the description to edit it inline
+8. Expand the file row (chevron) to see the full extraction result: schema, units, confidence score, warnings
+
+---
+
+## Project structure
+
+```
+orbit/
+├── apps/
+│   └── web/                  # React frontend (Vite)
+│       └── src/
+│           ├── api/           # API client + TypeScript types
+│           └── app/
+│               └── components/ # Pages and UI components
+├── backend/                   # Django backend
+│   ├── config/                # Settings, URLs, ASGI
+│   ├── files_api/             # File upload, extraction, AI description
+│   │   ├── extractor.py       # Pure-Python STEP header parser
+│   │   ├── ai_description.py  # Claude Haiku description generator
+│   │   ├── models.py          # UploadedFile, ExtractionResult
+│   │   ├── views.py           # Upload, result, description endpoints
+│   │   └── s3_service.py      # S3 upload/download helpers
+│   └── projects/              # Project CRUD
+├── docker-compose.yml         # LocalStack (S3)
+└── README.md
+```
+
+---
+
+## API endpoints
+
+| Method | Path | Description |
+|---|---|---|
+| `GET` | `/api/projects/` | List user's projects |
+| `POST` | `/api/projects/` | Create a project |
+| `GET` | `/api/projects/<id>/` | Get project detail |
+| `POST` | `/api/files/upload/` | Upload a file (multipart) |
+| `GET` | `/api/files/project/<id>/` | List files in a project |
+| `GET` | `/api/files/<id>/result/` | Get extraction result JSON |
+| `PATCH` | `/api/files/<id>/description/` | Update file description |
+
+All endpoints require a Clerk JWT in the `Authorization: Bearer <token>` header.
+
+---
+
+## Running tests
+
+```bash
+cd backend
+pytest
+```
