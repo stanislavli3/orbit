@@ -44,7 +44,9 @@ def generate_file_description(
     if confidence:
         known_facts.append(f"- Extraction confidence: {int(confidence * 100)}%")
 
-    facts_block = "\n".join(known_facts) if known_facts else "No header data could be parsed."
+    facts_block = (
+        "\n".join(known_facts) if known_facts else "No header data could be parsed."
+    )
 
     prompt = f"""You are an expert mechanical engineer reviewing a CAD file upload.
 

@@ -51,7 +51,9 @@ def extract_step_header(file_bytes: bytes) -> dict:
             "file_description": None,
             "units_hint": None,
             "confidence": 0.0,
-            "warnings": ["File does not appear to be a valid STEP (ISO-10303-21) file."],
+            "warnings": [
+                "File does not appear to be a valid STEP (ISO-10303-21) file."
+            ],
             "extracted_at": datetime.now(timezone.utc).isoformat(),
         }
 

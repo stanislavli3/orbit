@@ -30,6 +30,7 @@ def _run_extraction(file_id: int, s3_key: str, file_name: str, file_type: str):
     except Exception:
         UploadedFile.objects.filter(id=file_id).update(status="failed")
 
+
 ALLOWED_EXTENSIONS = {"step", "stp", "pdf", "dwg", "dxf", "iges", "igs"}
 
 
@@ -121,7 +122,9 @@ class FileDescriptionView(APIView):
         description = request.data.get("description", "")
         file_record.description = description
         file_record.save(update_fields=["description"])
-        return Response({"description": file_record.description}, status=status.HTTP_200_OK)
+        return Response(
+            {"description": file_record.description}, status=status.HTTP_200_OK
+        )
 
 
 class FileResultView(APIView):
