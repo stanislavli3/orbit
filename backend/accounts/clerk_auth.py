@@ -2,7 +2,7 @@ import os
 import jwt
 from django.contrib.auth.models import User
 
-CLERK_JWT_KEY = os.getenv("CLERK_JWT_KEY")
+CLERK_JWT_KEY = (os.getenv("CLERK_JWT_KEY") or "").replace("\\n", "\n") or None
 CLERK_ISSUER = os.getenv("CLERK_ISSUER")
 
 
