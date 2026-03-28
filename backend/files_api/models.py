@@ -36,3 +36,14 @@ class ExtractionResult(models.Model):
 
     def __str__(self):
         return f"Result for {self.file.original_name}"
+
+
+class FileEmbedding(models.Model):
+    file = models.OneToOneField(
+        UploadedFile, on_delete=models.CASCADE, related_name="embedding"
+    )
+    embedding_json = models.JSONField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Embedding for {self.file.original_name}"

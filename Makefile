@@ -8,10 +8,18 @@
 .PHONY: dev setup stop restart logs migrate help
 
 # ── Python resolution ──────────────────────────────────────────────────────────
-# Prefer the project venv; fall back to whatever `python` resolves to on PATH.
+# Prefer the project venv; otherwise fall back to python then python3 on PATH (handles spaces).
 VENV        := backend/.venv
-PYTHON      := $(shell [ -f $(VENV)/bin/python ] && echo $(VENV)/bin/python || echo python)
-PIP         := $(shell [ -f $(VENV)/bin/pip    ] && echo $(VENV)/bin/pip    || echo pip)
+PYTHON      := $(shell \
+	if [ -f $(VENV)/bin/python ]; then printf '%s' "$(abspath $(VENV))/bin/python"; \
+	elif command -v python >/dev/null 2>&1; then command -v python; \
+	elif command -v python3 >/dev/null 2>&1; then command -v python3; \
+	else printf '%s' python; fi)
+PIP         := $(shell \
+	if [ -f $(VENV)/bin/pip ]; then printf '%s' "$(abspath $(VENV))/bin/pip"; \
+	elif command -v pip >/dev/null 2>&1; then command -v pip; \
+	elif command -v pip3 >/dev/null 2>&1; then command -v pip3; \
+	else printf '%s' pip; fi)
 
 # ── Ports ──────────────────────────────────────────────────────────────────────
 BACKEND_PORT  := 8000
@@ -29,15 +37,15 @@ dev: _docker-up _bucket _migrate
 	@echo "  Press Ctrl+C to stop everything"
 	@echo ""
 	@trap 'echo "\nStopping..."; kill %1 %2 2>/dev/null; exit 0' INT; \
-	  (cd backend && $(PYTHON) manage.py runserver $(BACKEND_PORT) 2>&1 | sed 's/^/\033[34m[backend] \033[0m/') & \
+	  (cd backend && "$(PYTHON)" manage.py runserver $(BACKEND_PORT) 2>&1 | sed 's/^/\033[34m[backend] \033[0m/') & \
 	  (cd apps/web && npm run dev 2>&1 | sed 's/^/\033[32m[frontend]\033[0m /') & \
 	  wait
 
 ## setup: First-time install — create venv, install Python + Node deps, copy env files
 setup:
 	@echo "── Python environment ───────────────────────────────────"
-	python -m venv $(VENV)
-	$(PIP) install -r backend/requirements.txt -q
+	"$(PYTHON)" -m venv "$(VENV)"
+	"$(PIP)" install -r backend/requirements.txt -q
 	@echo "── Node dependencies ────────────────────────────────────"
 	cd apps/web && npm install
 	@echo "── Environment files ────────────────────────────────────"
@@ -87,7 +95,7 @@ _docker-up:
 	@echo " ready"
 
 _bucket:
-	@$(PYTHON) -c "\
+	@"$(PYTHON)" -c "\
 import boto3, sys; \
 c = boto3.client('s3', endpoint_url='http://localhost:4566', aws_access_key_id='test', aws_secret_access_key='test', region_name='us-east-1'); \
 names = [b['Name'] for b in c.list_buckets()['Buckets']]; \
@@ -96,4 +104,4 @@ print('S3 bucket ready')" 2>/dev/null || echo "S3 bucket check skipped (boto3 no
 
 _migrate:
 	@echo "── Running migrations ───────────────────────────────────"
-	@cd backend && $(PYTHON) manage.py migrate -q && echo "Migrations OK"
+	@cd backend && "$(PYTHON)" manage.py migrate --verbosity 0 && echo "Migrations OK"
