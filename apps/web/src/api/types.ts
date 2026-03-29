@@ -28,6 +28,16 @@ export interface ExtractionResult {
   extracted_at: string;
 }
 
+export interface HistoryEvent {
+  id: string;
+  type: 'upload' | 'export' | 'chat';
+  title: string;
+  project: string;
+  status: 'completed' | 'failed' | 'processing' | 'uploaded' | 'processed';
+  created_at: string;
+  detail: string;
+}
+
 export interface AssistantSourceFile {
   id: number;
   name: string;
