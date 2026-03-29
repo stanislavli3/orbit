@@ -1,3 +1,34 @@
+# Task — Assistant RAG feature
+- [x] Review backend/frontend state to align implementation approach
+- [x] Backend: add `assistant` app (models, rag logic, view, urls), register in settings/urls
+- [x] Backend: add `FileEmbedding` model + embedding helpers and hook into extraction flow
+- [x] Frontend: wire Assistant page to real API with session, markdown, sources, loading/error handling; add dependency
+- [x] Verification: migrations, API smoke, frontend build or lint; note follow-ups
+
+## Review — Assistant RAG feature
+- Added `assistant` app with chat session/message models, RAG utilities, and `/api/assistant/chat/` endpoint using Claude Sonnet with embedding fallback to hashed TF-IDF when API key is absent.
+- Added `FileEmbedding` model plus embedding generation in extraction flow; similarity via numpy cosine over stored vectors.
+- Frontend Assistant page now calls the API, streams markdown responses with source chips, keeps session IDs, handles loading/error (no API key), and sends suggested prompts immediately; new dependency `react-markdown`.
+- Ran `python manage.py migrate` (SQLite) to create new tables and `npm run build` for the web app.
+- Linters now clean: `ruff check .` and `npm run lint`.
+- Formatting clean: `ruff format --check .`.
+- Follow-ups: provide a real `ANTHROPIC_API_KEY` for live responses; re-process existing files to populate embeddings; optional: remove `version` field warning in docker-compose, run npm audit if desired.
+
+---
+
+# Task — README env files
+- [x] Confirm README environment requirements vs current env files
+- [x] Update `backend/.env` to match README (secret, hosts, Clerk issuer/JWT key, CORS origins, S3 defaults, optional Anthropic placeholder)
+- [x] Create/fill `apps/web/.env` with Clerk publishable key and API URL
+- [x] Verify values and note any missing real secrets needed from user
+
+## Review — README env files
+- Backend `.env` now mirrors README: new `SECRET_KEY`, CORS origins, LocalStack S3 (`orbit-local`), Clerk issuer/JWT placeholders, optional Anthropic key left blank.
+- Frontend `.env` added with placeholder `VITE_CLERK_PUBLISHABLE_KEY` and `VITE_API_URL=http://localhost:8000`.
+- Follow-up: replace Clerk placeholders with real publishable key and JWT public key; set `CLERK_ISSUER` to your actual Clerk issuer URL; add `ANTHROPIC_API_KEY` if AI descriptions are needed.
+
+---
+
 # Issue #18 — Replace hardcoded mock data with real API calls
 
 **Branch:** `feat/issue-18-real-api-data`

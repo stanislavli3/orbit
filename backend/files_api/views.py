@@ -1,3 +1,4 @@
+import json
 import os
 import threading
 
@@ -5,10 +6,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .models import UploadedFile, ExtractionResult
+from .models import UploadedFile, ExtractionResult, FileEmbedding
 from .serializers import UploadedFileSerializer
-from .s3_service import upload_file_to_s3
+from .s3_service import upload_file_to_s3, delete_file_from_s3, generate_presigned_url
 from projects.models import Project
+from .embeddings import generate_embedding
 
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_BYTES", 100_000_000))  # 100 MB default
 
@@ -27,6 +29,12 @@ def _run_extraction(file_id: int, s3_key: str, file_name: str, file_type: str):
         UploadedFile.objects.filter(id=file_id).update(
             status="processed", description=description
         )
+        embedding_payload = f"{file_name}\n{description}\n{json.dumps(result)}"
+        embedding_vector = generate_embedding(embedding_payload)
+        if embedding_vector:
+            FileEmbedding.objects.update_or_create(
+                file_id=file_id, defaults={"embedding_json": embedding_vector}
+            )
     except Exception:
         UploadedFile.objects.filter(id=file_id).update(status="failed")
 
@@ -142,3 +150,31 @@ class FileResultView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
         return Response(result.result_json, status=status.HTTP_200_OK)
+
+
+class FileDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, file_id):
+        file_record = get_object_or_404(
+            UploadedFile, id=file_id, project__owner=request.user
+        )
+        s3_key = file_record.s3_key
+        file_record.delete()
+        try:
+            delete_file_from_s3(s3_key)
+        except Exception:
+            # Best-effort delete; ignore S3 errors
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FileDownloadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, file_id):
+        file_record = get_object_or_404(
+            UploadedFile, id=file_id, project__owner=request.user
+        )
+        url = generate_presigned_url(file_record.s3_key)
+        return Response({"url": url}, status=status.HTTP_200_OK)

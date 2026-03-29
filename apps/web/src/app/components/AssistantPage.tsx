@@ -1,143 +1,158 @@
 import { Send, Sparkles, FileText, Search, Code, Lightbulb } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { TopBar } from './TopBar';
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useApiClient } from '../../api/client';
+import { AssistantResponse, AssistantSourceFile } from '../../api/types';
 
 const suggestedPrompts = [
   {
     icon: FileText,
-    title: 'Summarize this project',
-    description: 'Get a plain-English overview of all uploaded files',
-    color: 'bg-blue-50 text-blue-600',
+    title: 'Analyze drawing set',
+    description: 'Extract metadata from uploaded CAD files and drawings',
   },
   {
     icon: Search,
-    title: 'Find similar parts',
-    description: 'Search for components matching a specification',
-    color: 'bg-violet-50 text-violet-600',
+    title: 'Search for similar parts',
+    description: 'Find components with matching specifications',
   },
   {
     icon: Code,
     title: 'Generate JSON profile',
-    description: 'Create a canonical profile from engineering files',
-    color: 'bg-emerald-50 text-emerald-600',
+    description: 'Create canonical profiles from engineering files',
   },
   {
     icon: Lightbulb,
     title: 'Identify design patterns',
     description: 'Discover common elements across your projects',
-    color: 'bg-amber-50 text-amber-600',
   },
 ];
 
 interface Message {
+  id: string;
   role: 'user' | 'assistant';
   content: string;
+  sources?: AssistantSourceFile[];
+  isPending?: boolean;
 }
 
-function TypingIndicator() {
-  return (
-    <div className="flex items-center gap-1 px-1 py-0.5">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="w-1.5 h-1.5 bg-[#9CA3AF] rounded-full inline-block"
-          style={{ animation: `bounce 1.2s ease-in-out ${i * 0.2}s infinite` }}
-        />
-      ))}
-      <style>{`
-        @keyframes bounce {
-          0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
-          30% { transform: translateY(-4px); opacity: 1; }
-        }
-      `}</style>
-    </div>
-  );
-}
+const newId = (prefix: string) =>
+  `${prefix}-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now()}`;
 
 export function AssistantPage() {
+  const apiFetch = useApiClient();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [isSending, setIsSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const scrollToBottom = useCallback(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, []);
+  const sessionId = useMemo(
+    () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`),
+    []
+  );
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages, loading, scrollToBottom]);
-
-  const autoResize = useCallback(() => {
-    const el = textareaRef.current;
-    if (!el) return;
-    el.style.height = 'auto';
-    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
-  }, []);
-
-  const handleSend = useCallback(() => {
-    const text = input.trim();
-    if (!text || loading) return;
-    setMessages(prev => [...prev, { role: 'user', content: text }]);
-    setInput('');
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
+  const buildSources = (payload: AssistantResponse): AssistantSourceFile[] => {
+    if (payload.source_files?.length) return payload.source_files;
+    if (payload.sources?.length) {
+      return payload.sources.map((id) => ({ id, name: `File #${id}` }));
     }
-    setLoading(true);
-    setTimeout(() => {
-      setMessages(prev => [
-        ...prev,
-        {
-          role: 'assistant',
-          content:
-            'I can analyze your engineering files and extract structured metadata. Connect me to a project and I\'ll help you understand dimensions, materials, schemas, and design intent across your CAD library.',
-        },
-      ]);
-      setLoading(false);
-    }, 1200);
-  }, [input, loading]);
+    return [];
+  };
+
+  const replacePending = (
+    pendingId: string,
+    content: string,
+    sources: AssistantSourceFile[],
+    isError = false
+  ) => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === pendingId ? { ...msg, content, sources, isPending: false, role: 'assistant' } : msg
+      )
+    );
+    if (isError) {
+      setError(content);
+    }
+  };
+
+  const handleSend = async (customInput?: string) => {
+    const text = (customInput ?? input).trim();
+    if (!text || isSending) return;
+
+    const userMessage: Message = { id: newId('u'), role: 'user', content: text };
+    const pendingId = newId('a');
+
+    setMessages((prev) => [
+      ...prev,
+      userMessage,
+      { id: pendingId, role: 'assistant', content: '', isPending: true },
+    ]);
+    setInput('');
+    setIsSending(true);
+    setError(null);
+
+    try {
+      const response = await apiFetch('/api/assistant/chat/', {
+        method: 'POST',
+        body: JSON.stringify({
+          message: text,
+          session_id: sessionId,
+        }),
+      });
+
+      const data = (await response.json()) as AssistantResponse;
+      const sources = buildSources(data);
+
+      if (!response.ok) {
+        replacePending(pendingId, data.error || 'AI assistant is not configured.', sources, true);
+        return;
+      }
+
+      replacePending(pendingId, data.response, sources);
+    } catch {
+      replacePending(pendingId, 'AI assistant is not configured.', [], true);
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
-      <TopBar
-        title="Assistant"
+      <TopBar 
+        title="Assistant" 
         subtitle="Ask questions about your engineering files, extract metadata, and generate insights."
       />
-
-      <div className="flex-1 overflow-auto flex flex-col min-h-0">
+      
+      <div className="flex-1 overflow-auto flex flex-col">
         {messages.length === 0 ? (
           /* Empty State */
           <div className="flex-1 flex items-center justify-center px-8">
-            <div className="max-w-2xl w-full">
-              <div className="text-center mb-10">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-5 relative">
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-[#EBEBEB] to-[#E0E0E0] shadow-sm" />
-                  <div className="absolute inset-0.5 rounded-[14px] bg-gradient-to-br from-white to-[#F4F4F4]" />
-                  <Sparkles className="w-7 h-7 text-[#111111] relative z-10" strokeWidth={1.5} />
+            <div className="max-w-3xl w-full">
+              {/* Header */}
+              <div className="text-center mb-12">
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-[#F4F4F4] rounded-xl mb-4">
+                  <Sparkles className="w-7 h-7 text-[#111111]" strokeWidth={1.5} />
                 </div>
-                <h2 className="text-[#111111] text-[20px] font-semibold mb-2">How can I help?</h2>
-                <p className="text-[#9CA3AF] text-[13px] leading-relaxed max-w-sm mx-auto">
-                  Analyze CAD files, extract metadata, and surface insights from your engineering data.
+                <h2 className="text-[#111111] mb-2">How can I help you today?</h2>
+                <p className="text-[#6B7280] text-sm">
+                  I can analyze CAD files, extract metadata, and help you understand your engineering data.
                 </p>
               </div>
 
+              {/* Suggested Prompts */}
               <div className="grid grid-cols-2 gap-3">
                 {suggestedPrompts.map((prompt) => (
                   <button
                     key={prompt.title}
-                    onClick={() => {
-                      setInput(prompt.title);
-                      textareaRef.current?.focus();
-                    }}
-                    className="flex items-start gap-3.5 p-4 bg-white border border-[#E6E6E6] rounded-xl hover:border-[#C4C4C4] hover:shadow-sm transition-all text-left group"
+                    onClick={() => handleSend(prompt.title)}
+                    className="flex items-start gap-3 p-4 bg-white border border-[#E6E6E6] rounded-xl hover:bg-[#FAFAFA] transition-colors text-left"
                   >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 ${prompt.color}`}>
-                      <prompt.icon className="w-4 h-4" strokeWidth={1.5} />
+                    <div className="mt-0.5">
+                      <prompt.icon className="w-[18px] h-[18px] text-[#6B7280]" strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h4 className="text-[#111111] text-[13px] font-medium mb-0.5 group-hover:text-[#111111]">{prompt.title}</h4>
-                      <p className="text-[#9CA3AF] text-[11px] leading-relaxed">{prompt.description}</p>
+                      <h4 className="text-[#111111] text-[13px] mb-1">{prompt.title}</h4>
+                      <p className="text-[#6B7280] text-[12px] leading-relaxed">{prompt.description}</p>
                     </div>
                   </button>
                 ))}
@@ -146,80 +161,95 @@ export function AssistantPage() {
           </div>
         ) : (
           /* Conversation */
-          <div className="flex-1 px-8 py-6 overflow-auto">
-            <div className="max-w-2xl mx-auto space-y-5">
-              {messages.map((message, index) => (
+          <div className="flex-1 px-8 py-6">
+            <div className="max-w-3xl mx-auto space-y-6">
+              {error && (
+                <div className="bg-[#FFF5F5] border border-[#FEE2E2] text-[#B91C1C] px-4 py-3 rounded-lg text-sm">
+                  {error}
+                </div>
+              )}
+              {messages.map((message) => (
                 <div
-                  key={index}
-                  className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+                  key={message.id}
+                  className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {message.role === 'assistant' && (
-                    <div className="w-7 h-7 bg-[#111111] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <Sparkles className="w-3.5 h-3.5 text-white" strokeWidth={1.5} />
+                    <div className="w-8 h-8 bg-[#F4F4F4] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-4 h-4 text-[#111111]" strokeWidth={1.5} />
                     </div>
                   )}
                   <div
-                    className={`max-w-[78%] px-4 py-3 rounded-2xl text-[13px] leading-relaxed ${
+                    className={`max-w-[70%] px-4 py-3 rounded-xl ${
                       message.role === 'user'
-                        ? 'bg-[#111111] text-white rounded-br-sm'
-                        : 'bg-white border border-[#E6E6E6] text-[#111111] rounded-bl-sm shadow-sm'
+                        ? 'bg-[#111111] text-white'
+                        : 'bg-white border border-[#E6E6E6] text-[#111111]'
                     }`}
                   >
-                    {message.content}
+                    {message.isPending ? (
+                      <div className="flex gap-1 text-sm text-[#6B7280]">
+                        <span className="animate-pulse">•</span>
+                        <span className="animate-pulse" style={{ animationDelay: '0.1s' }}>•</span>
+                        <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>•</span>
+                      </div>
+                    ) : (
+                      <ReactMarkdown className="prose prose-sm max-w-none text-[14px] leading-relaxed">
+                        {message.content}
+                      </ReactMarkdown>
+                    )}
+                    {message.sources && message.sources.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-3">
+                        {message.sources.map((source) => (
+                          <span
+                            key={source.id}
+                            className="px-2 py-1 text-[11px] border border-[#E6E6E6] rounded-full bg-[#F9FAFB] text-[#111111]"
+                          >
+                            {source.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   {message.role === 'user' && (
-                    <div className="w-7 h-7 bg-[#F4F4F4] border border-[#E6E6E6] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                      <span className="text-[#6B7280] text-[11px] font-semibold">U</span>
+                    <div className="w-8 h-8 bg-[#E6E6E6] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-[#111111] text-sm font-medium">U</span>
                     </div>
                   )}
                 </div>
               ))}
-
-              {loading && (
-                <div className="flex gap-3 justify-start">
-                  <div className="w-7 h-7 bg-[#111111] rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <Sparkles className="w-3.5 h-3.5 text-white" strokeWidth={1.5} />
-                  </div>
-                  <div className="bg-white border border-[#E6E6E6] rounded-2xl rounded-bl-sm shadow-sm px-4 py-3.5">
-                    <TypingIndicator />
-                  </div>
-                </div>
-              )}
-
-              <div ref={bottomRef} />
             </div>
           </div>
         )}
 
         {/* Input Area */}
-        <div className="border-t border-[#E6E6E6] bg-white px-8 py-4 flex-shrink-0">
-          <div className="max-w-2xl mx-auto">
-            <div className="flex items-end gap-2.5 bg-white border border-[#E6E6E6] rounded-xl px-4 py-3 focus-within:border-[#C4C4C4] focus-within:shadow-sm transition-all">
-              <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => { setInput(e.target.value); autoResize(); }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleSend();
-                  }
-                }}
-                placeholder="Ask about your engineering files…"
-                rows={1}
-                className="flex-1 bg-transparent text-[13px] text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none resize-none leading-relaxed"
-                style={{ minHeight: '20px', maxHeight: '120px' }}
-              />
+        <div className="border-t border-[#E6E6E6] bg-white px-8 py-4">
+          <div className="max-w-3xl mx-auto">
+            <div className="flex items-end gap-3">
+              <div className="flex-1 relative">
+                <textarea
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      handleSend();
+                    }
+                  }}
+                  placeholder="Ask about your engineering files..."
+                  rows={1}
+                  className="w-full px-4 py-3 bg-white border border-[#E6E6E6] rounded-xl text-sm placeholder:text-[#6B7280] focus:outline-none focus:border-[#111111] transition-colors resize-none"
+                  style={{ minHeight: '44px', maxHeight: '120px' }}
+                />
+              </div>
               <button
-                onClick={handleSend}
-                disabled={!input.trim() || loading}
-                className="w-8 h-8 flex items-center justify-center bg-[#111111] text-white rounded-lg hover:bg-[#2A2A2A] disabled:bg-[#F4F4F4] disabled:text-[#C4C4C4] transition-all flex-shrink-0"
+                onClick={() => handleSend()}
+                disabled={!input.trim() || isSending}
+                className="w-11 h-11 flex items-center justify-center bg-[#111111] text-white rounded-xl hover:bg-[#2A2A2A] disabled:bg-[#E6E6E6] disabled:text-[#6B7280] transition-colors flex-shrink-0"
               >
-                <Send className="w-3.5 h-3.5" strokeWidth={1.5} />
+                <Send className="w-[18px] h-[18px]" strokeWidth={1.5} />
               </button>
             </div>
-            <p className="text-[#C4C4C4] text-[10px] mt-1.5 text-center">
-              Enter to send · Shift+Enter for new line
+            <p className="text-[#6B7280] text-[11px] mt-2 text-center">
+              Press Enter to send, Shift + Enter for new line
             </p>
           </div>
         </div>

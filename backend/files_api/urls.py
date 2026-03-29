@@ -4,6 +4,8 @@ from .views import (
     ProjectFileListView,
     FileDescriptionView,
     FileResultView,
+    FileDeleteView,
+    FileDownloadView,
 )
 
 urlpatterns = [
@@ -17,4 +19,6 @@ urlpatterns = [
         name="file-description",
     ),
     path("<int:file_id>/result/", FileResultView.as_view(), name="file-result"),
+    path("<int:file_id>/", FileDeleteView.as_view(), name="file-delete"),
+    path("<int:file_id>/download/", FileDownloadView.as_view(), name="file-download"),
 ]
