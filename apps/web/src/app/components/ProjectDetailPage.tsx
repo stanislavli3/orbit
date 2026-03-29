@@ -6,8 +6,7 @@ import { useApiClient } from '../../api/client';
 import type { Project, UploadedFile, ExtractionResult } from '../../api/types';
 import { toast } from 'sonner';
 
-type FileStatus = UploadedFile['status'] | 'uploading';
-type FileLike = UploadedFile & { status: FileStatus; optimistic?: boolean };
+type FileLike = UploadedFile & { optimistic?: boolean };
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -19,8 +18,8 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function FileStatusBadge({ status, optimistic }: { status: FileStatus; optimistic?: boolean }) {
-  if (status === 'uploading') {
+function FileStatusBadge({ status, optimistic }: { status: UploadedFile['status']; optimistic?: boolean }) {
+  if (optimistic) {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F4F4F4] text-[#6B7280]">
         <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />
@@ -244,7 +243,7 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
                 </button>
               </div>
             </div>
-          ) : file.status === 'processing' || file.status === 'uploaded' || file.status === 'uploading' ? (
+          ) : file.status === 'processing' || file.status === 'uploaded' || file.optimistic ? (
             <span className="text-[12px] text-[#9CA3AF] italic flex items-center gap-1.5">
               <Loader2 className="w-3 h-3 animate-spin" strokeWidth={1.5} />
               Generating description…
@@ -286,10 +285,6 @@ export function ProjectDetailPage() {
   const apiFetch = useApiClient();
   const queryClient = useQueryClient();
   const prevStatuses = useRef<Record<number, UploadedFile['status']>>({});
-  const combinedFiles = useMemo<FileLike[]>(
-    () => [...optimisticFiles, ...((files as FileLike[]) || [])],
-    [files, optimisticFiles],
-  );
 
   const { data: project, isLoading: projectLoading, isError: projectError } = useQuery<Project>({
     queryKey: ['project', id],
@@ -301,7 +296,11 @@ export function ProjectDetailPage() {
     enabled: !!id,
   });
 
-  const { data: files, isLoading: filesLoading, isError: filesError } = useQuery<UploadedFile[]>({
+  const {
+    data: files,
+    isLoading: filesLoading,
+    isError: filesError,
+  } = useQuery<UploadedFile[]>({
     queryKey: ['project-files', id],
     queryFn: async () => {
       const res = await apiFetch(`/api/files/project/${id}/`);
@@ -314,6 +313,11 @@ export function ProjectDetailPage() {
       return data?.some((f) => f.status === 'processing' || f.status === 'uploaded') ? 3000 : false;
     },
   });
+
+  const combinedFiles = useMemo<FileLike[]>(
+    () => [...optimisticFiles, ...(((files ?? []) as FileLike[]))],
+    [optimisticFiles, files],
+  );
 
   useEffect(() => {
     if (!files) return;
@@ -345,7 +349,7 @@ export function ProjectDetailPage() {
       description: '',
       file_type: file.name.includes('.') ? file.name.split('.').pop() || '' : '',
       file_size: file.size,
-      status: 'uploading',
+      status: 'uploaded',
       created_at: new Date().toISOString(),
       optimistic: true,
     };
