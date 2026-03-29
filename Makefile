@@ -10,7 +10,6 @@
 # ── Python resolution ──────────────────────────────────────────────────────────
 # Prefer the project venv; otherwise fall back to python then python3 on PATH (handles spaces).
 VENV        := backend/.venv
-<<<<<<< HEAD
 ifeq ($(OS),Windows_NT)
 PYTHON      := $(if $(wildcard $(VENV)/Scripts/python.exe),$(abspath $(VENV)/Scripts/python.exe),python)
 PIP         := $(if $(wildcard $(VENV)/Scripts/pip.exe),$(abspath $(VENV)/Scripts/pip.exe),pip)
@@ -19,18 +18,6 @@ else
 PYTHON      := $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,python)
 PIP         := $(if $(wildcard $(VENV)/bin/pip),$(VENV)/bin/pip,pip)
 endif
-=======
-PYTHON      := $(shell \
-	if [ -f $(VENV)/bin/python ]; then printf '%s' "$(abspath $(VENV))/bin/python"; \
-	elif command -v python >/dev/null 2>&1; then command -v python; \
-	elif command -v python3 >/dev/null 2>&1; then command -v python3; \
-	else printf '%s' python; fi)
-PIP         := $(shell \
-	if [ -f $(VENV)/bin/pip ]; then printf '%s' "$(abspath $(VENV))/bin/pip"; \
-	elif command -v pip >/dev/null 2>&1; then command -v pip; \
-	elif command -v pip3 >/dev/null 2>&1; then command -v pip3; \
-	else printf '%s' pip; fi)
->>>>>>> origin/main
 
 # ── Ports ──────────────────────────────────────────────────────────────────────
 BACKEND_PORT  := 8000
@@ -71,11 +58,7 @@ endif
 ## setup: First-time install — create venv, install Python + Node deps, copy env files
 setup:
 	@echo "── Python environment ───────────────────────────────────"
-<<<<<<< HEAD
 	python -m venv $(VENV)
-=======
-	"$(PYTHON)" -m venv "$(VENV)"
->>>>>>> origin/main
 	"$(PIP)" install -r backend/requirements.txt -q
 	@echo "── Node dependencies ────────────────────────────────────"
 	cd apps/web && npm install
@@ -155,8 +138,4 @@ print('S3 bucket ready')"
 
 _migrate:
 	@echo "── Running migrations ───────────────────────────────────"
-<<<<<<< HEAD
 	@cd backend && "$(PYTHON)" manage.py migrate && echo "Migrations OK"
-=======
-	@cd backend && "$(PYTHON)" manage.py migrate --verbosity 0 && echo "Migrations OK"
->>>>>>> origin/main
