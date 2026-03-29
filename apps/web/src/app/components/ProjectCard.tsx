@@ -90,7 +90,7 @@ export function ProjectCard({ name, fileCount, description, fileTypes, onRename,
         <Popover>
           <PopoverTrigger asChild>
             <button
-              onClick={e => { e.preventDefault(); e.stopPropagation(); }}
+              onClick={e => e.stopPropagation()}
               className="absolute top-2.5 right-2.5 w-7 h-7 flex items-center justify-center bg-white/80 backdrop-blur-sm border border-[#E6E6E6] rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-white"
             >
               <MoreVertical className="w-3.5 h-3.5 text-[#6B7280]" strokeWidth={2} />
