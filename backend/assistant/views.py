@@ -40,6 +40,12 @@ class ChatView(APIView):
         if not session:
             session = ChatSession.objects.create(user=request.user, project=project)
 
+        # Load history BEFORE saving the current message to avoid duplication
+        history: List[dict] = list(
+            session.messages.order_by("-created_at")[:9].values("role", "content")
+        )
+        history = list(reversed(history))
+
         ChatMessage.objects.create(session=session, role="user", content=message)
 
         relevant_files = find_relevant_files(
@@ -51,11 +57,6 @@ class ChatView(APIView):
         context_block = build_context_prompt(relevant_files)
         system_prompt = build_system_prompt(context_block)
 
-        history: List[dict] = list(
-            session.messages.order_by("-created_at")[:10].values("role", "content")
-        )
-        history = list(reversed(history))
-
         api_key = os.getenv("ANTHROPIC_API_KEY")
         if not api_key:
             return self._graceful_failure(
@@ -63,7 +64,7 @@ class ChatView(APIView):
             )
 
         client = anthropic.Anthropic(api_key=api_key)
-        messages_payload = [{"role": "system", "content": system_prompt}]
+        messages_payload = []
         for item in history:
             messages_payload.append({"role": item["role"], "content": item["content"]})
         messages_payload.append({"role": "user", "content": message})
@@ -72,6 +73,7 @@ class ChatView(APIView):
             completion = client.messages.create(
                 model="claude-sonnet-4-6",
                 max_tokens=1024,
+                system=system_prompt,
                 messages=messages_payload,
             )
             content = completion.content[0].text.strip()

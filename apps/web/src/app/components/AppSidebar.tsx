@@ -1,5 +1,5 @@
 import { useState } from "react";
-//import { UserButton } from "@clerk/clerk-react";
+import { useClerk } from "@clerk/clerk-react";
 import {
   Bot,
   Vault,
@@ -561,10 +561,12 @@ const iconNavItems = [
 
 function IconNavigation({ activeSection }: { activeSection: string }) {
   const navigate = useNavigate();
+  const { signOut } = useClerk();
   const [showSignOut, setShowSignOut] = useState(false);
 
-  const handleSignOut = () => {
+  const handleSignOut = async () => {
     setShowSignOut(false);
+    await signOut();
     navigate('/signin');
   };
 
