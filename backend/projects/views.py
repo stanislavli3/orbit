@@ -27,6 +27,7 @@ class ProjectRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
     def perform_destroy(self, instance):
         from files_api.s3_service import delete_file_from_s3
+
         for f in instance.files.all():
             try:
                 delete_file_from_s3(f.s3_key)

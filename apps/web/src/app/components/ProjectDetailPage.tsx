@@ -450,7 +450,7 @@ export function ProjectDetailPage() {
     form.append('project_id', id);
 
     // Get auth token from Clerk
-    const token = await (window as any).__clerk_client?.session?.getToken?.() ?? '';
+    const token = await (window as { __clerk_client?: { session?: { getToken?: () => Promise<string> } } }).__clerk_client?.session?.getToken?.() ?? '';
 
     await new Promise<void>((resolve) => {
       const xhr = new XMLHttpRequest();
@@ -475,7 +475,7 @@ export function ProjectDetailPage() {
           }, 2500);
         } else {
           let msg = `Upload failed (${xhr.status})`;
-          try { msg = JSON.parse(xhr.responseText)?.error ?? msg; } catch {}
+          try { msg = JSON.parse(xhr.responseText)?.error ?? msg; } catch (_e) { void _e; }
           setUploadingFiles(prev => prev.map(f => f.id === uid ? { ...f, status: 'error', error: msg } : f));
           setTimeout(() => setUploadingFiles(prev => prev.filter(f => f.id !== uid)), 5000);
         }
@@ -490,7 +490,7 @@ export function ProjectDetailPage() {
 
       xhr.send(form);
     });
-  }, [id, apiFetch, queryClient]);
+  }, [id, queryClient]);
 
   const handleFiles = useCallback((fileList: FileList | null) => {
     if (!fileList) return;
