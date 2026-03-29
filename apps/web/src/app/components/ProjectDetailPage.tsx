@@ -1,10 +1,11 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { ArrowLeft, Upload, FileText, Download, Folder, MoreVertical, File, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, Pencil, Check, X } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Download, Folder, MoreVertical, File, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, Pencil, Check, X, Trash, Link as LinkIcon } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
 import type { Project, UploadedFile, ExtractionResult } from '../../api/types';
 import { toast } from 'sonner';
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 
 type FileLike = UploadedFile & { optimistic?: boolean };
 
@@ -140,11 +141,39 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
   const [descValue, setDescValue] = useState(file.description || '');
   const [savingDesc, setSavingDesc] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     if (!editingDesc) setDescValue(file.description || '');
   }, [file.description, editingDesc]);
-  const queryClient = useQueryClient();
+  const handleDownload = async () => {
+    try {
+      const res = await apiFetch(`/api/files/${file.id}/download/`);
+      if (!res.ok) throw new Error(`Download failed (${res.status})`);
+      const data = await res.json();
+      if (data?.url) {
+        window.open(data.url, '_blank', 'noopener');
+      } else {
+        throw new Error('No download URL returned');
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Download failed');
+    }
+  };
+
+  const handleDelete = async () => {
+    const confirmed = window.confirm(`Delete ${file.original_name}?`);
+    if (!confirmed) return;
+    try {
+      const res = await apiFetch(`/api/files/${file.id}/`, { method: 'DELETE' });
+      if (!res.ok && res.status !== 204) throw new Error(`Delete failed (${res.status})`);
+      toast.success('File deleted');
+      await queryClient.invalidateQueries({ queryKey: ['project-files', projectId] });
+      await queryClient.invalidateQueries({ queryKey: ['project', projectId] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Delete failed');
+    }
+  };
 
   const saveDescription = async () => {
     setSavingDesc(true);
@@ -209,9 +238,32 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
                 ? <ChevronUp className="w-4 h-4 text-[#6B7280]" />
                 : <ChevronDown className="w-4 h-4 text-[#6B7280]" />}
             </button>
-            <button className="w-8 h-8 flex items-center justify-center hover:bg-[#E6E6E6] rounded-lg transition-colors opacity-0 group-hover:opacity-100">
-              <MoreVertical className="w-4 h-4 text-[#6B7280]" />
-            </button>
+            <DropdownMenu.Root>
+              <DropdownMenu.Trigger asChild>
+                <button className="w-8 h-8 flex items-center justify-center hover:bg-[#E6E6E6] rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                  <MoreVertical className="w-4 h-4 text-[#6B7280]" />
+                </button>
+              </DropdownMenu.Trigger>
+              <DropdownMenu.Content
+                className="min-w-[160px] bg-white border border-[#E6E6E6] rounded-lg shadow-lg p-1 text-sm text-[#111111]"
+                align="end"
+              >
+                <DropdownMenu.Item
+                  className="px-3 py-2 rounded hover:bg-[#F4F4F4] flex items-center gap-2 cursor-pointer"
+                  onSelect={(e) => { e.preventDefault(); handleDownload(); }}
+                >
+                  <LinkIcon className="w-4 h-4 text-[#6B7280]" />
+                  Download
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
+                  className="px-3 py-2 rounded hover:bg-[#FEF2F2] text-[#DC2626] flex items-center gap-2 cursor-pointer"
+                  onSelect={(e) => { e.preventDefault(); handleDelete(); }}
+                >
+                  <Trash className="w-4 h-4" />
+                  Delete
+                </DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Root>
           </div>
         </div>
 
@@ -423,7 +475,28 @@ export function ProjectDetailPage() {
             {uploadError && (
               <span className="text-[12px] text-[#DC2626] max-w-xs truncate">{uploadError}</span>
             )}
-            <button className="px-4 py-2 bg-white border border-[#E6E6E6] rounded-lg hover:bg-[#FAFAFA] transition-colors text-sm text-[#111111]">
+            <button
+              onClick={async () => {
+                if (!id) return;
+                try {
+                  const res = await apiFetch(`/api/projects/${id}/export/`);
+                  if (!res.ok) throw new Error(`Export failed (${res.status})`);
+                  const data = await res.json();
+                  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement('a');
+                  const safeName = project?.name?.replace(/[^a-z0-9-_]/gi, '_') || 'project';
+                  a.href = url;
+                  a.download = `orbit-export-${safeName}.json`;
+                  a.click();
+                  URL.revokeObjectURL(url);
+                  toast.success('Export downloaded');
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : 'Export failed');
+                }
+              }}
+              className="px-4 py-2 bg-white border border-[#E6E6E6] rounded-lg hover:bg-[#FAFAFA] transition-colors text-sm text-[#111111]"
+            >
               <Download className="w-4 h-4 inline mr-2" strokeWidth={1.5} />
               Export
             </button>
