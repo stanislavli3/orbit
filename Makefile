@@ -96,4 +96,4 @@ print('S3 bucket ready')" 2>/dev/null || echo "S3 bucket check skipped (boto3 no
 
 _migrate:
 	@echo "── Running migrations ───────────────────────────────────"
-	@cd backend && $(PYTHON) manage.py migrate -q && echo "Migrations OK"
+	@cd backend && $(PYTHON) manage.py migrate --verbosity 0 && echo "Migrations OK"
