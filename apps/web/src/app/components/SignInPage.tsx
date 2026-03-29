@@ -22,10 +22,7 @@ function GoogleIcon() {
 
 export function SignInPage() {
   const { signIn, isLoaded } = useSignIn();
-  const [email, setEmail] = useState('');
-  const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState('');
 
   const handleGoogleSignIn = async () => {
@@ -44,30 +41,12 @@ export function SignInPage() {
         redirectUrlComplete: `${window.location.origin}/`,
       });
     } catch (err: unknown) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const clerkErr = err as any;
+      const clerkErr = err as { errors?: Array<{ longMessage?: string; message?: string }> };
       const msg = clerkErr?.errors?.[0]?.longMessage
         ?? clerkErr?.errors?.[0]?.message
         ?? (err instanceof Error ? err.message : 'Something went wrong. Please try again.');
       setError(msg);
       setGoogleLoading(false);
-    }
-  };
-
-  const handleEmailSignIn = async () => {
-    if (!isLoaded || !email.trim()) return;
-    setLoading(true);
-    try {
-      await signIn.create({
-        strategy: 'email_link',
-        identifier: email.trim(),
-        redirectUrl: window.location.origin + '/',
-      });
-      setEmailSent(true);
-    } catch {
-      // fall through — Clerk will surface errors in its own flow
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -148,7 +127,7 @@ export function SignInPage() {
             </p>
           </div>
 
-          {/* Google sign-in button */}
+          {/* Google sign-in */}
           <div className="space-y-3">
             {error && (
               <p className="text-sm text-[#DC2626] bg-[#FEF2F2] border border-[#FECACA] rounded-lg px-4 py-3">
@@ -170,44 +149,6 @@ export function SignInPage() {
               )}
               {googleLoading ? 'Redirecting to Google...' : 'Continue with Google'}
             </button>
-          </div>
-
-          {/* Divider */}
-          <div className="flex items-center gap-3">
-            <div className="flex-1 h-px bg-[#E6E6E6]" />
-            <span className="text-[#9CA3AF] text-xs">or</span>
-            <div className="flex-1 h-px bg-[#E6E6E6]" />
-          </div>
-
-          {/* Email field */}
-          <div className="space-y-3">
-            {emailSent ? (
-              <p className="text-sm text-[#111111] bg-[#F4F4F4] rounded-lg px-4 py-3">
-                Check your inbox — we sent a magic link to <strong>{email}</strong>.
-              </p>
-            ) : (
-              <>
-                <div className="space-y-1.5">
-                  <label className="text-[#374151] text-xs font-medium">Work email</label>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleEmailSignIn()}
-                    placeholder="you@company.com"
-                    className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all duration-150"
-                  />
-                </div>
-
-                <button
-                  onClick={handleEmailSignIn}
-                  disabled={loading || !email.trim()}
-                  className="w-full px-4 py-2.5 bg-[#111111] text-white text-sm font-medium rounded-lg hover:bg-[#1F1F1F] active:bg-[#333333] disabled:opacity-50 transition-colors duration-150"
-                >
-                  {loading ? 'Sending...' : 'Continue with email'}
-                </button>
-              </>
-            )}
           </div>
 
           {/* Footer */}

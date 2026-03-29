@@ -27,3 +27,16 @@ export interface ExtractionResult {
   warnings: string[];
   extracted_at: string;
 }
+
+export interface AssistantSourceFile {
+  id: number;
+  name: string;
+}
+
+export interface AssistantResponse {
+  response: string;
+  session_id: string;
+  sources: number[];
+  source_files?: AssistantSourceFile[];
+  error?: string;
+}

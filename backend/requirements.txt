@@ -9,6 +9,7 @@ django-cors-headers==4.9.0
 djangorestframework==3.17.0
 google-auth==2.49.1
 jmespath==1.1.0
+numpy==2.2.2
 pyasn1==0.6.3
 pyasn1_modules==0.4.2
 pycparser==3.0
