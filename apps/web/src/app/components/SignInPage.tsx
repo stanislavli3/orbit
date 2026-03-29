@@ -57,6 +57,7 @@ export function SignInPage() {
   const handleEmailSignIn = async () => {
     if (!isLoaded || !email.trim()) return;
     setLoading(true);
+    setError('');
     try {
       await signIn.create({
         strategy: 'email_link',
@@ -64,8 +65,12 @@ export function SignInPage() {
         redirectUrl: window.location.origin + '/',
       });
       setEmailSent(true);
-    } catch {
-      // fall through — Clerk will surface errors in its own flow
+    } catch (err: unknown) {
+      const clerkErr = err as { errors?: Array<{ longMessage?: string; message?: string }> };
+      const msg = clerkErr?.errors?.[0]?.longMessage
+        ?? clerkErr?.errors?.[0]?.message
+        ?? (err instanceof Error ? err.message : 'Could not send magic link. Please try Google sign-in.');
+      setError(msg);
     } finally {
       setLoading(false);
     }
