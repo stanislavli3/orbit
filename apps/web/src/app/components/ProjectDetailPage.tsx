@@ -1,9 +1,13 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { ArrowLeft, Upload, FileText, Download, Folder, MoreVertical, File, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, Pencil, Check, X } from 'lucide-react';
-import { Link, useParams } from 'react-router';
+import { Link, useNavigate, useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
 import type { Project, UploadedFile, ExtractionResult } from '../../api/types';
+import { toast } from 'sonner';
+
+type FileStatus = UploadedFile['status'] | 'uploading';
+type FileLike = UploadedFile & { status: FileStatus; optimistic?: boolean };
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -15,7 +19,15 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
-function FileStatusBadge({ status }: { status: UploadedFile['status'] }) {
+function FileStatusBadge({ status, optimistic }: { status: FileStatus; optimistic?: boolean }) {
+  if (status === 'uploading') {
+    return (
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F4F4F4] text-[#6B7280]">
+        <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />
+        Uploading…
+      </span>
+    );
+  }
   if (status === 'processed') {
     return (
       <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F4F4F4] text-[#6B7280]">
@@ -35,7 +47,7 @@ function FileStatusBadge({ status }: { status: UploadedFile['status'] }) {
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F4F4F4] text-[#6B7280]">
       <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />
-      {status === 'processing' ? 'Processing' : 'Uploaded'}
+      {status === 'processing' ? 'Processing' : optimistic ? 'Uploading…' : 'Uploaded'}
     </span>
   );
 }
@@ -123,11 +135,12 @@ function ExtractionResultPanel({ fileId, apiFetch }: { fileId: number; apiFetch:
   );
 }
 
-function FileRow({ file, apiFetch }: { file: UploadedFile; apiFetch: ReturnType<typeof useApiClient> }) {
+function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: ReturnType<typeof useApiClient>; projectId: string }) {
   const [expanded, setExpanded] = useState(false);
   const [editingDesc, setEditingDesc] = useState(false);
   const [descValue, setDescValue] = useState(file.description || '');
   const [savingDesc, setSavingDesc] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!editingDesc) setDescValue(file.description || '');
@@ -176,7 +189,16 @@ function FileRow({ file, apiFetch }: { file: UploadedFile; apiFetch: ReturnType<
             <span className="text-[#6B7280] text-sm">{formatBytes(file.file_size)}</span>
           </div>
           <div className="col-span-2 flex items-center">
-            <FileStatusBadge status={file.status} />
+            {file.status === 'processed' ? (
+              <button
+                className="text-left"
+                onClick={() => navigate(`/project/${projectId}/file/${file.id}/result`)}
+              >
+                <FileStatusBadge status={file.status} />
+              </button>
+            ) : (
+              <FileStatusBadge status={file.status} optimistic={file.optimistic} />
+            )}
           </div>
           <div className="col-span-1 flex items-center justify-end gap-1">
             <button
@@ -222,7 +244,7 @@ function FileRow({ file, apiFetch }: { file: UploadedFile; apiFetch: ReturnType<
                 </button>
               </div>
             </div>
-          ) : file.status === 'processing' || file.status === 'uploaded' ? (
+          ) : file.status === 'processing' || file.status === 'uploaded' || file.status === 'uploading' ? (
             <span className="text-[12px] text-[#9CA3AF] italic flex items-center gap-1.5">
               <Loader2 className="w-3 h-3 animate-spin" strokeWidth={1.5} />
               Generating description…
@@ -259,9 +281,15 @@ export function ProjectDetailPage() {
   const [activeTab, setActiveTab] = useState<'vault' | 'library'>('vault');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
+  const [optimisticFiles, setOptimisticFiles] = useState<FileLike[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const apiFetch = useApiClient();
   const queryClient = useQueryClient();
+  const prevStatuses = useRef<Record<number, UploadedFile['status']>>({});
+  const combinedFiles = useMemo<FileLike[]>(
+    () => [...optimisticFiles, ...((files as FileLike[]) || [])],
+    [files, optimisticFiles],
+  );
 
   const { data: project, isLoading: projectLoading, isError: projectError } = useQuery<Project>({
     queryKey: ['project', id],
@@ -287,11 +315,41 @@ export function ProjectDetailPage() {
     },
   });
 
+  useEffect(() => {
+    if (!files) return;
+    const prev = prevStatuses.current;
+    files.forEach((f) => {
+      const prevStatus = prev[f.id];
+      if (prevStatus && prevStatus !== 'processed' && f.status === 'processed') {
+        toast.success('Extraction complete — view results');
+      }
+    });
+    const next: Record<number, UploadedFile['status']> = {};
+    files.forEach((f) => {
+      next[f.id] = f.status;
+    });
+    prevStatuses.current = next;
+  }, [files]);
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !id) return;
     setUploadError('');
     setUploading(true);
+    const tempId = -Date.now();
+    const optimistic: FileLike = {
+      id: tempId,
+      project: Number(id),
+      uploaded_by: 0,
+      original_name: file.name,
+      description: '',
+      file_type: file.name.includes('.') ? file.name.split('.').pop() || '' : '',
+      file_size: file.size,
+      status: 'uploading',
+      created_at: new Date().toISOString(),
+      optimistic: true,
+    };
+    setOptimisticFiles((prev) => [...prev, optimistic]);
     try {
       const form = new FormData();
       form.append('file', file);
@@ -301,12 +359,15 @@ export function ProjectDetailPage() {
         const err = await res.json().catch(() => ({}));
         throw new Error(err?.detail ?? err?.error ?? `Upload failed (${res.status})`);
       }
+      toast.success('File uploaded — extracting geometry…');
       await queryClient.invalidateQueries({ queryKey: ['project-files', id] });
       await queryClient.invalidateQueries({ queryKey: ['project', id] });
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed');
+      toast.error(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setUploading(false);
+      setOptimisticFiles((prev) => prev.filter((f) => f.id !== tempId));
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
@@ -422,7 +483,7 @@ export function ProjectDetailPage() {
                 </div>
               )}
 
-              {files && files.length === 0 && (
+              {combinedFiles.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <div className="w-10 h-10 bg-[#F4F4F4] rounded-lg flex items-center justify-center mb-3">
                     <File className="w-5 h-5 text-[#6B7280]" strokeWidth={1.5} />
@@ -432,8 +493,8 @@ export function ProjectDetailPage() {
                 </div>
               )}
 
-              {files && files.map((file) => (
-                <FileRow key={file.id} file={file} apiFetch={apiFetch} />
+              {combinedFiles.map((file) => (
+                <FileRow key={file.id} file={file} apiFetch={apiFetch} projectId={id!} />
               ))}
             </div>
           ) : (
