@@ -109,7 +109,7 @@ export function AssistantPage() {
       }
 
       replacePending(pendingId, data.response, sources);
-    } catch (err) {
+    } catch {
       replacePending(pendingId, 'AI assistant is not configured.', [], true);
     } finally {
       setIsSending(false);

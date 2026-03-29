@@ -10,6 +10,7 @@
 - Added `FileEmbedding` model plus embedding generation in extraction flow; similarity via numpy cosine over stored vectors.
 - Frontend Assistant page now calls the API, streams markdown responses with source chips, keeps session IDs, handles loading/error (no API key), and sends suggested prompts immediately; new dependency `react-markdown`.
 - Ran `python manage.py migrate` (SQLite) to create new tables and `npm run build` for the web app.
+- Linters now clean: `ruff check .` and `npm run lint`.
 - Follow-ups: provide a real `ANTHROPIC_API_KEY` for live responses; re-process existing files to populate embeddings; optional: remove `version` field warning in docker-compose, run npm audit if desired.
 
 ---
