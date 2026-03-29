@@ -6,6 +6,7 @@ import { HistoryPage } from './components/HistoryPage';
 import { ProjectDetailPage } from './components/ProjectDetailPage';
 import { ComingSoonPage } from './components/ComingSoonPage';
 import { FileResultPage } from './components/FileResultPage';
+import { SettingsPage } from './components/SettingsPage';
 import { SignInPage } from './components/SignInPage';
 import { SsoCallbackPage } from './components/SsoCallbackPage';
 
@@ -31,7 +32,7 @@ export const router = createBrowserRouter([
       { path: 'workflows', element: <ComingSoonPage title="Workflows" subtitle="Automate extraction pipelines across your projects." /> },
       { path: 'history', Component: HistoryPage },
       { path: 'library', element: <ComingSoonPage title="Library" subtitle="Reusable extraction profiles and knowledge bases." /> },
-      { path: 'settings', element: <ComingSoonPage title="Settings" subtitle="Manage your profile, API keys, and preferences." /> },
+      { path: 'settings', Component: SettingsPage },
     ],
   },
 ]);

@@ -31,6 +31,22 @@
 
 # Issue #18 — Replace hardcoded mock data with real API calls
 
+---
+
+## Windows make dev fix
+
+- [x] Identify remaining Unix-only commands in `Makefile` that block `make dev` on Windows
+- [x] Add Windows-specific implementations for `dev`, `_docker-up`, and `stop`
+- [x] Verify `make dev` starts backend/frontend after Docker and LocalStack are available
+- [x] Document the Windows run path and any remaining limitations
+
+### Review
+
+- `make dev` now starts LocalStack, creates the S3 bucket, runs migrations, and launches backend/frontend in background processes on Windows.
+- Verified frontend log shows Vite serving on port 5173.
+- Verified port 8000 is listening for the Django backend.
+- Remaining non-blocking warning: `docker-compose.yml` still uses the obsolete `version` key.
+
 **Branch:** `feat/issue-18-real-api-data`
 **GitHub:** https://github.com/stanislavli3/orbit/issues/18
 
