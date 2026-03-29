@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "projects",
     "files_api",
     "core",
+    "assistant",
 ]
 
 MIDDLEWARE = [
