@@ -35,3 +35,8 @@ def download_file_from_s3(s3_key: str) -> bytes:
     bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")
     response = s3.get_object(Bucket=bucket_name, Key=s3_key)
     return response["Body"].read()
+
+
+def delete_file_from_s3(s3_key: str) -> None:
+    s3 = get_s3_client()
+    s3.delete_object(Bucket=os.getenv("AWS_STORAGE_BUCKET_NAME"), Key=s3_key)
