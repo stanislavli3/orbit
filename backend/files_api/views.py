@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status, permissions
 from .models import UploadedFile, ExtractionResult, FileEmbedding
 from .serializers import UploadedFileSerializer
-from .s3_service import upload_file_to_s3
+from .s3_service import upload_file_to_s3, delete_file_from_s3, generate_presigned_url
 from projects.models import Project
 from .embeddings import generate_embedding
 
@@ -150,3 +150,31 @@ class FileResultView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
         return Response(result.result_json, status=status.HTTP_200_OK)
+
+
+class FileDeleteView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, file_id):
+        file_record = get_object_or_404(
+            UploadedFile, id=file_id, project__owner=request.user
+        )
+        s3_key = file_record.s3_key
+        file_record.delete()
+        try:
+            delete_file_from_s3(s3_key)
+        except Exception:
+            # Best-effort delete; ignore S3 errors
+            pass
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class FileDownloadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, file_id):
+        file_record = get_object_or_404(
+            UploadedFile, id=file_id, project__owner=request.user
+        )
+        url = generate_presigned_url(file_record.s3_key)
+        return Response({"url": url}, status=status.HTTP_200_OK)
