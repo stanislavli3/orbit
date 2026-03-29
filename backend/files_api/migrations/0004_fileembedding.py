@@ -5,19 +5,33 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('files_api', '0003_uploadedfile_description'),
+        ("files_api", "0003_uploadedfile_description"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='FileEmbedding',
+            name="FileEmbedding",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('embedding_json', models.JSONField()),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('file', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, related_name='embedding', to='files_api.uploadedfile')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("embedding_json", models.JSONField()),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "file",
+                    models.OneToOneField(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        related_name="embedding",
+                        to="files_api.uploadedfile",
+                    ),
+                ),
             ],
         ),
     ]

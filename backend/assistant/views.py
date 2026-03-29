@@ -65,9 +65,7 @@ class ChatView(APIView):
         client = anthropic.Anthropic(api_key=api_key)
         messages_payload = [{"role": "system", "content": system_prompt}]
         for item in history:
-            messages_payload.append(
-                {"role": item["role"], "content": item["content"]}
-            )
+            messages_payload.append({"role": item["role"], "content": item["content"]})
         messages_payload.append({"role": "user", "content": message})
 
         try:
@@ -85,7 +83,9 @@ class ChatView(APIView):
         ChatMessage.objects.create(session=session, role="assistant", content=content)
 
         sources = [file.id for file in relevant_files]
-        source_files = [{"id": file.id, "name": file.original_name} for file in relevant_files]
+        source_files = [
+            {"id": file.id, "name": file.original_name} for file in relevant_files
+        ]
 
         return Response(
             {
@@ -103,7 +103,9 @@ class ChatView(APIView):
         content = error
         ChatMessage.objects.create(session=session, role="assistant", content=content)
         sources = [file.id for file in relevant_files]
-        source_files = [{"id": file.id, "name": file.original_name} for file in relevant_files]
+        source_files = [
+            {"id": file.id, "name": file.original_name} for file in relevant_files
+        ]
         return Response(
             {
                 "response": content,

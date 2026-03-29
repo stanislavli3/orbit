@@ -54,7 +54,9 @@ def build_context_prompt(files: List[UploadedFile]) -> str:
     Format retrieved files into a text block that can be injected into a system prompt.
     """
     if not files:
-        return "No related files were found; answer using general engineering knowledge."
+        return (
+            "No related files were found; answer using general engineering knowledge."
+        )
 
     blocks = []
     for file in files:
