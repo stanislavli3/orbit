@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Search, FolderPlus, Database, Folder, X, Files, Users } from 'lucide-react';
+import { Search, FolderPlus, Database, Folder, X, Files, Users, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { TopBar } from './TopBar';
 import { ActionCard } from './ActionCard';
 import { ProjectCard } from './ProjectCard';
@@ -15,6 +15,11 @@ import {
   DialogTitle,
   DialogFooter,
 } from '../components/ui/dialog';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '../components/ui/popover';
 import {
   AlertDialog,
   AlertDialogContent,
@@ -300,20 +305,43 @@ export function VaultPage() {
             return (
               <div className="grid grid-cols-4 gap-4">
                 {filtered.map((project) => (
-                  <div key={project.id} className="relative">
+                  <div key={project.id} className="relative group/card">
                     <Link to={`/project/${project.id}`}>
                       <ProjectCard
                         name={project.name}
                         fileCount={project.file_count}
                         description={project.description}
-                        onRename={() => {
-                          setRenameProject(project);
-                          setRenameValue(project.name);
-                          setRenameError('');
-                        }}
-                        onDelete={() => setDeleteProject(project)}
                       />
                     </Link>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          className="absolute top-2.5 right-2.5 z-10 opacity-0 group-hover/card:opacity-100 w-7 h-7 flex items-center justify-center rounded-md bg-white border border-[#E6E6E6] text-[#6B7280] hover:text-[#111111] hover:border-[#C4C4C4] transition-all shadow-sm"
+                        >
+                          <MoreVertical className="w-3.5 h-3.5" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" sideOffset={6} className="w-36 p-1">
+                        <button
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[13px] text-[#111111] rounded hover:bg-[#F4F4F4] transition-colors"
+                          onClick={() => {
+                            setRenameProject(project);
+                            setRenameValue(project.name);
+                            setRenameError('');
+                          }}
+                        >
+                          <Pencil className="w-3.5 h-3.5 text-[#6B7280]" />
+                          Rename
+                        </button>
+                        <button
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[13px] text-[#DC2626] rounded hover:bg-[#FEF2F2] transition-colors"
+                          onClick={() => setDeleteProject(project)}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          Delete
+                        </button>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                 ))}
               </div>

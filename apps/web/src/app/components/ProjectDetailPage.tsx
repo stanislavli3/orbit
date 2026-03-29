@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useAuth } from '@clerk/clerk-react';
 import {
   ArrowLeft, Upload, FileText, Download, Folder, MoreVertical,
   CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp,
@@ -413,6 +414,7 @@ export function ProjectDetailPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragCounterRef = useRef(0);
   const apiFetch = useApiClient();
+  const { getToken } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: project, isLoading: projectLoading, isError: projectError } = useQuery<Project>({
@@ -450,7 +452,7 @@ export function ProjectDetailPage() {
     form.append('project_id', id);
 
     // Get auth token from Clerk
-    const token = await (window as { __clerk_client?: { session?: { getToken?: () => Promise<string> } } }).__clerk_client?.session?.getToken?.() ?? '';
+    const token = await getToken() ?? '';
 
     await new Promise<void>((resolve) => {
       const xhr = new XMLHttpRequest();
@@ -490,7 +492,7 @@ export function ProjectDetailPage() {
 
       xhr.send(form);
     });
-  }, [id, queryClient]);
+  }, [id, queryClient, getToken]);
 
   const handleFiles = useCallback((fileList: FileList | null) => {
     if (!fileList) return;

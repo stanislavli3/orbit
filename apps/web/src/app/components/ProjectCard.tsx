@@ -1,13 +1,8 @@
-import { MoreVertical, Pencil, Trash2 } from 'lucide-react';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-
 interface ProjectCardProps {
   name: string;
   fileCount: number;
   description?: string;
   fileTypes?: string[];
-  onRename?: () => void;
-  onDelete?: () => void;
 }
 
 const FILE_TAG_STYLE: Record<string, { bg: string; text: string; label: string }> = {
@@ -44,12 +39,12 @@ function FileTypeTag({ ext }: { ext: string }) {
   );
 }
 
-export function ProjectCard({ name, fileCount, description, fileTypes, onRename, onDelete }: ProjectCardProps) {
+export function ProjectCard({ name, fileCount, description, fileTypes }: ProjectCardProps) {
   const accent = ACCENTS[nameHash(name) % ACCENTS.length];
   const uniqueTypes = [...new Set((fileTypes ?? []).map(t => t.toLowerCase()))].slice(0, 4);
 
   return (
-    <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden hover:border-[#C4C4C4] hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] hover:-translate-y-0.5 transition-all duration-200 group cursor-pointer">
+    <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden hover:border-[#C4C4C4] hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
       {/* Card art */}
       <div
         className="h-[96px] relative overflow-hidden flex items-center justify-center"
@@ -86,38 +81,6 @@ export function ProjectCard({ name, fileCount, description, fileTypes, onRename,
             </div>
           ))}
         </div>
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              onClick={e => e.stopPropagation()}
-              className="absolute top-2.5 right-2.5 w-7 h-7 flex items-center justify-center bg-white/80 backdrop-blur-sm border border-[#E6E6E6] rounded-lg shadow-sm opacity-0 group-hover:opacity-100 transition-all hover:bg-white"
-            >
-              <MoreVertical className="w-3.5 h-3.5 text-[#6B7280]" strokeWidth={2} />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            sideOffset={6}
-            className="w-36 p-1"
-            onClick={e => e.stopPropagation()}
-          >
-            <button
-              onClick={e => { e.stopPropagation(); onRename?.(); }}
-              className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[13px] text-[#374151] rounded hover:bg-[#F4F4F4] transition-colors"
-            >
-              <Pencil className="w-3.5 h-3.5" strokeWidth={1.75} />
-              Rename
-            </button>
-            <button
-              onClick={e => { e.stopPropagation(); onDelete?.(); }}
-              className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[13px] text-[#DC2626] rounded hover:bg-[#FEF2F2] transition-colors"
-            >
-              <Trash2 className="w-3.5 h-3.5" strokeWidth={1.75} />
-              Delete
-            </button>
-          </PopoverContent>
-        </Popover>
       </div>
 
       {/* Card body */}
