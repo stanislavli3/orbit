@@ -27,9 +27,8 @@ export const router = createBrowserRouter([
       { path: 'assistant', Component: AssistantPage },
       { path: 'vault', Component: VaultPage },
       { path: 'project/:id', Component: ProjectDetailPage },
-      { path: 'project/:id/file/:fileId/result', Component: FileResultPage },
-      { path: 'extraction-runs', element: <ComingSoonPage title="Extraction Runs" subtitle="Batch extraction jobs and their status." /> },
-      { path: 'workflows', element: <ComingSoonPage title="Workflows" subtitle="Automate extraction pipelines across your projects." /> },
+      { path: 'extraction-runs', Component: VaultPage }, // Placeholder
+      { path: 'workflows', Component: VaultPage }, // Placeholder
       { path: 'history', Component: HistoryPage },
       { path: 'library', element: <ComingSoonPage title="Library" subtitle="Reusable extraction profiles and knowledge bases." /> },
       { path: 'settings', Component: SettingsPage },

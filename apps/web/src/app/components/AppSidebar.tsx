@@ -1,5 +1,15 @@
 import { useState } from "react";
 import { useClerk } from "@clerk/clerk-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useApiClient } from "../../api/client";
+import type { Project } from "../../api/types";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "./ui/dialog";
 import {
   Bot,
   Vault,
@@ -113,6 +123,7 @@ interface MenuItem {
   icon: React.ReactNode;
   label: string;
   path?: string;
+  onClick?: () => void;
   hasDropdown?: boolean;
   isActive?: boolean;
   children?: SubItem[];
@@ -260,20 +271,31 @@ function MenuSectionRow({
               item={item}
               isExpanded={isExpanded}
               onToggle={() => onToggleExpanded(itemKey)}
-              onItemClick={() => item.path && onNavigate(item.path)}
+              onItemClick={() => {
+                if (item.onClick) item.onClick();
+                else if (item.path) onNavigate(item.path);
+              }}
               isCollapsed={isCollapsed}
             />
             {isExpanded && item.children && !isCollapsed && (
               <div className="flex flex-col gap-1 mb-2">
-                {item.children.map((child, childIndex) => (
-                  <SubMenuItemRow
-                    key={`${itemKey}-${childIndex}`}
-                    item={child}
-                    onItemClick={() =>
-                      child.path && onNavigate(child.path)
-                    }
-                  />
-                ))}
+                {item.children.length === 0 ? (
+                  <div className="select-none w-full pl-9 pr-1 py-[1px]">
+                    <div className="h-10 w-full flex items-center px-3 py-1">
+                      <div className="text-sm text-[#C4C4C4] italic">No items yet</div>
+                    </div>
+                  </div>
+                ) : (
+                  item.children.map((child, childIndex) => (
+                    <SubMenuItemRow
+                      key={`${itemKey}-${childIndex}`}
+                      item={child}
+                      onItemClick={() =>
+                        child.path && onNavigate(child.path)
+                      }
+                    />
+                  ))
+                )}
               </div>
             )}
           </div>
@@ -283,7 +305,11 @@ function MenuSectionRow({
   );
 }
 
-function getSidebarContent(activeSection: string): SidebarContent {
+function getSidebarContent(
+  activeSection: string,
+  projects?: Project[],
+  handlers?: { onNewProject?: () => void }
+): SidebarContent {
   const ic = "text-[#6B7280]";
 
   const contentMap: Record<string, SidebarContent> = {
@@ -306,11 +332,6 @@ function getSidebarContent(activeSection: string): SidebarContent {
             {
               icon: <Clock size={16} className={ic} />,
               label: "Today's chats",
-              hasDropdown: true,
-              children: [
-                { label: "Contract analysis" },
-                { label: "Data extraction" },
-              ],
             },
             {
               icon: <Star size={16} className={ic} />,
@@ -329,11 +350,7 @@ function getSidebarContent(activeSection: string): SidebarContent {
             {
               icon: <Plus size={16} className={ic} />,
               label: "New project",
-              path: "/vault",
-            },
-            {
-              icon: <Filter size={16} className={ic} />,
-              label: "Filter projects",
+              onClick: handlers?.onNewProject,
             },
           ],
         },
@@ -344,14 +361,10 @@ function getSidebarContent(activeSection: string): SidebarContent {
               icon: <FolderOpen size={16} className={ic} />,
               label: "Active projects",
               hasDropdown: true,
-              children: [
-                { label: "Contract review" },
-                { label: "Financial analysis" },
-              ],
-            },
-            {
-              icon: <Archive size={16} className={ic} />,
-              label: "Archived",
+              children: projects?.map((p) => ({
+                label: p.name,
+                path: `/project/${p.id}`,
+              })) ?? [],
             },
           ],
         },
@@ -408,11 +421,6 @@ function getSidebarContent(activeSection: string): SidebarContent {
             {
               icon: <Workflow size={16} className={ic} />,
               label: "Active",
-              hasDropdown: true,
-              children: [
-                { label: "Document processor" },
-                { label: "Data extractor" },
-              ],
             },
             {
               icon: <Layers size={16} className={ic} />,
@@ -431,11 +439,6 @@ function getSidebarContent(activeSection: string): SidebarContent {
             {
               icon: <Clock size={16} className={ic} />,
               label: "Today",
-              hasDropdown: true,
-              children: [
-                { label: "Contract analysis session" },
-                { label: "Data extraction run" },
-              ],
             },
             {
               icon: <BarChart2 size={16} className={ic} />,
@@ -472,12 +475,6 @@ function getSidebarContent(activeSection: string): SidebarContent {
             {
               icon: <FileText size={16} className={ic} />,
               label: "Recent documents",
-              hasDropdown: true,
-              children: [
-                { label: "Contracts" },
-                { label: "Reports" },
-                { label: "Templates" },
-              ],
             },
             {
               icon: <Database size={16} className={ic} />,
@@ -708,7 +705,57 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [isCollapsed, setIsCollapsed] = useState(false);
   const navigate = useNavigate();
-  const content = getSidebarContent(activeSection);
+  const apiFetch = useApiClient();
+  const queryClient = useQueryClient();
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [projectName, setProjectName] = useState("");
+  const [projectDesc, setProjectDesc] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [createError, setCreateError] = useState("");
+
+  const { data: projects } = useQuery<Project[]>({
+    queryKey: ["projects"],
+    queryFn: async () => {
+      const res = await apiFetch("/api/projects/");
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      return res.json();
+    },
+    enabled: activeSection === "vault",
+  });
+
+  const handleCreateProject = async () => {
+    if (!projectName.trim()) return;
+    setSubmitting(true);
+    setCreateError("");
+    try {
+      const res = await apiFetch("/api/projects/", {
+        method: "POST",
+        body: JSON.stringify({
+          name: projectName.trim(),
+          description: projectDesc.trim(),
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.name?.[0] ?? `Error ${res.status}`);
+      }
+      await queryClient.invalidateQueries({ queryKey: ["projects"] });
+      setDialogOpen(false);
+      setProjectName("");
+      setProjectDesc("");
+    } catch (err) {
+      setCreateError(
+        err instanceof Error ? err.message : "Failed to create project"
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const content = getSidebarContent(activeSection, projects, {
+    onNewProject: () => setDialogOpen(true),
+  });
 
   const toggleExpanded = (key: string) => {
     const next = new Set(expandedItems);
@@ -753,6 +800,68 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
           />
         ))}
       </div>
+
+      <Dialog
+        open={dialogOpen}
+        onOpenChange={(open) => {
+          setDialogOpen(open);
+          if (!open) {
+            setProjectName("");
+            setProjectDesc("");
+            setCreateError("");
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create project</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            {createError && (
+              <p className="text-sm text-[#DC2626] bg-[#FEF2F2] border border-[#FECACA] rounded-lg px-3 py-2">
+                {createError}
+              </p>
+            )}
+            <div className="space-y-1.5">
+              <label className="text-[#374151] text-xs font-medium">Project name</label>
+              <input
+                type="text"
+                value={projectName}
+                onChange={(e) => setProjectName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleCreateProject()}
+                placeholder="e.g. Gearbox Assembly Rev B"
+                autoFocus
+                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all"
+              />
+            </div>
+            <div className="space-y-1.5">
+              <label className="text-[#374151] text-xs font-medium">Description <span className="text-[#9CA3AF] font-normal">(optional)</span></label>
+              <textarea
+                value={projectDesc}
+                onChange={(e) => setProjectDesc(e.target.value)}
+                placeholder="What is this project about?"
+                rows={3}
+                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all resize-none"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setDialogOpen(false)}
+              className="px-4 py-2 text-sm text-[#6B7280] hover:text-[#111111] transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleCreateProject}
+              disabled={!projectName.trim() || submitting}
+              className="px-4 py-2 bg-[#111111] text-white text-sm font-medium rounded-lg hover:bg-[#1F1F1F] disabled:opacity-50 transition-colors"
+            >
+              {submitting ? "Creating..." : "Create"}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

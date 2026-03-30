@@ -1,10 +1,7 @@
 from django.urls import path
-from .views import ProjectListCreateView, ProjectRetrieveUpdateDestroyView, ProjectExportView
+from .views import ProjectListCreateView, ProjectRetrieveView
 
 urlpatterns = [
     path("", ProjectListCreateView.as_view(), name="project-list-create"),
-    path(
-        "<int:pk>/", ProjectRetrieveUpdateDestroyView.as_view(), name="project-detail"
-    ),
-    path("<int:pk>/export/", ProjectExportView.as_view(), name="project-export"),
+    path("<int:pk>/", ProjectRetrieveView.as_view(), name="project-detail"),
 ]
