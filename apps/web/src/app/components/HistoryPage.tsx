@@ -1,108 +1,33 @@
-import { Search, Filter, FileText, Upload, CheckCircle2, AlertCircle, Clock, Download, MoreVertical } from 'lucide-react';
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'react-router';
+import { Search, FileText, Upload, Download, CheckCircle2, AlertCircle, Clock, MessageSquare, MoreVertical, Inbox } from 'lucide-react';
 import { TopBar } from './TopBar';
+import { useApiClient } from '../../api/client';
+import type { HistoryEvent } from '../../api/types';
 
-interface HistoryItem {
-  id: string;
-  type: 'extraction' | 'upload' | 'export';
-  title: string;
-  project: string;
-  status: 'completed' | 'failed' | 'processing';
-  timestamp: string;
-  fileCount?: number;
-  user: string;
-}
-
-const historyData: HistoryItem[] = [
-  {
-    id: '1',
-    type: 'extraction',
-    title: 'Metadata extraction completed',
-    project: 'Gearbox Assembly',
-    status: 'completed',
-    timestamp: '2 hours ago',
-    fileCount: 47,
-    user: 'Sarah Chen',
-  },
-  {
-    id: '2',
-    type: 'upload',
-    title: 'Files uploaded',
-    project: 'Pump Housing Rev B',
-    status: 'processing',
-    timestamp: '3 hours ago',
-    fileCount: 23,
-    user: 'Marcus Williams',
-  },
-  {
-    id: '3',
-    type: 'export',
-    title: 'JSON profiles exported',
-    project: 'Sheet Metal Brackets',
-    status: 'completed',
-    timestamp: 'Today at 9:34 AM',
-    fileCount: 156,
-    user: 'You',
-  },
-  {
-    id: '4',
-    type: 'extraction',
-    title: 'Metadata extraction failed',
-    project: 'Test Fixtures',
-    status: 'failed',
-    timestamp: 'Yesterday at 4:22 PM',
-    fileCount: 12,
-    user: 'You',
-  },
-  {
-    id: '5',
-    type: 'upload',
-    title: 'Files uploaded',
-    project: 'Fastener Library',
-    status: 'completed',
-    timestamp: 'Yesterday at 2:15 PM',
-    fileCount: 892,
-    user: 'David Park',
-  },
-  {
-    id: '6',
-    type: 'extraction',
-    title: 'Metadata extraction completed',
-    project: 'Supplier Drawings',
-    status: 'completed',
-    timestamp: 'Feb 15 at 11:03 AM',
-    fileCount: 67,
-    user: 'Sarah Chen',
-  },
-  {
-    id: '7',
-    type: 'export',
-    title: 'JSON profiles exported',
-    project: 'Gearbox Assembly',
-    status: 'completed',
-    timestamp: 'Feb 15 at 9:45 AM',
-    fileCount: 47,
-    user: 'Marcus Williams',
-  },
-  {
-    id: '8',
-    type: 'upload',
-    title: 'Files uploaded',
-    project: 'Sheet Metal Brackets',
-    status: 'completed',
-    timestamp: 'Feb 14 at 3:30 PM',
-    fileCount: 156,
-    user: 'You',
-  },
-];
+type ActivityFilter = 'all' | 'upload' | 'export' | 'chat';
 
 const typeIcons = {
-  extraction: FileText,
   upload: Upload,
   export: Download,
+  chat: MessageSquare,
 };
 
-const statusConfig = {
+const typeLabels = {
+  upload: 'File uploaded',
+  export: 'JSON export',
+  chat: 'New chat',
+};
+
+const statusConfig: Record<string, { icon: typeof CheckCircle2; color: string; bgColor: string; label: string }> = {
   completed: {
+    icon: CheckCircle2,
+    color: 'text-[#6B7280]',
+    bgColor: 'bg-[#F4F4F4]',
+    label: 'Completed',
+  },
+  processed: {
     icon: CheckCircle2,
     color: 'text-[#6B7280]',
     bgColor: 'bg-[#F4F4F4]',
@@ -120,47 +45,105 @@ const statusConfig = {
     bgColor: 'bg-[#F4F4F4]',
     label: 'Processing',
   },
+  uploaded: {
+    icon: Clock,
+    color: 'text-[#6B7280]',
+    bgColor: 'bg-[#F4F4F4]',
+    label: 'Uploaded',
+  },
+};
+
+function formatTimestamp(iso: string): string {
+  const date = new Date(iso);
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const itemDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const diffDays = Math.round((todayStart.getTime() - itemDate.getTime()) / (1000 * 60 * 60 * 24));
+
+  const timeStr = date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+
+  if (diffDays === 0) return `Today at ${timeStr}`;
+  if (diffDays === 1) return `Yesterday at ${timeStr}`;
+  return date.toLocaleDateString([], { month: 'short', day: 'numeric' }) + ` at ${timeStr}`;
+}
+
+const periodLabels: Record<string, string> = {
+  today: 'Today',
+  last7days: 'Last 7 days',
+  older: 'Older',
 };
 
 export function HistoryPage() {
+  const [searchParams] = useSearchParams();
+  const [activityFilter, setActivityFilter] = useState<ActivityFilter>('all');
+  const [search, setSearch] = useState('');
+  const apiFetch = useApiClient();
+
+  const period = searchParams.get('period') ?? '';
+
+  const { data: events = [], isLoading, isError } = useQuery<HistoryEvent[]>({
+    queryKey: ['history', period],
+    queryFn: async () => {
+      const url = period ? `/api/history/?period=${period}` : '/api/history/';
+      const res = await apiFetch(url);
+      if (!res.ok) throw new Error(`${res.status}`);
+      return res.json();
+    },
+  });
+
+  const filtered = events.filter((e) => {
+    if (activityFilter !== 'all' && e.type !== activityFilter) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!e.title.toLowerCase().includes(q) && !e.project.toLowerCase().includes(q) && !e.detail.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  const periodLabel = period ? periodLabels[period] : null;
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
-      <TopBar 
-        title="History" 
-        subtitle="Track all extraction runs, uploads, and system activities across your workspace."
+      <TopBar
+        title="History"
+        subtitle="Track all file uploads, JSON exports, and chat sessions across your workspace."
       />
-      
+
       <div className="flex-1 overflow-auto">
         <div className="max-w-[1400px] mx-auto px-8 py-8">
           {/* Filters and Search */}
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
-              <button className="flex items-center gap-2 px-4 py-2 bg-white border border-[#E6E6E6] rounded-lg hover:bg-[#FAFAFA] transition-colors">
-                <Filter className="w-4 h-4 text-[#6B7280]" strokeWidth={1.5} />
-                <span className="text-sm text-[#111111]">Filter</span>
-              </button>
-              
               <div className="flex items-center gap-2">
-                <button className="px-3 py-2 text-sm text-[#111111] bg-[#E6E6E6] rounded-lg">
-                  All activity
-                </button>
-                <button className="px-3 py-2 text-sm text-[#6B7280] hover:text-[#111111] hover:bg-[#F4F4F4] rounded-lg transition-colors">
-                  Extractions
-                </button>
-                <button className="px-3 py-2 text-sm text-[#6B7280] hover:text-[#111111] hover:bg-[#F4F4F4] rounded-lg transition-colors">
-                  Uploads
-                </button>
-                <button className="px-3 py-2 text-sm text-[#6B7280] hover:text-[#111111] hover:bg-[#F4F4F4] rounded-lg transition-colors">
-                  Exports
-                </button>
+                {(['all', 'upload', 'export', 'chat'] as ActivityFilter[]).map((f) => (
+                  <button
+                    key={f}
+                    onClick={() => setActivityFilter(f)}
+                    className={`px-3 py-2 text-sm rounded-lg transition-colors ${
+                      activityFilter === f
+                        ? 'text-[#111111] bg-[#E6E6E6]'
+                        : 'text-[#6B7280] hover:text-[#111111] hover:bg-[#F4F4F4]'
+                    }`}
+                  >
+                    {f === 'all' ? 'All activity' : f === 'upload' ? 'Uploads' : f === 'export' ? 'Exports' : 'Chats'}
+                  </button>
+                ))}
               </div>
+
+              {periodLabel && (
+                <span className="text-xs text-[#6B7280] bg-[#F4F4F4] border border-[#E6E6E6] px-2.5 py-1 rounded-full">
+                  {periodLabel}
+                </span>
+              )}
             </div>
-            
+
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
               <input
                 type="text"
                 placeholder="Search history"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
                 className="w-64 pl-9 pr-4 py-2 bg-white border border-[#E6E6E6] rounded-lg text-sm placeholder:text-[#6B7280] focus:outline-none focus:border-[#111111] transition-colors"
               />
             </div>
@@ -180,18 +163,40 @@ export function HistoryPage() {
                 <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Status</span>
               </div>
               <div className="col-span-2">
-                <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">User</span>
+                <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Type</span>
               </div>
               <div className="col-span-1 flex justify-end">
                 <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Actions</span>
               </div>
             </div>
 
-            {/* Table Rows */}
-            {historyData.map((item) => {
-              const TypeIcon = typeIcons[item.type];
-              const StatusIcon = statusConfig[item.status].icon;
-              
+            {isLoading && (
+              <div className="flex items-center justify-center py-16 text-[#6B7280] text-sm">
+                Loading...
+              </div>
+            )}
+
+            {isError && (
+              <div className="flex items-center justify-center py-16 text-[#DC2626] text-sm">
+                Failed to load history.
+              </div>
+            )}
+
+            {!isLoading && !isError && filtered.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <div className="w-10 h-10 bg-[#F4F4F4] rounded-lg flex items-center justify-center">
+                  <Inbox className="w-5 h-5 text-[#9CA3AF]" strokeWidth={1.5} />
+                </div>
+                <p className="text-[#6B7280] text-sm">No activity found</p>
+              </div>
+            )}
+
+            {!isLoading && !isError && filtered.map((item) => {
+              const TypeIcon = typeIcons[item.type] ?? FileText;
+              const statusKey = item.status in statusConfig ? item.status : 'completed';
+              const sc = statusConfig[statusKey];
+              const StatusIcon = sc.icon;
+
               return (
                 <div
                   key={item.id}
@@ -204,8 +209,8 @@ export function HistoryPage() {
                     </div>
                     <div className="min-w-0">
                       <p className="text-[#111111] text-sm mb-0.5">{item.title}</p>
-                      <p className="text-[#6B7280] text-[12px]">
-                        {item.fileCount} files · {item.timestamp}
+                      <p className="text-[#6B7280] text-[12px] truncate">
+                        {item.detail} · {formatTimestamp(item.created_at)}
                       </p>
                     </div>
                   </div>
@@ -217,15 +222,15 @@ export function HistoryPage() {
 
                   {/* Status */}
                   <div className="col-span-2 flex items-center">
-                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium ${statusConfig[item.status].bgColor} ${statusConfig[item.status].color}`}>
+                    <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium ${sc.bgColor} ${sc.color}`}>
                       <StatusIcon className="w-3 h-3" strokeWidth={2} />
-                      {statusConfig[item.status].label}
+                      {sc.label}
                     </span>
                   </div>
 
-                  {/* User */}
+                  {/* Type */}
                   <div className="col-span-2 flex items-center">
-                    <span className="text-[#6B7280] text-sm">{item.user}</span>
+                    <span className="text-[#6B7280] text-sm">{typeLabels[item.type]}</span>
                   </div>
 
                   {/* Actions */}
@@ -239,33 +244,13 @@ export function HistoryPage() {
             })}
           </div>
 
-          {/* Pagination */}
-          <div className="flex items-center justify-between mt-6">
-            <p className="text-[#6B7280] text-sm">
-              Showing 8 of 247 activities
-            </p>
-            <div className="flex items-center gap-2">
-              <button className="px-3 py-2 text-sm text-[#6B7280] hover:text-[#111111] hover:bg-white border border-[#E6E6E6] rounded-lg transition-colors disabled:opacity-50" disabled>
-                Previous
-              </button>
-              <button className="px-3 py-2 text-sm text-[#111111] bg-white border border-[#E6E6E6] rounded-lg">
-                1
-              </button>
-              <button className="px-3 py-2 text-sm text-[#6B7280] hover:text-[#111111] hover:bg-white border border-transparent rounded-lg transition-colors">
-                2
-              </button>
-              <button className="px-3 py-2 text-sm text-[#6B7280] hover:text-[#111111] hover:bg-white border border-transparent rounded-lg transition-colors">
-                3
-              </button>
-              <span className="px-2 text-[#6B7280]">...</span>
-              <button className="px-3 py-2 text-sm text-[#6B7280] hover:text-[#111111] hover:bg-white border border-transparent rounded-lg transition-colors">
-                31
-              </button>
-              <button className="px-3 py-2 text-sm text-[#6B7280] hover:text-[#111111] hover:bg-white border border-[#E6E6E6] rounded-lg transition-colors">
-                Next
-              </button>
+          {!isLoading && !isError && filtered.length > 0 && (
+            <div className="mt-6">
+              <p className="text-[#6B7280] text-sm">
+                Showing {filtered.length} {filtered.length === 1 ? 'activity' : 'activities'}
+              </p>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
