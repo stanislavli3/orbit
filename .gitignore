@@ -1,5 +1,12 @@
 # Orbit
 
+# Runtime PID files
+.orbit-backend.pid
+.orbit-frontend.pid
+
+# Database
+*.sqlite3
+
 # Environment
 .env
 .env.local
@@ -36,6 +43,7 @@ ENV/
 
 # Node / Next.js
 node_modules/
+package-lock.json
 .next/
 out/
 .nuxt/
