@@ -439,14 +439,17 @@ function getSidebarContent(
             {
               icon: <Clock size={16} className={ic} />,
               label: "Today",
+              path: "/history?period=today",
             },
             {
               icon: <BarChart2 size={16} className={ic} />,
               label: "Last 7 days",
+              path: "/history?period=last7days",
             },
             {
               icon: <Archive size={16} className={ic} />,
               label: "Older",
+              path: "/history?period=older",
             },
           ],
         },
