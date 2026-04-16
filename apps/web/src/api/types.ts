@@ -154,6 +154,18 @@ export interface BomResearchRun {
   completed_at: string | null;
 }
 
+export interface BomLogEntry {
+  ts: string;
+  type: string;
+  message: string;
+}
+
+export interface BomLogResponse {
+  run_id: number;
+  status: BomResearchRun['status'];
+  entries: BomLogEntry[];
+}
+
 export interface TeamContact {
   id: number;
   full_name: string;
