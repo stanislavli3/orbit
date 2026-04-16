@@ -1,11 +1,24 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
-import { ArrowLeft, Upload, FileText, Download, Folder, MoreVertical, File, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, Pencil, Check, X, Trash, Link as LinkIcon } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import { ArrowLeft, Upload, FileText, Download, Folder, MoreVertical, File, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, Pencil, Check, X, Trash, Link as LinkIcon, ListChecks, BookOpen } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
-import type { Project, UploadedFile, ExtractionResult } from '../../api/types';
+import type { Project, UploadedFile, ExtractionResult, BomResearchRun } from '../../api/types';
 import { toast } from 'sonner';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { BomQuestionsPanel } from './BomQuestionsPanel';
+import type { LibraryDocType } from '../../api/types';
+
+const LIBRARY_DOC_TYPES: { value: LibraryDocType; label: string }[] = [
+  { value: 'avl', label: 'Approved Vendor List' },
+  { value: 'material-spec', label: 'Material Specification' },
+  { value: 'compliance', label: 'Compliance Document' },
+  { value: 'previous-bom', label: 'Previous BOM' },
+  { value: 'scorecard', label: 'Supplier Scorecard' },
+  { value: 'standard', label: 'Design Standard' },
+  { value: 'preferred-materials', label: 'Preferred Materials' },
+];
 
 type FileLike = UploadedFile & { optimistic?: boolean };
 
@@ -70,7 +83,7 @@ function SkeletonRow() {
   );
 }
 
-function ExtractionResultPanel({ fileId, apiFetch }: { fileId: number; apiFetch: ReturnType<typeof useApiClient> }) {
+function ExtractionResultPanel({ fileId, apiFetch, description }: { fileId: number; apiFetch: ReturnType<typeof useApiClient>; description?: string }) {
   const { data, isLoading } = useQuery<ExtractionResult>({
     queryKey: ['file-result', fileId],
     queryFn: async () => {
@@ -93,44 +106,315 @@ function ExtractionResultPanel({ fileId, apiFetch }: { fileId: number; apiFetch:
 
   if (!data) return null;
 
+  const unit = data.units?.length_unit ?? data.units_hint;
+  const bb = data.spatial?.bounding_box_estimate;
+
+  // Parse ## sections from AI description for rich section rendering
+  const hasHeaders = (description ?? '').includes('## ');
+  let overviewText = '';
+  let bodyMd = description ?? '';
+  if (hasHeaders && description) {
+    const lines = description.split('\n');
+    let inOverview = false;
+    let pastOverview = false;
+    const bodyLines: string[] = [];
+    for (const line of lines) {
+      const isH2 = line.startsWith('## ');
+      if (isH2 && line.toLowerCase().includes('overview')) { inOverview = true; continue; }
+      if (isH2 && inOverview) { inOverview = false; pastOverview = true; bodyLines.push(line); continue; }
+      if (isH2 && pastOverview) { bodyLines.push(line); continue; }
+      if (inOverview && line.trim()) overviewText += (overviewText ? ' ' : '') + line.trim();
+      else if (pastOverview) bodyLines.push(line);
+    }
+    bodyMd = bodyLines.join('\n').trim();
+  }
+
   return (
-    <div className="px-6 pb-4 pt-3 bg-[#FAFAFA] border-t border-[#E6E6E6]">
-      <div className="grid grid-cols-3 gap-4 text-[12px]">
-        {data.schema && (
-          <div>
-            <p className="text-[#9CA3AF] uppercase tracking-wide mb-0.5">Schema</p>
-            <p className="text-[#111111] font-medium truncate">{data.schema}</p>
+    <div className="border-t border-[#E6E6E6] bg-[#FAFAFA]">
+
+      {/* AI Description card */}
+      {description && (
+        <div className="mx-6 mt-5 mb-2 rounded-2xl overflow-hidden" style={{
+          boxShadow: '0 0 0 1px rgba(139,92,246,0.14), 0 8px 32px rgba(109,40,217,0.08), 0 1px 3px rgba(0,0,0,0.04)'
+        }}>
+
+          {/* Aurora gradient header */}
+          <div className="relative px-5 pt-5 pb-5 overflow-hidden" style={{
+            background: 'linear-gradient(135deg, #0C0C1E 0%, #130F2B 45%, #0A1628 100%)'
+          }}>
+            {/* Violet glow blob */}
+            <div className="absolute pointer-events-none" style={{
+              top: '-24px', left: '8%', width: '180px', height: '180px',
+              background: 'radial-gradient(circle, rgba(124,58,237,0.35), transparent 70%)',
+              filter: 'blur(28px)'
+            }} />
+            {/* Blue glow blob */}
+            <div className="absolute pointer-events-none" style={{
+              top: '-12px', right: '15%', width: '120px', height: '120px',
+              background: 'radial-gradient(circle, rgba(37,99,235,0.25), transparent 70%)',
+              filter: 'blur(20px)'
+            }} />
+            {/* Dot grid texture */}
+            <div className="absolute inset-0 pointer-events-none" style={{
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 1px)',
+              backgroundSize: '22px 22px'
+            }} />
+            <div className="relative">
+              {/* Badge row */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <div className="absolute inset-0 rounded-xl opacity-50" style={{
+                      background: 'linear-gradient(135deg, #8B5CF6, #6366F1)',
+                      filter: 'blur(8px)'
+                    }} />
+                    <div className="relative w-8 h-8 rounded-xl flex items-center justify-center" style={{
+                      background: 'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)'
+                    }}>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-[11px] font-bold text-white tracking-widest uppercase leading-none mb-1">AI Analysis</p>
+                    <p className="text-[10px] font-mono leading-none" style={{color: 'rgba(255,255,255,0.32)'}}>claude-haiku-4-5</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full" style={{
+                  background: 'rgba(255,255,255,0.04)',
+                  border: '1px solid rgba(255,255,255,0.09)'
+                }}>
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" style={{boxShadow: '0 0 5px rgba(52,211,153,0.7)'}} />
+                  <span className="text-[10px] font-medium" style={{color: 'rgba(255,255,255,0.38)'}}>Generated</span>
+                </div>
+              </div>
+              {/* Overview or full text in header */}
+              {(overviewText || !hasHeaders) && (
+                <div style={{borderLeft: '2px solid rgba(139,92,246,0.5)', paddingLeft: '12px'}}>
+                  <p className="text-[13px] leading-relaxed m-0" style={{color: 'rgba(255,255,255,0.7)'}}>
+                    {overviewText || description}
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        )}
-        {data.units_hint && (
-          <div>
-            <p className="text-[#9CA3AF] uppercase tracking-wide mb-0.5">Units</p>
-            <p className="text-[#111111] font-medium">{data.units_hint}</p>
+
+          {/* Body sections */}
+          <div className="bg-white">
+            {hasHeaders && bodyMd ? (
+              <ReactMarkdown
+                components={{
+                  h2: ({ children }) => {
+                    const name = String(children || '').toLowerCase();
+                    const cfg =
+                      name.includes('key') || name.includes('prop')
+                        ? { color: '#2563EB', bg: '#EFF6FF', text: 'Key Properties' }
+                        : name.includes('geom')
+                        ? { color: '#059669', bg: '#ECFDF5', text: 'Geometry & Structure' }
+                        : name.includes('prov')
+                        ? { color: '#B45309', bg: '#FEF3C7', text: 'Provenance' }
+                        : { color: '#7C3AED', bg: '#F5F3FF', text: String(children) };
+                    return (
+                      <div className="flex items-center gap-2 px-5 pt-5 pb-2 border-t border-[#F3F4F6]">
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-md tracking-wide whitespace-nowrap flex-shrink-0"
+                              style={{ color: cfg.color, background: cfg.bg }}>
+                          {cfg.text}
+                        </span>
+                        <div className="flex-1 h-px bg-[#F0F0F0]" />
+                      </div>
+                    );
+                  },
+                  p: ({ children }) => (
+                    <p className="px-5 py-1.5 text-[13px] text-[#374151] leading-relaxed m-0">{children}</p>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="px-5 pb-3 pt-1 m-0 list-none space-y-1.5">{children}</ul>
+                  ),
+                  li: ({ children }) => (
+                    <li className="flex items-start gap-2 text-[12px] text-[#374151]">
+                      <span className="mt-[5px] w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background: '#DDD6FE'}} />
+                      <span className="leading-relaxed">{children}</span>
+                    </li>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-semibold text-[#111]">{children}</strong>
+                  ),
+                }}
+              >{bodyMd}</ReactMarkdown>
+            ) : null}
+            <div className="h-5" />
           </div>
-        )}
-        {data.confidence != null && (
-          <div>
-            <p className="text-[#9CA3AF] uppercase tracking-wide mb-0.5">Confidence</p>
-            <p className="text-[#111111] font-medium">{Math.round(data.confidence * 100)}%</p>
+        </div>
+      )}
+
+      {/* Key Properties grid */}
+      {(data.schema || data.authoring_system || data.confidence != null || unit || data.products?.product_count != null || data.geometry?.faces != null) && (
+        <div className="px-6 pt-5 pb-4 border-b border-[#F0F0F0]">
+          <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-3">Key Properties</p>
+          <div className="grid grid-cols-3 gap-2">
+            {data.schema && (
+              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Format</p>
+                <p className="text-[12px] font-semibold text-[#111111] leading-snug">{data.schema}</p>
+              </div>
+            )}
+            {data.authoring_system && (
+              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Authoring Tool</p>
+                <p className="text-[12px] font-semibold text-[#111111] leading-snug">{data.authoring_system}</p>
+              </div>
+            )}
+            {data.confidence != null && (
+              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Confidence</p>
+                <div className="flex items-baseline gap-1.5">
+                  <p className="text-[12px] font-semibold text-[#111111]">{Math.round(data.confidence * 100)}%</p>
+                  <div className="flex-1 h-1 bg-[#F0F0F0] rounded-full overflow-hidden">
+                    <div className="h-full bg-amber-400 rounded-full" style={{ width: `${Math.round(data.confidence * 100)}%` }} />
+                  </div>
+                </div>
+              </div>
+            )}
+            {unit && (
+              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Units</p>
+                <p className="text-[12px] font-semibold text-[#111111] leading-snug">{unit}</p>
+              </div>
+            )}
+            {data.products?.product_count != null && (
+              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Products</p>
+                <p className="text-[12px] font-semibold text-[#111111] leading-snug">{data.products.product_count}</p>
+              </div>
+            )}
+            {data.geometry?.faces != null && (
+              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Faces</p>
+                <p className="text-[12px] font-semibold text-[#111111] leading-snug tabular-nums">{data.geometry.faces.toLocaleString()}</p>
+              </div>
+            )}
           </div>
-        )}
-        {data.file_description && (
-          <div className="col-span-3">
-            <p className="text-[#9CA3AF] uppercase tracking-wide mb-0.5">Description</p>
-            <p className="text-[#111111]">{data.file_description}</p>
+        </div>
+      )}
+
+      {/* Bounding box */}
+      {bb && (
+        <div className="px-6 pt-4 pb-3 border-b border-[#F0F0F0]">
+          <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2.5">Bounding Box</p>
+          <div className="flex items-stretch gap-2">
+            {([['X', bb.x], ['Y', bb.y], ['Z', bb.z]] as [string, string | number][]).map(([axis, val]) => (
+              <div key={axis} className="flex-1 bg-white border border-[#EBEBEB] rounded-xl px-3 py-2.5 text-center">
+                <p className="text-[10px] text-[#9CA3AF] font-medium mb-0.5">{axis}</p>
+                <p className="text-[12px] font-semibold text-[#111111] tabular-nums">{val}</p>
+              </div>
+            ))}
+            {unit && (
+              <div className="flex items-end pb-2.5 pl-1">
+                <span className="text-[11px] text-[#9CA3AF]">{unit}</span>
+              </div>
+            )}
           </div>
-        )}
-        {data.warnings?.length > 0 && (
-          <div className="col-span-3">
-            <p className="text-[#9CA3AF] uppercase tracking-wide mb-0.5">Warnings</p>
-            <ul className="space-y-0.5">
-              {data.warnings.map((w, i) => (
-                <li key={i} className="text-[#DC2626]">{w}</li>
-              ))}
-            </ul>
+        </div>
+      )}
+
+      {/* Detail grid: provenance + geometry */}
+      <div className="px-6 py-4 grid grid-cols-2 gap-4 text-[12px]">
+        {/* Left col: provenance + products */}
+        <div className="space-y-3">
+          {(data.source_file || data.created_at || data.authors?.length) && (
+            <div className="bg-white border border-[#EBEBEB] rounded-xl px-4 py-3">
+              <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Provenance</p>
+              <dl className="space-y-1.5">
+                {data.source_file && (
+                  <div className="flex gap-2">
+                    <dt className="text-[#9CA3AF] min-w-[72px]">Source</dt>
+                    <dd className="text-[#374151] font-medium truncate">{data.source_file}</dd>
+                  </div>
+                )}
+                {data.created_at && (
+                  <div className="flex gap-2">
+                    <dt className="text-[#9CA3AF] min-w-[72px]">Created</dt>
+                    <dd className="text-[#374151]">{new Date(data.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</dd>
+                  </div>
+                )}
+                {data.authors?.length && (
+                  <div className="flex gap-2">
+                    <dt className="text-[#9CA3AF] min-w-[72px]">Tools</dt>
+                    <dd className="text-[#374151]">{data.authors.join(', ')}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          )}
+          {data.products?.product_names?.length && (
+            <div className="bg-white border border-[#EBEBEB] rounded-xl px-4 py-3">
+              <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Products</p>
+              <ul className="space-y-1">
+                {data.products.product_names.slice(0, 6).map((name, i) => (
+                  <li key={i} className="flex items-center gap-2 text-[#374151]">
+                    <span className="w-1 h-1 rounded-full bg-[#D1D5DB] flex-shrink-0" />
+                    {name}
+                  </li>
+                ))}
+                {data.products.product_names.length > 6 && (
+                  <li className="text-[#9CA3AF] pl-3">+{data.products.product_names.length - 6} more</li>
+                )}
+              </ul>
+              {data.products.assembly_relationships != null && (
+                <p className="text-[#6B7280] mt-2 pt-2 border-t border-[#F0F0F0]">
+                  {data.products.assembly_relationships} assembly {data.products.assembly_relationships === 1 ? 'relationship' : 'relationships'}
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Right col: geometry */}
+        {data.geometry && Object.keys(data.geometry).length > 0 && (
+          <div className="bg-white border border-[#EBEBEB] rounded-xl px-4 py-3">
+            <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Geometry</p>
+            <dl className="space-y-1.5">
+              {([
+                ['solid_bodies', 'Solid bodies'],
+                ['faces', 'Faces'],
+                ['edges', 'Edges'],
+                ['vertices', 'Vertices'],
+                ['circles', 'Circles'],
+                ['coordinate_axes', 'Coord. axes'],
+              ] as [string, string][]).map(([key, label]) =>
+                data.geometry![key] != null ? (
+                  <div key={key} className="flex justify-between gap-2">
+                    <dt className="text-[#9CA3AF]">{label}</dt>
+                    <dd className="text-[#374151] font-semibold tabular-nums">{(data.geometry![key] as number).toLocaleString()}</dd>
+                  </div>
+                ) : null
+              )}
+            </dl>
+            {data.geometry.surface_type_breakdown && (
+              <div className="mt-3 pt-2 border-t border-[#F0F0F0]">
+                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1.5">Surface types</p>
+                <div className="flex flex-wrap gap-1">
+                  {Object.entries(data.geometry.surface_type_breakdown).map(([type, count]) => (
+                    <span key={type} className="px-2 py-0.5 bg-[#F7F7F7] border border-[#EBEBEB] rounded-md text-[10px] text-[#6B7280]">
+                      {type} <span className="font-medium text-[#374151]">{count}</span>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
+
+      {/* Warnings */}
+      {data.warnings?.length > 0 && (
+        <div className="px-6 pb-4">
+          {data.warnings.map((w, i) => (
+            <p key={i} className="text-[11px] text-[#92400E] bg-amber-50 border border-amber-100 rounded px-2.5 py-1.5 mb-1">{w}</p>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -140,8 +424,34 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
   const [editingDesc, setEditingDesc] = useState(false);
   const [descValue, setDescValue] = useState(file.description || '');
   const [savingDesc, setSavingDesc] = useState(false);
+  const [promoteDocType, setPromoteDocType] = useState<LibraryDocType | ''>('');
+  const [showPromoteModal, setShowPromoteModal] = useState(false);
+  const [promoting, setPromoting] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  async function handlePromote() {
+    if (!promoteDocType) return;
+    setPromoting(true);
+    try {
+      const res = await apiFetch('/api/library/documents/promote/', {
+        method: 'POST',
+        body: JSON.stringify({ file_id: file.id, doc_type: promoteDocType }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail ?? 'Failed to add to Library');
+      }
+      toast.success(`"${file.original_name}" added to Library.`);
+      queryClient.invalidateQueries({ queryKey: ['library'] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to add to Library');
+    } finally {
+      setPromoting(false);
+      setShowPromoteModal(false);
+      setPromoteDocType('');
+    }
+  }
 
   useEffect(() => {
     if (!editingDesc) setDescValue(file.description || '');
@@ -256,6 +566,13 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
                   Download
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
+                  className="px-3 py-2 rounded hover:bg-[#F4F4F4] flex items-center gap-2 cursor-pointer"
+                  onSelect={(e) => { e.preventDefault(); setShowPromoteModal(true); }}
+                >
+                  <BookOpen className="w-4 h-4 text-[#6B7280]" />
+                  Add to Library
+                </DropdownMenu.Item>
+                <DropdownMenu.Item
                   className="px-3 py-2 rounded hover:bg-[#FEF2F2] text-[#DC2626] flex items-center gap-2 cursor-pointer"
                   onSelect={(e) => { e.preventDefault(); handleDelete(); }}
                 >
@@ -306,9 +623,9 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
               className="flex-1 text-left group/desc"
             >
               {descValue ? (
-                <span className="text-[12px] text-[#6B7280] line-clamp-2 group-hover/desc:text-[#111111] transition-colors">
-                  {descValue}
-                </span>
+                <div className="text-[12px] text-[#6B7280] group-hover/desc:text-[#374151] transition-colors prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-[#374151] [&_ul]:pl-4 [&_li]:text-[12px] [&_h2]:text-[12px] [&_h3]:text-[12px] [&_h2]:font-semibold [&_h3]:font-medium [&_h2]:text-[#374151] [&_h3]:text-[#6B7280]">
+                  <ReactMarkdown>{descValue}</ReactMarkdown>
+                </div>
               ) : (
                 <span className="text-[12px] text-[#D1D5DB] italic group-hover/desc:text-[#9CA3AF] transition-colors flex items-center gap-1.5">
                   <Pencil className="w-3 h-3" strokeWidth={1.5} />
@@ -321,7 +638,35 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
       </div>
 
       {expanded && file.status === 'processed' && (
-        <ExtractionResultPanel fileId={file.id} apiFetch={apiFetch} />
+        <ExtractionResultPanel fileId={file.id} apiFetch={apiFetch} description={file.description} />
+      )}
+
+      {/* Add to Library promote modal */}
+      {showPromoteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-base font-semibold text-[#111111] mb-1">Add to Library</h3>
+            <p className="text-sm text-[#6B7280] mb-4">Select a document type for <span className="font-medium text-[#111111]">{file.original_name}</span></p>
+            <select
+              value={promoteDocType}
+              onChange={(e) => setPromoteDocType(e.target.value as LibraryDocType)}
+              className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111] bg-white mb-4"
+            >
+              <option value="">Select type…</option>
+              {LIBRARY_DOC_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => { setShowPromoteModal(false); setPromoteDocType(''); }} className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4]">Cancel</button>
+              <button onClick={handlePromote} disabled={!promoteDocType || promoting}
+                className="px-4 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 flex items-center gap-1.5">
+                {promoting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Add to Library
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </>
   );
@@ -336,6 +681,10 @@ export function ProjectDetailPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const apiFetch = useApiClient();
   const queryClient = useQueryClient();
+  const [bomRunId, setBomRunId] = useState<number | null>(null);
+  const [bomPanelOpen, setBomPanelOpen] = useState(false);
+  const [bomStarting, setBomStarting] = useState(false);
+  const [activeBomRun, setActiveBomRun] = useState<BomResearchRun | null>(null);
   const prevStatuses = useRef<Record<number, UploadedFile['status']>>({});
 
   const { data: project, isLoading: projectLoading, isError: projectError } = useQuery<Project>({
@@ -478,6 +827,36 @@ export function ProjectDetailPage() {
             <button
               onClick={async () => {
                 if (!id) return;
+                setBomStarting(true);
+                try {
+                  const res = await apiFetch('/api/bom/runs/', {
+                    method: 'POST',
+                    body: JSON.stringify({ project_id: Number(id) }),
+                  });
+                  if (!res.ok) {
+                    const err = await res.json();
+                    throw new Error(err.detail ?? 'Failed to start BOM run');
+                  }
+                  const run: BomResearchRun = await res.json();
+                  setBomRunId(run.id);
+                  setBomPanelOpen(true);
+                } catch (err) {
+                  toast.error(err instanceof Error ? err.message : 'Failed to start BOM run');
+                } finally {
+                  setBomStarting(false);
+                }
+              }}
+              disabled={bomStarting}
+              className="px-4 py-2 bg-white border border-[#E6E6E6] rounded-lg hover:bg-[#FAFAFA] transition-colors text-sm text-[#111111] flex items-center gap-2 disabled:opacity-50"
+            >
+              {bomStarting
+                ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
+                : <ListChecks className="w-4 h-4" strokeWidth={1.5} />}
+              {activeBomRun ? 'View BOM' : 'Generate BOM'}
+            </button>
+            <button
+              onClick={async () => {
+                if (!id) return;
                 try {
                   const res = await apiFetch(`/api/projects/${id}/export/`);
                   if (!res.ok) throw new Error(`Export failed (${res.status})`);
@@ -538,6 +917,18 @@ export function ProjectDetailPage() {
           </button>
         </div>
       </div>
+
+      {/* BOM Questions Panel */}
+      {bomPanelOpen && bomRunId !== null && (
+        <BomQuestionsPanel
+          runId={bomRunId}
+          onClose={() => setBomPanelOpen(false)}
+          onComplete={(run) => {
+            setActiveBomRun(run);
+            setBomPanelOpen(false);
+          }}
+        />
+      )}
 
       {/* Content */}
       <div className="flex-1 overflow-auto bg-[#F7F7F7]">
