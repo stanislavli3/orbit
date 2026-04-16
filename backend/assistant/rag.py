@@ -88,7 +88,7 @@ def find_library_docs(
     Return LibraryDocument queryset for the workspace, optionally filtered by doc_type (#59).
     Falls back to embedding-ranked results if a query is given.
     """
-    from bom_agent.models import LibraryDocument, LibraryEmbedding  # local import to avoid circular
+    from bom_agent.models import LibraryDocument  # local import to avoid circular
 
     qs = LibraryDocument.objects.filter(workspace_owner=user)
     if doc_types:
