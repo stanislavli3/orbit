@@ -10,4 +10,7 @@ urlpatterns = [
     path("api/assistant/", include("assistant.urls")),
     path("api/auth/", include("accounts.urls")),
     path("api/history/", HistoryView.as_view(), name="history"),
+    path("api/team/", include("bom_agent.urls")),
+    path("api/bom/", include("bom_agent.bom_urls")),
+    path("api/library/", include("bom_agent.library_urls")),
 ]

@@ -42,11 +42,16 @@ def find_relevant_files(
     for embedding in embeddings:
         vec = np.array(embedding.embedding_json, dtype=float)
         score = cosine_similarity(query_vec, vec)
-        if score > 0:
-            scored.append((score, embedding.file))
+        scored.append((score, embedding.file))
 
     scored.sort(key=lambda x: x[0], reverse=True)
-    return [file for _, file in scored[:top_k]]
+    results = [file for _, file in scored[:top_k]]
+
+    # If TF-IDF found no overlap, fall back to returning the most recent files
+    if not results or all(s == 0 for s, _ in scored[:top_k]):
+        return [file for _, file in scored[:top_k]] if scored else []
+
+    return results
 
 
 def build_context_prompt(files: List[UploadedFile]) -> str:
@@ -73,6 +78,40 @@ def build_context_prompt(files: List[UploadedFile]) -> str:
     return "\n\n".join(blocks)
 
 
+def find_library_docs(
+    user: User,
+    doc_types: list[str] | None = None,
+    query: str = "",
+    top_k: int = 10,
+):
+    """
+    Return LibraryDocument queryset for the workspace, optionally filtered by doc_type (#59).
+    Falls back to embedding-ranked results if a query is given.
+    """
+    from bom_agent.models import LibraryDocument  # local import to avoid circular
+
+    qs = LibraryDocument.objects.filter(workspace_owner=user)
+    if doc_types:
+        qs = qs.filter(doc_type__in=doc_types)
+
+    if not query:
+        return list(qs[:top_k])
+
+    # Embedding-based ranking within the filtered set
+    query_vec = np.array(generate_embedding(query), dtype=float)
+    results = []
+    for doc in qs:
+        try:
+            emb_vec = np.array(doc.embedding.embedding_json, dtype=float)
+            score = cosine_similarity(query_vec, emb_vec)
+        except Exception:
+            score = 0.0
+        results.append((score, doc))
+
+    results.sort(key=lambda x: x[0], reverse=True)
+    return [doc for _, doc in results[:top_k]]
+
+
 def build_system_prompt(context_block: str) -> str:
     api_key_present = bool(os.getenv("ANTHROPIC_API_KEY"))
     api_note = (
@@ -81,7 +120,13 @@ def build_system_prompt(context_block: str) -> str:
         else "Anthropic API key is missing — respond with a helpful disclaimer."
     )
     return (
-        "You are Orbit's engineering file assistant. Answer concisely, grounding every claim in the provided file metadata. "
-        "If the context lacks the answer, say so and suggest what to upload. "
+        "You are Orbit's engineering file assistant. "
+        "Always respond with rich, well-structured Markdown: use headers (##/###), "
+        "bold labels, bullet lists, and tables where appropriate. "
+        "Ground every claim in the provided file metadata — never invent values. "
+        "When presenting extracted data, organise it into clear sections: "
+        "Overview, Products / Assembly, Geometry, Units & Spatial, Appearance, and Limitations. "
+        "Omit sections that have no data. "
+        "If the context lacks an answer, say so clearly and suggest what to upload next. "
         f"{api_note}\n\nContext:\n{context_block}"
     )

@@ -4,9 +4,8 @@ import { AssistantPage } from './components/AssistantPage';
 import { VaultPage } from './components/VaultPage';
 import { HistoryPage } from './components/HistoryPage';
 import { ProjectDetailPage } from './components/ProjectDetailPage';
-import { ComingSoonPage } from './components/ComingSoonPage';
-import { FileResultPage } from './components/FileResultPage';
 import { SettingsPage } from './components/SettingsPage';
+import { LibraryPage } from './components/LibraryPage';
 import { SignInPage } from './components/SignInPage';
 import { SsoCallbackPage } from './components/SsoCallbackPage';
 
@@ -30,7 +29,7 @@ export const router = createBrowserRouter([
       { path: 'extraction-runs', Component: VaultPage }, // Placeholder
       { path: 'workflows', Component: VaultPage }, // Placeholder
       { path: 'history', Component: HistoryPage },
-      { path: 'library', element: <ComingSoonPage title="Library" subtitle="Reusable extraction profiles and knowledge bases." /> },
+      { path: 'library', Component: LibraryPage },
       { path: 'settings', Component: SettingsPage },
     ],
   },
