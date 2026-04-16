@@ -214,6 +214,7 @@ def _handle_record_supplier_quote(item, run, inputs: dict) -> str:
     is_avl = inputs.get("is_avl", False)
     notes = inputs.get("notes", "").strip()
     country = inputs.get("country", "")
+    landed = inputs.get("landed_cost_usd")
 
     if not is_avl:
         notes = f"⚠️ Non-AVL supplier. {notes}".strip()
@@ -225,12 +226,13 @@ def _handle_record_supplier_quote(item, run, inputs: dict) -> str:
         moq=inputs["moq"],
         lead_time_days=inputs["lead_time_days"],
         tooling_cost=inputs.get("tooling_cost", 0),
+        landed_cost_usd=landed,
         source_url=inputs.get("source_url", ""),
         notes=f"{notes} [Country: {country}]".strip() if country else notes,
+        is_avl=is_avl,
     )
 
     avl_tag = "" if is_avl else " [Non-AVL ⚠️]"
-    landed = inputs.get("landed_cost_usd")
     landed_str = f", landed ${landed:.2f}" if landed is not None else ""
     _log(
         run, "quote",

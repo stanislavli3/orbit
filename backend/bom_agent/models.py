@@ -122,8 +122,10 @@ class SupplierQuote(models.Model):
     moq = models.IntegerField()
     lead_time_days = models.IntegerField()
     tooling_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    landed_cost_usd = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     source_url = models.URLField(blank=True)
     notes = models.TextField(blank=True)
+    is_avl = models.BooleanField(default=False)
     is_selected = models.BooleanField(default=False)
 
     def __str__(self):
