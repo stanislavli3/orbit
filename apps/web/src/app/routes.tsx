@@ -4,8 +4,6 @@ import { AssistantPage } from './components/AssistantPage';
 import { VaultPage } from './components/VaultPage';
 import { HistoryPage } from './components/HistoryPage';
 import { ProjectDetailPage } from './components/ProjectDetailPage';
-import { ComingSoonPage } from './components/ComingSoonPage';
-import { FileResultPage } from './components/FileResultPage';
 import { SettingsPage } from './components/SettingsPage';
 import { LibraryPage } from './components/LibraryPage';
 import { SignInPage } from './components/SignInPage';
