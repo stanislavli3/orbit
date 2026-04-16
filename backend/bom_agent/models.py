@@ -28,6 +28,7 @@ class LibraryDocument(models.Model):
         on_delete=models.SET_NULL,
         related_name="library_versions",
     )
+    extracted_text = models.TextField(blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

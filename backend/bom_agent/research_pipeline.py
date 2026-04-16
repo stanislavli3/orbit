@@ -69,7 +69,10 @@ def _update_results(run, item_key: str, patch: dict) -> None:
 
 # ── Tool definitions (Sonnet) ─────────────────────────────────────────────────
 
+# web_search is an Anthropic-hosted tool — no external API key needed.
+# Claude calls it; Anthropic's servers execute the search and inject results.
 _TOOLS = [
+    {"type": "web_search_20250305", "name": "web_search"},
     {
         "name": "record_material_spec",
         "description": (
@@ -320,8 +323,10 @@ def _research_item(
     item,
     run,
     avl_names: list[str],
+    avl_content: str,
     compliance_types: list[str],
     material_doc_names: list[str],
+    material_doc_content: str,
 ) -> None:
     from .models import BomLineItem
 
@@ -333,21 +338,31 @@ def _research_item(
     BomLineItem.objects.filter(pk=item.pk).update(status="researching")
     item.refresh_from_db()
 
-    avl_ctx = (
-        f"Approved Vendor List — these suppliers are pre-approved: {', '.join(avl_names)}"
-        if avl_names
-        else "No AVL loaded — all suppliers are treated as non-AVL."
-    )
+    if avl_content:
+        avl_ctx = (
+            f"Approved Vendor List — pre-approved suppliers (is_avl=true for these):\n"
+            f"{avl_content[:3000]}"
+        )
+    elif avl_names:
+        avl_ctx = f"Approved Vendor List — pre-approved suppliers: {', '.join(avl_names)}"
+    else:
+        avl_ctx = "No AVL loaded — all suppliers are treated as non-AVL."
+
     compliance_ctx = (
         f"Compliance certifications found in Library: {', '.join(compliance_types)}"
         if compliance_types
         else "No compliance documents in Library — flag compliance_gap=true if certs are needed."
     )
-    material_ctx = (
-        f"Material specification documents in Library: {', '.join(material_doc_names)}"
-        if material_doc_names
-        else "No material spec documents in Library."
-    )
+
+    if material_doc_content:
+        material_ctx = (
+            f"Material specification from Library:\n{material_doc_content[:2000]}"
+        )
+    elif material_doc_names:
+        material_ctx = f"Material specification documents in Library: {', '.join(material_doc_names)}"
+    else:
+        material_ctx = "No material spec documents in Library."
+
     inputs_summary = json.dumps(run.inputs_json, ensure_ascii=False)[:600]
 
     system_prompt = f"""You are an expert BOM research agent for mechanical engineering manufacturing.
@@ -370,17 +385,21 @@ Quantity per production run: {item.quantity}
 
 ## Pipeline — call tools in this order
 1. Call record_material_spec once — identify the correct material grade/standard.
-   Check the Library material docs first. If found there, set found_in_library=true.
+   Check the Library material content above first. If found there, set found_in_library=true.
    Otherwise infer from the part name and engineering knowledge.
 
-2. Call record_supplier_quote 2–5 times — one call per supplier candidate.
-   - Check AVL suppliers first (is_avl=true if in the list above).
-   - Non-AVL suppliers must have is_avl=false.
+2. Use web_search to find real supplier options (1–3 searches such as
+   "buy [part name] [material] supplier quote" or "[supplier name] [part] pricing").
+   - Search AVL suppliers first if an AVL is provided above.
+   - If no AVL is provided, search for 2–5 reputable suppliers.
+
+3. Call record_supplier_quote 2–5 times — one call per supplier candidate found.
+   - Suppliers in the AVL above must have is_avl=true; all others is_avl=false.
    - Adjust unit_price for the production volume specified above.
    - Estimate landed_cost_usd = unit_price + (flat shipping estimate / qty).
    - Machined / cast parts need a non-zero tooling_cost.
 
-3. Call record_risk_flags once — after all quotes are in.
+4. Call record_risk_flags once — after all quotes are in.
    - cost_outlier=true if any quote is more than 2× the median unit price.
 
 Output only tool calls — no narrative text."""
@@ -415,8 +434,19 @@ Output only tool calls — no narrative text."""
         if response.stop_reason == "tool_use":
             tool_results = []
             for block in response.content:
+                if block.type == "server_tool_use":
+                    # Anthropic-hosted tools (e.g. web_search): execution is handled
+                    # server-side; we return an empty result to continue the turn.
+                    tool_results.append({
+                        "type": "tool_result",
+                        "tool_use_id": block.id,
+                        "content": "",
+                    })
+                    continue
+
                 if block.type != "tool_use":
                     continue
+
                 try:
                     if block.name == "record_material_spec":
                         result = _handle_record_material_spec(item, run, block.input)
@@ -488,9 +518,12 @@ def run_bom_research(run_id: int) -> None:
 
         if avl_docs:
             avl_names = [d.original_name for d in avl_docs]
-            _log(run, "library", f"📚 AVL loaded: {', '.join(avl_names)}")
+            avl_content = "\n\n".join(d.extracted_text for d in avl_docs if d.extracted_text)
+            supplier_count = avl_content.count("\n") if avl_content else 0
+            _log(run, "library", f"📚 AVL loaded: {', '.join(avl_names)} — ~{supplier_count} rows")
         else:
             avl_names = []
+            avl_content = ""
             _log(run, "library", "No AVL in Library — all suppliers treated as non-AVL")
 
         if compliance_docs:
@@ -501,9 +534,11 @@ def run_bom_research(run_id: int) -> None:
 
         if material_docs:
             material_doc_names = [d.original_name for d in material_docs]
+            material_doc_content = "\n\n".join(d.extracted_text for d in material_docs if d.extracted_text)
             _log(run, "library", f"📚 Material specs: {', '.join(material_doc_names)}")
         else:
             material_doc_names = []
+            material_doc_content = ""
 
         if scorecard_docs:
             _log(run, "library", f"📚 Supplier scorecards: {', '.join(d.original_name for d in scorecard_docs)}")
@@ -519,7 +554,12 @@ def run_bom_research(run_id: int) -> None:
         _log(run, "info", f"Researching {len(items)} line item(s)")
 
         for item in items:
-            _research_item(item, run, avl_names, compliance_types, material_doc_names)
+            _research_item(
+                item, run,
+                avl_names, avl_content,
+                compliance_types,
+                material_doc_names, material_doc_content,
+            )
 
         # ── Generating report ─────────────────────────────────────────────────
         _set_status(run, "generating_report")
