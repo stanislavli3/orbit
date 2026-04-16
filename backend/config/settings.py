@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "files_api",
     "core",
     "assistant",
+    "bom_agent",
 ]
 
 MIDDLEWARE = [

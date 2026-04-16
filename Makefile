@@ -5,7 +5,7 @@
 # Every day:   make dev
 # Shut down:   make stop
 
-.PHONY: dev setup stop restart logs migrate help
+.PHONY: dev dev-local setup stop restart logs migrate help
 
 # ── Python resolution ──────────────────────────────────────────────────────────
 # Prefer the project venv; otherwise fall back to python then python3 on PATH (handles spaces).
@@ -15,8 +15,8 @@ PYTHON      := $(if $(wildcard $(VENV)/Scripts/python.exe),$(abspath $(VENV)/Scr
 PIP         := $(if $(wildcard $(VENV)/Scripts/pip.exe),$(abspath $(VENV)/Scripts/pip.exe),pip)
 POWERSHELL  := powershell -NoProfile -ExecutionPolicy Bypass -Command
 else
-PYTHON      := $(if $(wildcard $(VENV)/bin/python),$(VENV)/bin/python,python)
-PIP         := $(if $(wildcard $(VENV)/bin/pip),$(VENV)/bin/pip,pip)
+PYTHON      := $(if $(wildcard $(VENV)/bin/python),$(abspath $(VENV)/bin/python),python)
+PIP         := $(if $(wildcard $(VENV)/bin/pip),$(abspath $(VENV)/bin/pip),pip)
 endif
 
 # ── Ports ──────────────────────────────────────────────────────────────────────
@@ -47,6 +47,29 @@ dev: _docker-up _bucket _migrate
 	@echo ""
 	@echo "  Backend  → http://localhost:$(BACKEND_PORT)"
 	@echo "  Frontend → http://localhost:$(FRONTEND_PORT)"
+	@echo "  Press Ctrl+C to stop everything"
+	@echo ""
+	@trap 'echo "\nStopping..."; kill %1 %2 2>/dev/null; exit 0' INT; \
+	  (cd backend && "$(PYTHON)" manage.py runserver $(BACKEND_PORT) 2>&1 | sed 's/^/\033[34m[backend] \033[0m/') & \
+	  (cd apps/web && npm run dev 2>&1 | sed 's/^/\033[32m[frontend]\033[0m /') & \
+	  wait
+endif
+
+## dev-local: Start backend + frontend only — skips Docker/LocalStack (no S3)
+ifeq ($(OS),Windows_NT)
+dev-local: _migrate
+	@echo ""
+	@echo "  Backend  → http://localhost:$(BACKEND_PORT)"
+	@echo "  Frontend → http://localhost:$(FRONTEND_PORT)"
+	@echo "  (S3/LocalStack skipped — file uploads unavailable)"
+	@echo ""
+	@$(POWERSHELL) "Remove-Item '$(BACKEND_LOG)','$(FRONTEND_LOG)','$(BACKEND_ERR)','$(FRONTEND_ERR)','$(BACKEND_PID)','$(FRONTEND_PID)' -ErrorAction SilentlyContinue; $$backend = Start-Process -FilePath '$(PYTHON)' -ArgumentList 'manage.py','runserver','$(BACKEND_PORT)' -WorkingDirectory 'backend' -RedirectStandardOutput '$(BACKEND_LOG)' -RedirectStandardError '$(BACKEND_ERR)' -PassThru; Set-Content -Path '$(BACKEND_PID)' -Value $$backend.Id; $$frontend = Start-Process -FilePath 'npm.cmd' -ArgumentList 'run','dev','--','--host','127.0.0.1','--port','$(FRONTEND_PORT)' -WorkingDirectory 'apps/web' -RedirectStandardOutput '$(FRONTEND_LOG)' -RedirectStandardError '$(FRONTEND_ERR)' -PassThru; Set-Content -Path '$(FRONTEND_PID)' -Value $$frontend.Id; Write-Host 'Background services started.'"
+else
+dev-local: _migrate
+	@echo ""
+	@echo "  Backend  → http://localhost:$(BACKEND_PORT)"
+	@echo "  Frontend → http://localhost:$(FRONTEND_PORT)"
+	@echo "  (S3/LocalStack skipped — file uploads unavailable)"
 	@echo "  Press Ctrl+C to stop everything"
 	@echo ""
 	@trap 'echo "\nStopping..."; kill %1 %2 2>/dev/null; exit 0' INT; \

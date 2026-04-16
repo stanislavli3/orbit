@@ -1,10 +1,8 @@
 import hashlib
-import os
 import re
 from collections import Counter
 from typing import List
 
-import anthropic
 import numpy as np
 
 DIM = 1024
@@ -31,16 +29,6 @@ def _hashed_tfidf_embedding(text: str) -> List[float]:
 
 
 def generate_embedding(text: str) -> List[float]:
-    api_key = os.getenv("ANTHROPIC_API_KEY")
-    if api_key and text.strip():
-        try:
-            client = anthropic.Anthropic(api_key=api_key)
-            response = client.embeddings.create(model="voyage-3", input=[text])
-            embedding = response.data[0].embedding  # type: ignore[attr-defined]
-            if embedding:
-                return embedding
-        except Exception:
-            pass
     return _hashed_tfidf_embedding(text)
 
 
