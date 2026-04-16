@@ -8,6 +8,7 @@ import type { Project, UploadedFile, ExtractionResult, BomResearchRun } from '..
 import { toast } from 'sonner';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { BomQuestionsPanel } from './BomQuestionsPanel';
+import { BomLivePanel } from './BomLivePanel';
 import type { LibraryDocType } from '../../api/types';
 
 const LIBRARY_DOC_TYPES: { value: LibraryDocType; label: string }[] = [
@@ -927,6 +928,15 @@ export function ProjectDetailPage() {
             setActiveBomRun(run);
             setBomPanelOpen(false);
           }}
+        />
+      )}
+
+      {/* BOM Live Research Panel */}
+      {!bomPanelOpen && activeBomRun !== null && (
+        <BomLivePanel
+          runId={activeBomRun.id}
+          initialRun={activeBomRun}
+          onClose={() => setActiveBomRun(null)}
         />
       )}
 

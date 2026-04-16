@@ -187,7 +187,7 @@ export function BomQuestionsPanel({ runId, onClose, onComplete }: Props) {
       return res.json() as Promise<BomResearchRun>;
     },
     onSuccess: (run) => {
-      toast.success('BOM research started — we\'ll notify you when it\'s ready.');
+      toast.success('BOM research started — watch it live!');
       onComplete(run);
     },
     onError: (e: Error) => toast.error(e.message),
