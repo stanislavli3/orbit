@@ -250,7 +250,7 @@ export function LibraryPage() {
           <input
             ref={fileRef}
             type="file"
-            accept=".xlsx,.csv,.pdf,.docx"
+            accept=".xlsx,.csv,.pdf,.docx,text/csv"
             className="hidden"
             onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFileSelected(f); }}
           />
