@@ -4,7 +4,7 @@ import { ArrowLeft, Upload, FileText, Download, Folder, MoreVertical, File, Chec
 import { Link, useNavigate, useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
-import type { Project, UploadedFile, ExtractionResult, BomResearchRun } from '../../api/types';
+import type { Project, UploadedFile, ExtractionResult, BomResearchRun, LibraryDocument } from '../../api/types';
 import { toast } from 'sonner';
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { BomQuestionsPanel } from './BomQuestionsPanel';
@@ -680,6 +680,10 @@ export function ProjectDetailPage() {
   const [uploadError, setUploadError] = useState('');
   const [optimisticFiles, setOptimisticFiles] = useState<FileLike[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const libraryInputRef = useRef<HTMLInputElement>(null);
+  const [libraryUploading, setLibraryUploading] = useState(false);
+  const [pendingLibraryFile, setPendingLibraryFile] = useState<File | null>(null);
+  const [libraryDocType, setLibraryDocType] = useState<LibraryDocType | ''>('');
   const apiFetch = useApiClient();
   const queryClient = useQueryClient();
   const [bomRunId, setBomRunId] = useState<number | null>(null);
@@ -713,6 +717,15 @@ export function ProjectDetailPage() {
     refetchInterval: (query) => {
       const data = query.state.data as UploadedFile[] | undefined;
       return data?.some((f) => f.status === 'processing' || f.status === 'uploaded') ? 3000 : false;
+    },
+  });
+
+  const { data: libraryDocs = [] } = useQuery<LibraryDocument[]>({
+    queryKey: ['library'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/library/documents/');
+      if (!res.ok) throw new Error(`${res.status}`);
+      return res.json();
     },
   });
 
@@ -778,6 +791,29 @@ export function ProjectDetailPage() {
     }
   };
 
+  async function handleLibraryUpload(docType: LibraryDocType) {
+    if (!pendingLibraryFile) return;
+    setLibraryUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', pendingLibraryFile);
+      fd.append('doc_type', docType);
+      const res = await apiFetch('/api/library/documents/', { method: 'POST', body: fd });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail ?? 'Upload failed');
+      }
+      toast.success(`"${pendingLibraryFile.name}" added to Library.`);
+      await queryClient.invalidateQueries({ queryKey: ['library'] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Upload failed');
+    } finally {
+      setLibraryUploading(false);
+      setPendingLibraryFile(null);
+      setLibraryDocType('');
+    }
+  }
+
   if (projectError) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -788,13 +824,25 @@ export function ProjectDetailPage() {
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
-      {/* Hidden file input */}
+      {/* Hidden file input — vault (CAD files) */}
       <input
         ref={fileInputRef}
         type="file"
         accept=".step,.stp,.pdf,.dwg,.dxf,.iges,.igs"
         className="hidden"
         onChange={handleFileChange}
+      />
+      {/* Hidden file input — library documents */}
+      <input
+        ref={libraryInputRef}
+        type="file"
+        accept=".xlsx,.csv,.pdf,.docx,text/csv"
+        className="hidden"
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) setPendingLibraryFile(f);
+          if (libraryInputRef.current) libraryInputRef.current.value = '';
+        }}
       />
 
       {/* Header */}
@@ -880,15 +928,27 @@ export function ProjectDetailPage() {
               <Download className="w-4 h-4 inline mr-2" strokeWidth={1.5} />
               Export
             </button>
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="px-4 py-2 bg-[#111111] text-white rounded-lg hover:bg-[#2A2A2A] disabled:opacity-60 transition-colors text-sm flex items-center gap-2"
-            >
-              {uploading
-                ? <><Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Uploading…</>
-                : <><Upload className="w-4 h-4" strokeWidth={1.5} /> Upload files</>}
-            </button>
+            {activeTab === 'vault' ? (
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+                className="px-4 py-2 bg-[#111111] text-white rounded-lg hover:bg-[#2A2A2A] disabled:opacity-60 transition-colors text-sm flex items-center gap-2"
+              >
+                {uploading
+                  ? <><Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Uploading…</>
+                  : <><Upload className="w-4 h-4" strokeWidth={1.5} /> Upload files</>}
+              </button>
+            ) : (
+              <button
+                onClick={() => libraryInputRef.current?.click()}
+                disabled={libraryUploading}
+                className="px-4 py-2 bg-[#111111] text-white rounded-lg hover:bg-[#2A2A2A] disabled:opacity-60 transition-colors text-sm flex items-center gap-2"
+              >
+                {libraryUploading
+                  ? <><Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Uploading…</>
+                  : <><Upload className="w-4 h-4" strokeWidth={1.5} /> Add to Library</>}
+              </button>
+            )}
           </div>
         </div>
 
@@ -975,17 +1035,81 @@ export function ProjectDetailPage() {
                 <FileRow key={file.id} file={file} apiFetch={apiFetch} projectId={id!} />
               ))}
             </div>
-          ) : (
+          ) : libraryDocs.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
               <div className="w-12 h-12 bg-[#F4F4F4] rounded-xl flex items-center justify-center mb-4">
-                <FileText className="w-6 h-6 text-[#6B7280]" strokeWidth={1.5} />
+                <BookOpen className="w-6 h-6 text-[#6B7280]" strokeWidth={1.5} />
               </div>
-              <p className="text-[#111111] font-medium mb-1">Extraction profiles coming soon</p>
-              <p className="text-[#6B7280] text-sm">Once files are processed, structured profiles will appear here.</p>
+              <p className="text-[#111111] font-medium mb-1">Library is empty</p>
+              <p className="text-[#6B7280] text-sm">Click "Add to Library" to upload AVLs, material specs, and other reference docs.</p>
+            </div>
+          ) : (
+            <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden">
+              <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-[#E6E6E6] bg-[#FAFAFA]">
+                <div className="col-span-5"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Name</span></div>
+                <div className="col-span-3"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Type</span></div>
+                <div className="col-span-2"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Size</span></div>
+                <div className="col-span-2"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Uploaded</span></div>
+              </div>
+              {libraryDocs.map((doc) => (
+                <div key={doc.id} className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-[#F4F4F4] last:border-0 items-center">
+                  <div className="col-span-5 flex items-center gap-2 min-w-0">
+                    <FileText className="w-4 h-4 text-[#9CA3AF] flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-sm text-[#111111] truncate">{doc.original_name}</span>
+                  </div>
+                  <div className="col-span-3">
+                    <span className="px-2 py-0.5 text-[11px] rounded-full border font-medium bg-[#F4F4F4] text-[#6B7280] border-[#E6E6E6]">
+                      {doc.doc_type || 'Untagged'}
+                    </span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-sm text-[#6B7280]">{doc.file_size ? `${(doc.file_size / 1024).toFixed(0)} KB` : '—'}</span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-sm text-[#6B7280]">{new Date(doc.uploaded_at).toLocaleDateString()}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           )}
         </div>
       </div>
+
+      {/* Library upload — doc type picker */}
+      {pendingLibraryFile && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
+            <h3 className="text-base font-semibold text-[#111111] mb-1">Add to Library</h3>
+            <p className="text-sm text-[#6B7280] mb-4">Select a document type for <span className="font-medium text-[#111111]">{pendingLibraryFile.name}</span></p>
+            <select
+              value={libraryDocType}
+              onChange={(e) => setLibraryDocType(e.target.value as LibraryDocType)}
+              className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111] bg-white mb-4"
+            >
+              <option value="">Select type…</option>
+              {LIBRARY_DOC_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.label}</option>
+              ))}
+            </select>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => { setPendingLibraryFile(null); setLibraryDocType(''); }}
+                className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4]"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => libraryDocType && handleLibraryUpload(libraryDocType as LibraryDocType)}
+                disabled={!libraryDocType || libraryUploading}
+                className="px-4 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 flex items-center gap-1.5"
+              >
+                {libraryUploading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                Add to Library
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

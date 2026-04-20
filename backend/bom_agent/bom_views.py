@@ -255,3 +255,40 @@ class BomRunExcelView(APIView):
         from files_api.s3_service import generate_presigned_url
         url = generate_presigned_url(run.excel_s3_key, expires=3600)
         return Response({"url": url})
+
+
+class BomRunLogView(APIView):
+    """
+    GET /api/bom/runs/<id>/log/?since=HH:MM:SS
+
+    Returns log entries for a run, optionally filtered to only entries whose
+    timestamp is strictly after `since`.  Also returns the current run status
+    so the frontend knows when to stop polling (status == "completed" | "failed").
+
+    Response:
+        {
+          "run_id": 42,
+          "status": "researching",
+          "entries": [
+            {"ts": "12:04:01", "type": "search", "message": "..."},
+            ...
+          ]
+        }
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        run = get_object_or_404(BomResearchRun, pk=pk, created_by=request.user)
+
+        since = request.query_params.get("since", "").strip()
+        entries = list(run.research_log or [])
+
+        if since:
+            entries = [e for e in entries if e.get("ts", "") > since]
+
+        return Response({
+            "run_id": run.pk,
+            "status": run.status,
+            "entries": entries,
+        })

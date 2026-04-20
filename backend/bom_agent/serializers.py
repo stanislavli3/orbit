@@ -32,8 +32,10 @@ class SupplierQuoteSerializer(serializers.ModelSerializer):
             "moq",
             "lead_time_days",
             "tooling_cost",
+            "landed_cost_usd",
             "source_url",
             "notes",
+            "is_avl",
             "is_selected",
         ]
 
