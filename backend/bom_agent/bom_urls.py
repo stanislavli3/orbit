@@ -6,6 +6,15 @@ from .bom_views import (
     BomRunQuestionsView,
     BomRunExcelView,
     BomRunLogView,
+    BomRunDraftEmailsView,
+    BomRunEmailListView,
+    BomRunEmailDetailView,
+    BomRunEmailApproveView,
+    BomRunEmailApproveAllView,
+    BomRunEmailSendView,
+    BomRunEmailSendAllView,
+    BomRunEmailFollowUpView,
+    BomRunEmailPollView,
 )
 
 urlpatterns = [
@@ -15,4 +24,13 @@ urlpatterns = [
     path("runs/<int:pk>/questions/", BomRunQuestionsView.as_view(), name="bom-run-questions"),
     path("runs/<int:pk>/excel/", BomRunExcelView.as_view(), name="bom-run-excel"),
     path("runs/<int:pk>/log/", BomRunLogView.as_view(), name="bom-run-log"),
+    path("runs/<int:pk>/draft-emails/", BomRunDraftEmailsView.as_view(), name="bom-run-draft-emails"),
+    path("runs/<int:pk>/emails/", BomRunEmailListView.as_view(), name="bom-run-emails"),
+    path("runs/<int:pk>/emails/approve-all/", BomRunEmailApproveAllView.as_view(), name="bom-run-emails-approve-all"),
+    path("runs/<int:pk>/emails/send-all/", BomRunEmailSendAllView.as_view(), name="bom-run-emails-send-all"),
+    path("runs/<int:pk>/emails/poll/", BomRunEmailPollView.as_view(), name="bom-run-emails-poll"),
+    path("runs/<int:pk>/emails/<int:eid>/", BomRunEmailDetailView.as_view(), name="bom-run-email-detail"),
+    path("runs/<int:pk>/emails/<int:eid>/approve/", BomRunEmailApproveView.as_view(), name="bom-run-email-approve"),
+    path("runs/<int:pk>/emails/<int:eid>/send/", BomRunEmailSendView.as_view(), name="bom-run-email-send"),
+    path("runs/<int:pk>/emails/<int:eid>/follow-up/", BomRunEmailFollowUpView.as_view(), name="bom-run-email-follow-up"),
 ]

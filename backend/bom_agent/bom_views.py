@@ -6,8 +6,10 @@ GET   /api/bom/runs/<id>/             — run status + results
 PATCH /api/bom/runs/<id>/inputs/      — submit clarifying-question answers
 GET   /api/bom/runs/<id>/questions/   — structured pending questions
 GET   /api/bom/runs/<id>/excel/       — presigned S3 download URL
+POST  /api/bom/runs/<id>/draft-emails/ — generate team email drafts
 """
 
+from django.utils import timezone
 from rest_framework import permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,8 +17,19 @@ from rest_framework.generics import get_object_or_404
 
 from projects.models import Project
 from files_api.models import UploadedFile, ExtractionResult
-from .models import BomResearchRun, BomLineItem, TeamContact
-from .serializers import BomResearchRunSerializer, TeamContactSerializer
+from .models import BomResearchRun, BomLineItem, TeamContact, TeamRequest
+from .serializers import (
+    BomResearchRunSerializer,
+    TeamContactSerializer,
+    TeamRequestSerializer,
+    TeamRequestUpdateSerializer,
+)
+from .team_requests import (
+    get_follow_up_total_for_contact,
+    render_email_draft,
+    route_contact,
+)
+from .gmail_integration import poll_run_replies, send_team_request_via_gmail
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
@@ -107,6 +120,46 @@ def _build_questions(run: BomResearchRun, user) -> list:
 
     # Filter out already-answered standard questions
     return [q for q in questions if q["id"] not in answered_ids]
+
+
+def _get_run_for_user(user, pk: int) -> BomResearchRun:
+    return get_object_or_404(
+        BomResearchRun.objects.prefetch_related("line_items__quotes", "team_requests"),
+        pk=pk,
+        created_by=user,
+    )
+
+
+def _send_request(team_request: TeamRequest) -> None:
+    if team_request.status != "approved":
+        raise ValueError("A draft must be approved before sending.")
+
+    is_follow_up_send = team_request.sent_at is not None
+    if is_follow_up_send and get_follow_up_total_for_contact(
+        team_request.run, team_request.recipient_email
+    ) >= 1:
+        raise ValueError("Auto follow-up cap reached for this contact on this run.")
+
+    gmail_response = send_team_request_via_gmail(team_request)
+    team_request.sent_at = timezone.now()
+    if gmail_response.get("message_id"):
+        team_request.gmail_message_id = gmail_response["message_id"]
+    if gmail_response.get("thread_id"):
+        team_request.gmail_thread_id = gmail_response["thread_id"]
+    if is_follow_up_send:
+        team_request.status = "follow_up"
+        team_request.follow_up_count += 1
+    else:
+        team_request.status = "sent"
+    team_request.save(
+        update_fields=[
+            "status",
+            "sent_at",
+            "follow_up_count",
+            "gmail_message_id",
+            "gmail_thread_id",
+        ]
+    )
 
 
 # ── Views ─────────────────────────────────────────────────────────────────────
@@ -316,3 +369,214 @@ class BomRunLogView(APIView):
             "status": run.status,
             "entries": entries,
         })
+
+
+class BomRunDraftEmailsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        run = _get_run_for_user(request.user, pk)
+        unanswered = _build_questions(run, request.user)
+        if not unanswered:
+            return Response(
+                {"detail": "No unanswered BOM questions remain for this run.", "requests": []},
+                status=status.HTTP_200_OK,
+            )
+
+        created_or_updated = []
+        skipped = []
+        for question in unanswered:
+            contact = route_contact(request.user, question)
+            if not contact:
+                skipped.append(
+                    {
+                        "question": question.get("text", ""),
+                        "reason": "No automated team contact available.",
+                    }
+                )
+                continue
+
+            if run.team_requests.filter(
+                question=question.get("text", ""),
+                recipient_email=contact.email,
+                status__in=["sent", "answered", "follow_up"],
+            ).exists():
+                continue
+
+            subject, body = render_email_draft(run, contact, question)
+            team_request, _created = TeamRequest.objects.update_or_create(
+                run=run,
+                question=question.get("text", ""),
+                recipient_email=contact.email,
+                status="draft",
+                defaults={
+                    "contact": contact,
+                    "line_item_id": question.get("_line_item_id"),
+                    "recipient_name": contact.full_name,
+                    "channel": contact.preferred_channel,
+                    "question_key": question.get("id", ""),
+                    "email_subject": subject,
+                    "email_body": body,
+                },
+            )
+            created_or_updated.append(team_request)
+
+        if created_or_updated:
+            run.status = "awaiting_team_input"
+            run.save(update_fields=["status"])
+
+        return Response(
+            {
+                "created_count": len(created_or_updated),
+                "requests": TeamRequestSerializer(created_or_updated, many=True).data,
+                "skipped": skipped,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class BomRunEmailListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        run = _get_run_for_user(request.user, pk)
+        email_requests = run.team_requests.select_related("contact").all()
+        return Response(TeamRequestSerializer(email_requests, many=True).data)
+
+
+class BomRunEmailDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk, eid):
+        run = _get_run_for_user(request.user, pk)
+        team_request = get_object_or_404(run.team_requests.select_related("contact"), pk=eid)
+        serializer = TeamRequestUpdateSerializer(
+            team_request,
+            data=request.data,
+            partial=True,
+            context={"request": request},
+        )
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(TeamRequestSerializer(team_request).data)
+
+    def delete(self, request, pk, eid):
+        run = _get_run_for_user(request.user, pk)
+        team_request = get_object_or_404(run.team_requests.select_related("contact"), pk=eid)
+        if team_request.status != "draft":
+            return Response(
+                {"detail": "Only draft requests can be discarded."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        team_request.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class BomRunEmailApproveView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk, eid):
+        run = _get_run_for_user(request.user, pk)
+        team_request = get_object_or_404(run.team_requests, pk=eid)
+        if team_request.status != "draft":
+            return Response(
+                {"detail": "Only draft requests can be approved."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        team_request.status = "approved"
+        team_request.approved_at = timezone.now()
+        team_request.save(update_fields=["status", "approved_at"])
+        return Response(TeamRequestSerializer(team_request).data)
+
+
+class BomRunEmailApproveAllView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        run = _get_run_for_user(request.user, pk)
+        approved_count = run.team_requests.filter(status="draft").update(
+            status="approved",
+            approved_at=timezone.now(),
+        )
+        return Response({"approved_count": approved_count})
+
+
+class BomRunEmailSendView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk, eid):
+        run = _get_run_for_user(request.user, pk)
+        team_request = get_object_or_404(run.team_requests, pk=eid)
+        try:
+            _send_request(team_request)
+        except ValueError as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as exc:
+            return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
+        return Response(TeamRequestSerializer(team_request).data)
+
+
+class BomRunEmailSendAllView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        run = _get_run_for_user(request.user, pk)
+        sent = []
+        errors = []
+        for team_request in run.team_requests.filter(status="approved").order_by("created_at"):
+            try:
+                _send_request(team_request)
+                sent.append(team_request.id)
+            except Exception as exc:
+                errors.append({"id": team_request.id, "detail": str(exc)})
+
+        return Response({"sent_ids": sent, "error_count": len(errors), "errors": errors})
+
+
+class BomRunEmailFollowUpView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk, eid):
+        run = _get_run_for_user(request.user, pk)
+        team_request = get_object_or_404(run.team_requests.select_related("contact"), pk=eid)
+        if team_request.status not in {"sent", "answered", "follow_up"} and not team_request.sent_at:
+            return Response(
+                {"detail": "Follow-up can only be drafted after the original email has been sent."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if team_request.status == "answered":
+            return Response(
+                {"detail": "Answered requests do not need a follow-up."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if get_follow_up_total_for_contact(run, team_request.recipient_email) >= 1:
+            return Response(
+                {"detail": "Only one auto follow-up is allowed per contact per run."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        question = {"text": team_request.question}
+        contact = team_request.contact
+        if contact is None:
+            contact = TeamContact(
+                full_name=team_request.recipient_name,
+                email=team_request.recipient_email,
+                preferred_channel=team_request.channel,
+            )
+
+        subject, body = render_email_draft(run, contact, question, is_follow_up=True)
+        team_request.email_subject = subject
+        team_request.email_body = body
+        team_request.status = "draft"
+        team_request.approved_at = None
+        team_request.save(update_fields=["email_subject", "email_body", "status", "approved_at"])
+        return Response(TeamRequestSerializer(team_request).data)
+
+
+class BomRunEmailPollView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        run = _get_run_for_user(request.user, pk)
+        answered_ids = poll_run_replies(run)
+        return Response({"answered_ids": answered_ids, "count": len(answered_ids)})

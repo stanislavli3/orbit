@@ -10,7 +10,9 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
 import { BomQuestionsPanel } from './BomQuestionsPanel';
 import { BomLivePanel } from './BomLivePanel';
 import { BomResultsPanel } from './BomResultsPanel';
-import type { LibraryDocType } from '../../api/types';
+import { BomEmailPanel } from './BomEmailPanel';
+import type { BomEmailComposerTrigger } from './BomEmailPanel';
+import type { BomQuestion, LibraryDocType } from '../../api/types';
 
 const LIBRARY_DOC_TYPES: { value: LibraryDocType; label: string }[] = [
   { value: 'avl', label: 'Approved Vendor List' },
@@ -692,6 +694,7 @@ export function ProjectDetailPage() {
   const [bomStarting, setBomStarting] = useState(false);
   const [activeBomRun, setActiveBomRun] = useState<BomResearchRun | null>(null);
   const [selectedBomRunId, setSelectedBomRunId] = useState<number | null>(null);
+  const [emailComposerTrigger, setEmailComposerTrigger] = useState<BomEmailComposerTrigger | null>(null);
   const prevStatuses = useRef<Record<number, UploadedFile['status']>>({});
 
   const { data: project, isLoading: projectLoading, isError: projectError } = useQuery<Project>({
@@ -1025,6 +1028,13 @@ export function ProjectDetailPage() {
         <BomQuestionsPanel
           runId={bomRunId}
           onClose={() => setBomPanelOpen(false)}
+          onDraftEmail={(question: BomQuestion) => {
+            setEmailComposerTrigger({
+              type: 'question',
+              question,
+              nonce: Date.now(),
+            });
+          }}
           onComplete={(run) => {
             setActiveBomRun(run);
             setSelectedBomRunId(run.id);
@@ -1046,9 +1056,16 @@ export function ProjectDetailPage() {
       {/* Content */}
       <div className="flex-1 overflow-auto bg-[#F7F7F7]">
         <div className="max-w-[1400px] mx-auto px-8 py-8">
+          <BomEmailPanel
+            runId={activeBomRun?.id ?? selectedBomRunId}
+            runStatus={(selectedBomRun ?? activeBomRun)?.status}
+            composerTrigger={emailComposerTrigger}
+            onComposerTriggerHandled={() => setEmailComposerTrigger(null)}
+          />
+
           <BomResultsPanel
             runs={bomRuns}
-            selectedRun={activeBomRun ?? selectedBomRun ?? null}
+            selectedRun={selectedBomRun ?? activeBomRun ?? null}
             selectedRunId={activeBomRun?.id ?? selectedBomRunId}
             onSelectRun={(runId) => setSelectedBomRunId(runId)}
           />

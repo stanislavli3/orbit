@@ -1,12 +1,51 @@
 import csv
 import io
+from datetime import timedelta
+from urllib.parse import urlencode, urlparse
 
+from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core import signing
+from django.http import HttpResponseRedirect
+from django.utils import timezone
+from django.utils.dateparse import parse_datetime
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 
-from .models import TeamContact
-from .serializers import TeamContactSerializer
+from .models import TeamContact, GmailCredential
+from .serializers import TeamContactSerializer, GmailCredentialSerializer
+from .gmail_integration import (
+    build_gmail_oauth_authorization_url,
+    exchange_google_oauth_code,
+    fetch_gmail_profile,
+    google_oauth_is_configured,
+    upsert_gmail_credential,
+)
+
+
+GMAIL_OAUTH_STATE_SALT = "bom-agent-gmail-oauth"
+
+
+def _is_allowed_frontend_url(next_url: str) -> bool:
+    if not next_url:
+        return False
+    parsed = urlparse(next_url)
+    if not parsed.scheme and not parsed.netloc:
+        return next_url.startswith("/")
+    origin = f"{parsed.scheme}://{parsed.netloc}"
+    return origin in settings.CORS_ALLOWED_ORIGINS
+
+
+def _default_settings_url() -> str:
+    origin = (settings.CORS_ALLOWED_ORIGINS or ["http://localhost:5173"])[0]
+    return f"{origin.rstrip('/')}/settings"
+
+
+def _oauth_redirect_response(next_url: str, status_value: str, detail: str = ""):
+    separator = "&" if "?" in next_url else "?"
+    query = urlencode({"gmail_oauth": status_value, "detail": detail} if detail else {"gmail_oauth": status_value})
+    return HttpResponseRedirect(f"{next_url}{separator}{query}")
 
 
 class TeamContactListCreateView(generics.ListCreateAPIView):
@@ -183,3 +222,147 @@ class TeamContactMatchView(APIView):
         return Response(
             {"detail": "No matching contact found."}, status=status.HTTP_404_NOT_FOUND
         )
+
+
+class GmailCredentialView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        credential = GmailCredential.objects.filter(user=request.user).first()
+        if credential is None:
+            return Response({"connected": False, "credential": None})
+        return Response(
+            {
+                "connected": True,
+                "credential": GmailCredentialSerializer(credential).data,
+            }
+        )
+
+    def patch(self, request):
+        gmail_address = request.data.get("gmail_address", "").strip()
+        access_token = request.data.get("access_token", "").strip()
+        refresh_token = request.data.get("refresh_token", "").strip()
+        token_expires_at_raw = request.data.get("token_expires_at")
+        scopes_json = request.data.get("scopes_json") or []
+
+        if not gmail_address:
+            return Response(
+                {"detail": "gmail_address is required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not access_token and not refresh_token:
+            return Response(
+                {"detail": "Provide an access_token or refresh_token."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+        if not isinstance(scopes_json, list):
+            return Response(
+                {"detail": "scopes_json must be a list."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        token_expires_at = parse_datetime(token_expires_at_raw) if token_expires_at_raw else None
+        credential = upsert_gmail_credential(
+            user=request.user,
+            gmail_address=gmail_address,
+            access_token=access_token,
+            refresh_token=refresh_token,
+            token_expires_at=token_expires_at,
+            scopes_json=scopes_json,
+        )
+        return Response(GmailCredentialSerializer(credential).data)
+
+    def delete(self, request):
+        GmailCredential.objects.filter(user=request.user).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class GmailOAuthStartView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        if not google_oauth_is_configured():
+            return Response(
+                {"detail": "Google OAuth client credentials are not configured."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        next_url = request.data.get("next_url", "").strip() or _default_settings_url()
+        if not _is_allowed_frontend_url(next_url):
+            return Response(
+                {"detail": "next_url must be a permitted frontend URL."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        state = signing.dumps(
+            {"user_id": request.user.id, "next_url": next_url},
+            salt=GMAIL_OAUTH_STATE_SALT,
+        )
+        try:
+            auth_url = build_gmail_oauth_authorization_url(request, state)
+        except RuntimeError as exc:
+            return Response(
+                {"detail": str(exc)},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+        return Response({"auth_url": auth_url})
+
+
+class GmailOAuthCallbackView(APIView):
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+
+    def get(self, request):
+        raw_state = request.query_params.get("state", "")
+        next_url = _default_settings_url()
+
+        if not raw_state:
+            return _oauth_redirect_response(next_url, "error", "Missing OAuth state.")
+
+        try:
+            state = signing.loads(raw_state, salt=GMAIL_OAUTH_STATE_SALT, max_age=600)
+        except signing.BadSignature:
+            return _oauth_redirect_response(next_url, "error", "OAuth state is invalid or expired.")
+
+        signed_next_url = state.get("next_url", "").strip()
+        if _is_allowed_frontend_url(signed_next_url):
+            next_url = signed_next_url
+
+        if request.query_params.get("error"):
+            return _oauth_redirect_response(
+                next_url,
+                "error",
+                request.query_params.get("error_description", "Gmail access was not granted."),
+            )
+
+        code = request.query_params.get("code", "").strip()
+        if not code:
+            return _oauth_redirect_response(next_url, "error", "Missing authorization code.")
+
+        try:
+            token_payload = exchange_google_oauth_code(request, code)
+            access_token = token_payload.get("access_token", "")
+            refresh_token = token_payload.get("refresh_token", "")
+            expires_in = int(token_payload.get("expires_in", 3600))
+            if not access_token:
+                raise RuntimeError("Google token exchange did not return an access token.")
+
+            profile = fetch_gmail_profile(access_token)
+            gmail_address = profile.get("emailAddress", "").strip()
+            if not gmail_address:
+                raise RuntimeError("Google profile did not include an email address.")
+
+            user_id = state.get("user_id")
+            user = get_user_model().objects.get(id=user_id)
+            upsert_gmail_credential(
+                user=user,
+                gmail_address=gmail_address,
+                access_token=access_token,
+                refresh_token=refresh_token,
+                token_expires_at=timezone.now() + timedelta(seconds=expires_in),
+                scopes_json=(token_payload.get("scope", "") or "").split(),
+            )
+        except Exception as exc:
+            return _oauth_redirect_response(next_url, "error", str(exc))
+
+        return _oauth_redirect_response(next_url, "connected")

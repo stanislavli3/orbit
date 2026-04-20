@@ -191,6 +191,72 @@ export interface TeamContact {
   updated_at: string;
 }
 
+export interface GmailCredential {
+  id: number;
+  gmail_address: string;
+  token_expires_at: string | null;
+  scopes_json: string[];
+  has_refresh_token: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface GmailCredentialStatus {
+  connected: boolean;
+  credential: GmailCredential | null;
+}
+
+export interface GmailOAuthStartResponse {
+  auth_url: string;
+}
+
+export interface TeamRequest {
+  id: number;
+  run: number;
+  contact: TeamContact | null;
+  line_item: number | null;
+  recipient_email: string;
+  recipient_name: string;
+  question: string;
+  question_key: string;
+  channel: 'email' | 'slack';
+  email_subject: string;
+  email_body: string;
+  status: 'draft' | 'approved' | 'sent' | 'answered' | 'follow_up';
+  response: string;
+  gmail_message_id: string;
+  gmail_thread_id: string;
+  gmail_reply_message_id: string;
+  approved_at: string | null;
+  sent_at: string | null;
+  answered_at: string | null;
+  follow_up_count: number;
+  last_checked_at: string | null;
+  is_overdue: boolean;
+  created_at: string;
+}
+
+export interface TeamRequestDraftResponse {
+  created_count: number;
+  requests: TeamRequest[];
+  skipped: Array<{ question: string; reason: string }>;
+}
+
+export interface TeamRequestApproveAllResponse {
+  approved_count: number;
+}
+
+export interface TeamRequestSendAllResponse {
+  sent_ids: number[];
+  error_count: number;
+  errors: Array<{ id: number; detail: string }>;
+}
+
+export interface TeamRequestPollResponse {
+  answered_ids: number[];
+  count: number;
+}
+
 export interface AssistantSourceFile {
   id: number;
   name: string;
