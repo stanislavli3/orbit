@@ -141,3 +141,104 @@
 - `cd apps/web && npm run lint`
 - `cd apps/web && npm run build`
 - Follow-up: the `COTS` filter is derived client-side from sourced parts whose best quote has `tooling_cost === 0`, since there is no dedicated backend status for COTS today.
+
+---
+
+# Issue #65 — TeamRequest model & email draft/approve/send API (Phase 4)
+
+- [x] Inspect BOM/team-contact backend surfaces and confirm API/state-machine gaps for team-request emails
+- [x] Add `TeamRequest` model, serializer support, and migration
+- [x] Implement draft generation/routing helpers with Claude Haiku rendering and deterministic fallback
+- [x] Add draft/list/edit/approve/send/follow-up BOM email endpoints with approval guards and follow-up cap
+- [x] Add automated backend tests for draft generation, editing, approval gating, send/send-all, and follow-up behavior
+- [x] Run targeted verification and document results/follow-ups
+
+## Review — Issue #65
+- Added `TeamRequest` to [models.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/models.py) plus migration [0006_teamrequest.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/migrations/0006_teamrequest.py). The model stores denormalized recipient info, editable rendered email content, response timestamps, and follow-up counters.
+- Added [team_requests.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/team_requests.py) for question-to-contact routing, Haiku-backed draft rendering with a deterministic fallback template, per-contact follow-up counting, and the outbound send abstraction.
+- Extended [serializers.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/serializers.py), [bom_views.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/bom_views.py), and [bom_urls.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/bom_urls.py) to support:
+- `POST /api/bom/runs/<id>/draft-emails/`
+- `GET /api/bom/runs/<id>/emails/`
+- `PATCH /api/bom/runs/<id>/emails/<eid>/`
+- `POST /api/bom/runs/<id>/emails/<eid>/approve/`
+- `POST /api/bom/runs/<id>/emails/approve-all/`
+- `POST /api/bom/runs/<id>/emails/<eid>/send/`
+- `POST /api/bom/runs/<id>/emails/send-all/`
+- `POST /api/bom/runs/<id>/emails/<eid>/follow-up/`
+- Verification:
+- `cd backend && ./.venv/bin/python -m pytest bom_agent/tests.py -q`
+- `cd backend && ./.venv/bin/python -m ruff check bom_agent/models.py bom_agent/serializers.py bom_agent/bom_views.py bom_agent/team_requests.py bom_agent/tests.py`
+- `cd backend && ./.venv/bin/python manage.py check`
+- Follow-up: the send path currently uses a swappable email transport abstraction implemented with Django’s email backend, so it is ready for a Gmail MCP-backed sender in #66 without changing the API/state machine.
+
+---
+
+# Issue #66 — Gmail MCP integration for outbound team emails
+
+- [x] Inspect current TeamRequest/send flow, settings, and secure storage options for Gmail credentials
+- [x] Add secure Gmail credential storage and TeamRequest metadata needed for Gmail send/reply tracking
+- [x] Implement Gmail send/poll helpers with token refresh, encrypted credential handling, and message/thread tracking
+- [x] Integrate TeamRequest send path with Gmail, expose overdue requests, and add reply polling / parsing / answer application flow
+- [x] Resume blocked BOM research when parsed replies satisfy missing inputs
+- [x] Add migration and automated tests for send metadata, overdue exposure, reply parsing/application, and poll workflow
+- [x] Run targeted verification and document results/follow-ups
+
+## Review — Issue #66
+- Added secure Gmail credential storage in [models.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/models.py) via `GmailCredential`, with encrypted access/refresh tokens and no plaintext token exposure. Added TeamRequest tracking fields for `question_key`, `line_item`, Gmail message/thread IDs, reply message ID, and last poll time; migration is [0007_teamrequest_gmail_message_id_and_more.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/migrations/0007_teamrequest_gmail_message_id_and_more.py).
+- Added [gmail_integration.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/gmail_integration.py) for token encryption, OAuth refresh, Gmail send, thread polling, reply extraction, and parsed-answer application; [team_requests.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/team_requests.py) now handles reply parsing, BOM field updates, and research resume triggers.
+- Updated [views.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/views.py) with a secure `GET/PATCH/DELETE /api/team/gmail/credential/` surface for per-user Gmail connection metadata, and updated [bom_views.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/bom_views.py) / [bom_urls.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/bom_urls.py) so:
+- `POST /api/bom/runs/<id>/emails/<eid>/send/` sends through Gmail and stores `gmail_message_id`, `gmail_thread_id`, and `sent_at`
+- `GET /api/bom/runs/<id>/emails/` exposes `is_overdue` for requests older than 48h in `sent`
+- `POST /api/bom/runs/<id>/emails/poll/` performs on-demand reply polling and answer application
+- Added background-compatible polling via [poll_bom_email_replies.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/management/commands/poll_bom_email_replies.py), which can be scheduled externally to satisfy reply detection without a queue worker.
+- Verification:
+- `cd backend && ./.venv/bin/python -m pytest bom_agent/tests.py -q`
+- `cd backend && ./.venv/bin/python -m ruff check bom_agent/models.py bom_agent/serializers.py bom_agent/views.py bom_agent/bom_views.py bom_agent/gmail_integration.py bom_agent/team_requests.py bom_agent/tests.py`
+- `cd backend && ./.venv/bin/python manage.py check`
+- Follow-up: the backend now supports secure Gmail credential storage and Gmail REST send/poll flows, but the actual OAuth consent/start callback flow for acquiring user Gmail tokens is still a separate UI/auth integration task if it does not already exist elsewhere.
+
+---
+
+# Issue #67 — Email draft composer & status tracker UI (Phase 4)
+
+- [x] Inspect current BOM question/run UI and confirm the email API shapes needed by the composer/tracker
+- [x] Extend frontend API types for TeamRequest and related email actions
+- [x] Add a minimal discard endpoint hookup for draft deletion
+- [x] Implement the email draft composer with editable recipient/subject/body, approve/send/discard actions, and approve-all
+- [x] Implement the persistent email status tracker with auto-refresh, overdue follow-up CTA, and per-contact timeline/reply text
+- [x] Wire the clarifying questions panel "Draft email to [Name]" action into the composer flow and keep BOM run data in sync
+- [x] Run targeted backend/frontend verification and document results/follow-ups
+
+## Review — Issue #67
+- Added [BomEmailPanel.tsx](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/app/components/BomEmailPanel.tsx) to provide both Phase 4 UI surfaces: a draft composer modal with editable recipient/subject/body, approve/send/discard actions, approve-all, and a persistent status tracker with auto-refresh, overdue follow-up CTA, expandable timeline, and answered reply text.
+- Updated [BomQuestionsPanel.tsx](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/app/components/BomQuestionsPanel.tsx) so `Draft email to [Name]` opens the in-app draft composer instead of a `mailto:` link, using the generated TeamRequest draft that matches the current unresolved question.
+- Wired [ProjectDetailPage.tsx](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/app/components/ProjectDetailPage.tsx) to host the email panel for the active/selected BOM run and pass composer triggers from the clarifying questions flow.
+- Extended [types.ts](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/api/types.ts) with `TeamRequest` and related email action response types. Added a minimal backend discard action in [bom_views.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/bom_views.py) so the requested `Discard` button can actually remove draft requests.
+- Follow-up update: added `approved_at` to `TeamRequest` via [0008_teamrequest_approved_at.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/migrations/0008_teamrequest_approved_at.py), set it in single/batch approval flows, exposed it in the serializer, covered it in tests, and now render it in the email timeline UI.
+- Verification:
+- `cd backend && ./.venv/bin/python -m pytest bom_agent/tests.py -q`
+- `cd backend && ./.venv/bin/python -m ruff check bom_agent/bom_views.py bom_agent/tests.py`
+
+---
+
+# Gmail OAuth connect flow
+
+- [x] Inspect current Clerk auth, Gmail credential API, and settings page integration points
+- [x] Implement backend Gmail OAuth start/callback flow with secure state handling and credential persistence
+- [x] Add frontend Gmail connection card with connect/disconnect/status handling in Settings
+- [x] Verify backend tests plus frontend lint/build and document follow-ups
+
+## Review — Gmail OAuth connect flow
+- Added backend Gmail OAuth start/callback support in [views.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/views.py) and [urls.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/urls.py). `POST /api/team/gmail/oauth/start/` now returns a Google consent URL for the authenticated user with a signed state payload, and `GET /api/team/gmail/oauth/callback/` exchanges the authorization code, fetches the Gmail profile email, stores encrypted tokens, and redirects back to the frontend settings screen with a success/error status.
+- Extended [gmail_integration.py](/Users/amandafogel/Visual%20Studio%20Code/Orbit/backend/bom_agent/gmail_integration.py) with OAuth helpers for authorization URL construction, code exchange, Gmail profile lookup, and shared redirect URI/scopes so the token acquisition path matches the existing send/refresh logic.
+- Updated [SettingsPage.tsx](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/app/components/SettingsPage.tsx) to include a dedicated Gmail integration card in Settings with `Connect Gmail`, `Reconnect Gmail`, and `Disconnect` actions, connected-account status, refresh-token indicator, and toast handling for OAuth callback completion. Added credential/OAuth response types in [types.ts](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/api/types.ts).
+- Verification:
+- `cd backend && ./.venv/bin/python -m pytest bom_agent/tests.py -q`
+- `cd backend && ./.venv/bin/python manage.py check`
+- `cd backend && ./.venv/bin/python -m ruff check bom_agent/views.py bom_agent/gmail_integration.py bom_agent/urls.py bom_agent/tests.py`
+- `cd apps/web && npm run lint`
+- `cd apps/web && npm run build`
+- Follow-up: to use the connect flow outside local development, set real `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET`, and register the backend callback URL `/api/team/gmail/oauth/callback/` in the Google OAuth client configuration.
+- `cd backend && ./.venv/bin/python manage.py check`
+- `cd apps/web && npm run lint`
+- `cd apps/web && npm run build`

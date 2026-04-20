@@ -165,3 +165,78 @@ class TeamContact(models.Model):
 
     def __str__(self):
         return f"{self.full_name} <{self.email}>"
+
+
+class GmailCredential(models.Model):
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="gmail_credential"
+    )
+    gmail_address = models.EmailField()
+    encrypted_access_token = models.TextField(blank=True)
+    encrypted_refresh_token = models.TextField(blank=True)
+    token_expires_at = models.DateTimeField(null=True, blank=True)
+    scopes_json = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return f"GmailCredential {self.gmail_address}"
+
+
+class TeamRequest(models.Model):
+    STATUS_CHOICES = [
+        ("draft", "Draft"),
+        ("approved", "Approved"),
+        ("sent", "Sent"),
+        ("answered", "Answered"),
+        ("follow_up", "Follow-up Sent"),
+    ]
+
+    run = models.ForeignKey(
+        BomResearchRun, on_delete=models.CASCADE, related_name="team_requests"
+    )
+    contact = models.ForeignKey(
+        TeamContact,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="team_requests",
+    )
+    line_item = models.ForeignKey(
+        BomLineItem,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="team_requests",
+    )
+    recipient_email = models.EmailField()
+    recipient_name = models.CharField(max_length=200)
+    question = models.TextField()
+    question_key = models.CharField(max_length=200, blank=True)
+    channel = models.CharField(
+        max_length=10, choices=TeamContact.CHANNEL_CHOICES, default="email"
+    )
+    email_subject = models.CharField(max_length=500, blank=True)
+    email_body = models.TextField(blank=True)
+    status = models.CharField(
+        max_length=20, choices=STATUS_CHOICES, default="draft"
+    )
+    response = models.TextField(blank=True)
+    gmail_message_id = models.CharField(max_length=255, blank=True)
+    gmail_thread_id = models.CharField(max_length=255, blank=True)
+    gmail_reply_message_id = models.CharField(max_length=255, blank=True)
+    approved_at = models.DateTimeField(null=True, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    answered_at = models.DateTimeField(null=True, blank=True)
+    follow_up_count = models.IntegerField(default=0)
+    last_checked_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"TeamRequest {self.id} — {self.recipient_email} ({self.status})"
