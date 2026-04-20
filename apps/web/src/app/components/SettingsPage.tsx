@@ -1,10 +1,10 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { useUser, useClerk } from '@clerk/clerk-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { LogOut, Ban, Plus, Pencil, Trash2, Upload, X, Search, Mail, MessageSquare } from 'lucide-react';
+import { LogOut, Ban, Plus, Pencil, Trash2, Upload, X, Search, Mail, MessageSquare, Link2, ShieldCheck } from 'lucide-react';
 import { TopBar } from './TopBar';
 import { useApiClient } from '../../api/client';
-import type { TeamContact } from '../../api/types';
+import type { TeamContact, GmailCredentialStatus, GmailOAuthStartResponse } from '../../api/types';
 import { toast } from 'sonner';
 
 interface HealthResponse {
@@ -558,6 +558,7 @@ export function SettingsPage() {
   const [workspaceSaving, setWorkspaceSaving] = useState(false);
   const [workspaceError, setWorkspaceError] = useState<string | null>(null);
   const [workspaceSuccess, setWorkspaceSuccess] = useState(false);
+  const [gmailActionLoading, setGmailActionLoading] = useState(false);
 
   const { data: health } = useQuery<HealthResponse>({
     queryKey: ['health'],
@@ -567,6 +568,35 @@ export function SettingsPage() {
       return res.json();
     },
   });
+
+  const queryClient = useQueryClient();
+  const { data: gmailStatus } = useQuery<GmailCredentialStatus>({
+    queryKey: ['gmail-credential'],
+    queryFn: async () => {
+      const res = await apiFetch('/api/team/gmail/credential/');
+      if (!res.ok) throw new Error('Failed to load Gmail credential status');
+      return res.json();
+    },
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const oauthStatus = params.get('gmail_oauth');
+    if (!oauthStatus) return;
+
+    const detail = params.get('detail');
+    if (oauthStatus === 'connected') {
+      toast.success('Gmail connected. BOM emails will now send from your account.');
+      void queryClient.invalidateQueries({ queryKey: ['gmail-credential'] });
+    } else {
+      toast.error(detail ?? 'Gmail connection failed.');
+    }
+
+    params.delete('gmail_oauth');
+    params.delete('detail');
+    const next = params.toString();
+    window.history.replaceState({}, '', `${window.location.pathname}${next ? `?${next}` : ''}`);
+  }, [queryClient]);
 
   async function handleSaveProfile() {
     if (!user) return;
@@ -603,6 +633,42 @@ export function SettingsPage() {
       setWorkspaceError('Failed to save. Please try again.');
     } finally {
       setWorkspaceSaving(false);
+    }
+  }
+
+  async function handleConnectGmail() {
+    setGmailActionLoading(true);
+    try {
+      const nextUrl = `${window.location.origin}/settings`;
+      const res = await apiFetch('/api/team/gmail/oauth/start/', {
+        method: 'POST',
+        body: JSON.stringify({ next_url: nextUrl }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data.detail ?? 'Failed to start Gmail connection.');
+      }
+      window.location.assign((data as GmailOAuthStartResponse).auth_url);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to start Gmail connection.');
+      setGmailActionLoading(false);
+    }
+  }
+
+  async function handleDisconnectGmail() {
+    setGmailActionLoading(true);
+    try {
+      const res = await apiFetch('/api/team/gmail/credential/', { method: 'DELETE' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.detail ?? 'Failed to disconnect Gmail.');
+      }
+      await queryClient.invalidateQueries({ queryKey: ['gmail-credential'] });
+      toast.success('Gmail disconnected.');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Failed to disconnect Gmail.');
+    } finally {
+      setGmailActionLoading(false);
     }
   }
 
@@ -740,6 +806,55 @@ export function SettingsPage() {
 
             <FieldRow label="Clerk Auth" description="Handles authentication and user sessions.">
               <StatusBadge ok={!!user} label="Clerk Auth" />
+            </FieldRow>
+
+            <FieldRow label="Gmail BOM Sender" description="Authorize Orbit to send BOM follow-ups from your Gmail and detect replies.">
+              <div className="w-[420px] rounded-xl border border-[#E6E6E6] bg-white px-4 py-3">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <Link2 className="w-4 h-4 text-[#111111]" />
+                      <p className="text-sm font-medium text-[#111111]">
+                        {gmailStatus?.connected ? gmailStatus.credential?.gmail_address ?? 'Connected' : 'Not connected'}
+                      </p>
+                    </div>
+                    <p className="text-xs text-[#6B7280]">
+                      {gmailStatus?.connected
+                        ? 'Refresh token stored securely. Orbit can send BOM emails and poll for replies.'
+                        : 'Required before approved BOM drafts can actually send from your Gmail account.'}
+                    </p>
+                    {gmailStatus?.connected && gmailStatus.credential && (
+                      <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-[#6B7280]">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F4F4F4] px-2 py-1">
+                          <ShieldCheck className="w-3 h-3" />
+                          {gmailStatus.credential.has_refresh_token ? 'Offline access granted' : 'No refresh token'}
+                        </span>
+                        {gmailStatus.credential.token_expires_at && (
+                          <span>Access token refreshes after {new Date(gmailStatus.credential.token_expires_at).toLocaleString()}</span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {gmailStatus?.connected && (
+                      <button
+                        onClick={handleDisconnectGmail}
+                        disabled={gmailActionLoading}
+                        className="px-3 py-2 border border-[#E6E6E6] text-[#111111] text-sm rounded-lg hover:bg-[#F4F4F4] disabled:opacity-50 transition-colors"
+                      >
+                        Disconnect
+                      </button>
+                    )}
+                    <button
+                      onClick={handleConnectGmail}
+                      disabled={gmailActionLoading}
+                      className="px-3 py-2 bg-[#111111] text-white text-sm rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
+                    >
+                      {gmailActionLoading ? 'Opening…' : gmailStatus?.connected ? 'Reconnect Gmail' : 'Connect Gmail'}
+                    </button>
+                  </div>
+                </div>
+              </div>
             </FieldRow>
           </section>
 

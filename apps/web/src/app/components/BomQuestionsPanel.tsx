@@ -10,6 +10,7 @@ interface Props {
   runId: number;
   onClose: () => void;
   onComplete: (run: BomResearchRun) => void;
+  onDraftEmail: (question: BomQuestion) => void;
 }
 
 // ── Single question renderer ──────────────────────────────────────────────────
@@ -18,10 +19,12 @@ function QuestionCard({
   question,
   answer,
   onChange,
+  onDraftEmail,
 }: {
   question: BomQuestion;
   answer: string | string[] | undefined;
   onChange: (val: string | string[]) => void;
+  onDraftEmail: (question: BomQuestion) => void;
 }) {
   const contact = question.matched_contact;
 
@@ -120,13 +123,14 @@ function QuestionCard({
             </span>
           </div>
           <div className="flex gap-2">
-            <a
-              href={`mailto:${contact.email}?subject=BOM%20Research%20Question&body=Hi%20${encodeURIComponent(contact.full_name)}%2C%0A%0A${encodeURIComponent(question.text)}`}
+            <button
+              type="button"
+              onClick={() => onDraftEmail(question)}
               className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 border border-[#E6E6E6] rounded-lg text-xs text-[#374151] hover:bg-white hover:border-[#111111] transition-colors"
             >
               <Mail className="w-3 h-3" />
               Draft email to {contact.full_name.split(' ')[0]}
-            </a>
+            </button>
             {question.default && (
               <button
                 type="button"
@@ -145,7 +149,7 @@ function QuestionCard({
 
 // ── Main panel ────────────────────────────────────────────────────────────────
 
-export function BomQuestionsPanel({ runId, onClose, onComplete }: Props) {
+export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: Props) {
   const apiFetch = useApiClient();
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
@@ -278,6 +282,7 @@ export function BomQuestionsPanel({ runId, onClose, onComplete }: Props) {
               question={current}
               answer={answers[current.id]}
               onChange={setAnswer}
+              onDraftEmail={onDraftEmail}
             />
           )}
 
