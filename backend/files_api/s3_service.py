@@ -30,6 +30,16 @@ def upload_file_to_s3(file_obj, project_id):
     return key
 
 
+def upload_bytes_to_s3(data: bytes, key: str, content_type: str | None = None) -> str:
+    s3 = get_s3_client()
+    bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    kwargs = {"Bucket": bucket_name, "Key": key, "Body": data}
+    if content_type:
+        kwargs["ContentType"] = content_type
+    s3.put_object(**kwargs)
+    return key
+
+
 def download_file_from_s3(s3_key: str) -> bytes:
     s3 = get_s3_client()
     bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")
@@ -49,3 +59,16 @@ def generate_presigned_url(s3_key: str, expires: int = 3600) -> str:
         Params={"Bucket": os.getenv("AWS_STORAGE_BUCKET_NAME"), "Key": s3_key},
         ExpiresIn=expires,
     )
+
+
+def get_s3_object_metadata(s3_key: str) -> dict:
+    s3 = get_s3_client()
+    response = s3.head_object(
+        Bucket=os.getenv("AWS_STORAGE_BUCKET_NAME"),
+        Key=s3_key,
+    )
+    return {
+        "size": response.get("ContentLength"),
+        "last_modified": response.get("LastModified"),
+        "content_type": response.get("ContentType"),
+    }

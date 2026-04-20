@@ -1,10 +1,12 @@
 /**
  * BomLivePanel — real-time agent activity visualizer.
  *
- * Uses useQuery with refetchInterval to poll GET /api/bom/runs/<id>/
- * every 1.5 s while the run is active, streams the research_log as
- * animated entries, and shows line items transitioning:
- *   pending → researching → sourced
+ * Polls GET /api/bom/runs/<id>/log/?since=<ts> every 3 s while active,
+ * accumulates entries incrementally, and stops when status is
+ * "completed" or "failed".
+ *
+ * Also polls the run detail endpoint every 3 s for line-item + results data.
+ * Supports collapse to a compact floating bar without stopping polling.
  */
 
 import { useEffect, useRef, useState } from 'react';
@@ -24,18 +26,14 @@ import {
   ChevronUp,
   Package,
   BarChart3,
+  Minimize2,
+  Maximize2,
 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
-import type { BomResearchRun, BomLineItem } from '../../api/types';
+import type { BomResearchRun, BomLineItem, BomLogEntry, BomLogResponse } from '../../api/types';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
-
-interface LogEntry {
-  ts: string;
-  type: string;
-  message: string;
-}
 
 interface Props {
   runId: number;
@@ -72,6 +70,10 @@ const DEFAULT_LOG_CONFIG: LogConfig = {
 
 function isActive(s: BomResearchRun['status']): boolean {
   return s === 'researching' || s === 'generating_report';
+}
+
+function isDone(s: BomResearchRun['status'] | undefined): boolean {
+  return s === 'completed' || s === 'failed';
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -204,7 +206,7 @@ function LineItemCard({ item, resultsJson }: { item: BomLineItem; resultsJson: R
   );
 }
 
-function LogRow({ entry }: { entry: LogEntry }) {
+function LogRow({ entry }: { entry: BomLogEntry }) {
   const cfg = LOG_CONFIG[entry.type] ?? DEFAULT_LOG_CONFIG;
   const { Icon, dot, text } = cfg;
   return (
@@ -246,8 +248,33 @@ function CompletionBanner({ run }: { run: BomResearchRun }) {
 export function BomLivePanel({ runId, initialRun, onClose }: Props) {
   const apiFetch = useApiClient();
   const [activeSection, setActiveSection] = useState<'feed' | 'items'>('feed');
+  const [collapsed, setCollapsed] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
+  // Track the ts of the last received entry so we only fetch new ones
+  const sinceRef = useRef<string>('');
+  const logEntriesRef = useRef<BomLogEntry[]>([]);
 
+  // ── Log polling (incremental, 3 s) ──────────────────────────────────────────
+  const { data: logData } = useQuery<BomLogResponse & { entries: BomLogEntry[] }>({
+    queryKey: ['bom-log', runId],
+    queryFn: async () => {
+      const since = sinceRef.current ? `?since=${sinceRef.current}` : '';
+      const res = await apiFetch(`/api/bom/runs/${runId}/log/${since}`);
+      if (!res.ok) throw new Error(`${res.status}`);
+      const payload = (await res.json()) as BomLogResponse;
+      if (payload.entries.length > 0) {
+        logEntriesRef.current = [...logEntriesRef.current, ...payload.entries];
+        sinceRef.current = payload.entries[payload.entries.length - 1].ts;
+      }
+      return { ...payload, entries: logEntriesRef.current };
+    },
+    refetchInterval: (query) => {
+      const status = (query.state.data as BomLogResponse | undefined)?.status ?? initialRun?.status;
+      return isDone(status) ? false : 3000;
+    },
+  });
+
+  // ── Run detail polling (line items + results, 3 s) ───────────────────────────
   const { data: run } = useQuery<BomResearchRun>({
     queryKey: ['bom-run', runId],
     queryFn: async () => {
@@ -257,20 +284,68 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
     },
     initialData: initialRun,
     refetchInterval: (query) => {
-      const s = query.state.data?.status;
-      return s === 'researching' || s === 'generating_report' ? 1500 : false;
+      const status = (query.state.data as BomResearchRun | undefined)?.status ?? logData?.status ?? initialRun?.status;
+      return isDone(status) ? false : 3000;
     },
   });
 
-  const logs: LogEntry[] = (run?.research_log ?? []) as LogEntry[];
   const items = run?.line_items ?? [];
   const resultsJson = (run?.results_json ?? {}) as Record<string, unknown>;
+  const runStatus = run?.status ?? logData?.status ?? initialRun?.status;
+  const logEntries = logData?.entries ?? [];
 
-  // Auto-scroll feed when new entries appear
+  // Auto-scroll feed when new entries arrive
   useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [logs.length]);
+    if (!collapsed) {
+      logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [logEntries.length, collapsed]);
 
+  // ── Collapsed view ────────────────────────────────────────────────────────────
+  if (collapsed) {
+    return (
+      <div className="fixed bottom-4 right-4 z-50">
+        <div
+          className="flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl cursor-pointer"
+          style={{ background: 'linear-gradient(135deg, #0C0C1E 0%, #130F2B 100%)', minWidth: '260px' }}
+          onClick={() => setCollapsed(false)}
+        >
+          <div className="relative w-6 h-6 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ background: 'linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%)' }}>
+            <BarChart3 className="w-3.5 h-3.5 text-white" strokeWidth={2} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] font-bold text-white truncate">BOM Research Agent</p>
+            {runStatus && (
+              <div className="mt-0.5">
+                <RunStatusBadge status={runStatus} />
+              </div>
+            )}
+          </div>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <button
+              onClick={(e) => { e.stopPropagation(); setCollapsed(false); }}
+              className="w-7 h-7 flex items-center justify-center rounded-lg"
+              style={{ background: 'rgba(255,255,255,0.08)' }}
+              title="Expand"
+            >
+              <Maximize2 className="w-3.5 h-3.5 text-white/60" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onClose(); }}
+              className="w-7 h-7 flex items-center justify-center rounded-lg"
+              style={{ background: 'rgba(255,255,255,0.08)' }}
+              title="Close"
+            >
+              <X className="w-3.5 h-3.5 text-white/60" />
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Expanded view ─────────────────────────────────────────────────────────────
   return (
     <>
       <style>{`
@@ -279,7 +354,7 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
       `}</style>
 
       <div className="fixed inset-0 z-40 flex items-stretch justify-end">
-        <div className="flex-1 bg-black/20" onClick={onClose} />
+        <div className="flex-1 bg-black/20" onClick={() => setCollapsed(true)} />
 
         <div className="w-full max-w-xl bg-white flex flex-col h-full shadow-2xl">
 
@@ -307,14 +382,14 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
                   </div>
                 </div>
 
-                {run && <div className="mt-2"><RunStatusBadge status={run.status} /></div>}
+                {runStatus && <div className="mt-2"><RunStatusBadge status={runStatus} /></div>}
 
                 <div className="flex items-center gap-4 mt-3">
                   {[
                     { label: 'Parts',   value: items.length,                                                 color: 'text-white' },
                     { label: 'Sourced', value: items.filter((i) => i.status === 'sourced').length,           color: 'text-emerald-300' },
                     { label: 'Quotes',  value: items.reduce((s, i) => s + i.quotes.length, 0),               color: 'text-white' },
-                    { label: 'Entries', value: logs.length,                                                  color: 'text-white' },
+                    { label: 'Entries', value: logEntries.length,                                            color: 'text-white' },
                   ].map(({ label, value, color }) => (
                     <div key={label}>
                       <p className="text-[9px] font-medium uppercase tracking-widest" style={{ color:'rgba(255,255,255,0.3)' }}>{label}</p>
@@ -324,9 +399,24 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
                 </div>
               </div>
 
-              <button onClick={onClose} className="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg ml-3" style={{ background:'rgba(255,255,255,0.08)' }}>
-                <X className="w-4 h-4 text-white/60" />
-              </button>
+              <div className="flex items-center gap-1.5 flex-shrink-0">
+                <button
+                  onClick={() => setCollapsed(true)}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg"
+                  style={{ background:'rgba(255,255,255,0.08)' }}
+                  title="Minimize"
+                >
+                  <Minimize2 className="w-4 h-4 text-white/60" />
+                </button>
+                <button
+                  onClick={onClose}
+                  className="w-8 h-8 flex items-center justify-center rounded-lg"
+                  style={{ background:'rgba(255,255,255,0.08)' }}
+                  title="Close"
+                >
+                  <X className="w-4 h-4 text-white/60" />
+                </button>
+              </div>
             </div>
 
             <div className="flex border-t px-6" style={{ borderColor:'rgba(255,255,255,0.08)' }}>
@@ -334,7 +424,7 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
                 <button key={tab} onClick={() => setActiveSection(tab)}
                   className="px-3 py-2.5 text-[11px] font-semibold uppercase tracking-wider transition-colors border-b-2"
                   style={{ color: activeSection === tab ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.35)', borderColor: activeSection === tab ? '#8B5CF6' : 'transparent' }}>
-                  {tab === 'feed' ? `Activity Feed (${logs.length})` : `Line Items (${items.length})`}
+                  {tab === 'feed' ? `Activity Feed (${logEntries.length})` : `Line Items (${items.length})`}
                 </button>
               ))}
             </div>
@@ -344,16 +434,16 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
           {activeSection === 'feed' && (
             <div className="flex-1 overflow-y-auto" style={{ background:'#0D0D1A', fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace' }}>
               <div className="px-5 py-4 space-y-0.5 min-h-full">
-                {logs.length === 0 && (
+                {logEntries.length === 0 && (
                   <div className="flex flex-col items-center justify-center py-20 text-center">
                     <Loader2 className="w-6 h-6 text-slate-500 animate-spin mb-3" />
                     <p className="text-[12px] text-slate-500">Waiting for agent to start…</p>
                   </div>
                 )}
-                {logs.map((entry, i) => (
+                {logEntries.map((entry, i) => (
                   <LogRow key={i} entry={entry} />
                 ))}
-                {run && isActive(run.status) && (
+                {runStatus && isActive(runStatus) && (
                   <div className="flex items-center gap-2 pt-1">
                     <span className="inline-block w-2 h-3 bg-violet-400 rounded-[1px]" style={{ animation:'blink 1s step-start infinite' }} />
                   </div>
@@ -382,7 +472,7 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
           {/* Footer */}
           <div className="flex-shrink-0 px-5 py-3 border-t border-[#E6E6E6] bg-white flex items-center justify-between">
             <p className="text-[11px] text-[#9CA3AF]">
-              {run && isActive(run.status) ? 'Live · updating every 1.5 s' : 'Polling stopped'}
+              {runStatus && isActive(runStatus) ? 'Live · polling every 3 s' : 'Polling stopped'}
             </p>
             <button onClick={() => setActiveSection(activeSection === 'feed' ? 'items' : 'feed')}
               className="text-[11px] text-[#6B7280] hover:text-[#111111] underline underline-offset-2 transition-colors">

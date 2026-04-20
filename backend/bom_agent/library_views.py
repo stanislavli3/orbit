@@ -1,5 +1,5 @@
 """
-Library document endpoints (#58 + #59).
+Library document endpoints (#58 + #59 + #60).
 
 POST   /api/library/documents/              — upload a document
 GET    /api/library/documents/              — list workspace library
@@ -8,6 +8,9 @@ DELETE /api/library/documents/<id>/         — delete document
 POST   /api/library/documents/promote/      — promote project file to library
 """
 
+import csv
+import io
+import os
 import threading
 import uuid
 
@@ -24,14 +27,94 @@ from .serializers import LibraryDocumentSerializer
 
 ALLOWED_EXTENSIONS = {"xlsx", "csv", "pdf", "docx"}
 MAX_UPLOAD_BYTES = 50_000_000  # 50 MB
+_EXTRACT_ROW_LIMIT = 300
+_EXTRACT_CHAR_LIMIT = 8_000
+
+
+# ── Content extraction helpers (#60) ─────────────────────────────────────────
+
+def _extract_csv(file_bytes: bytes) -> str:
+    text = file_bytes.decode("utf-8", errors="ignore")
+    reader = csv.reader(io.StringIO(text))
+    rows = []
+    for i, row in enumerate(reader):
+        if i >= _EXTRACT_ROW_LIMIT:
+            break
+        line = ", ".join(c.strip() for c in row if c.strip())
+        if line:
+            rows.append(line)
+    return "\n".join(rows)[:_EXTRACT_CHAR_LIMIT]
+
+
+def _extract_xlsx(file_bytes: bytes) -> str:
+    try:
+        import openpyxl
+        wb = openpyxl.load_workbook(io.BytesIO(file_bytes), read_only=True, data_only=True)
+        lines = []
+        for sheet in wb.worksheets:
+            for row in sheet.iter_rows(values_only=True):
+                cells = [str(c).strip() for c in row if c is not None and str(c).strip()]
+                if cells:
+                    lines.append(", ".join(cells))
+            if len(lines) >= _EXTRACT_ROW_LIMIT:
+                break
+        wb.close()
+        return "\n".join(lines[:_EXTRACT_ROW_LIMIT])[:_EXTRACT_CHAR_LIMIT]
+    except Exception:
+        return ""
+
+
+def _extract_pdf(file_bytes: bytes) -> str:
+    try:
+        import pypdf
+        reader = pypdf.PdfReader(io.BytesIO(file_bytes))
+        pages = []
+        for page in reader.pages[:20]:
+            pages.append(page.extract_text() or "")
+        return "\n".join(pages)[:_EXTRACT_CHAR_LIMIT]
+    except Exception:
+        return ""
+
+
+def _extract_text(file_bytes: bytes, file_type: str) -> str:
+    """Extract plain text from a library document based on its file type."""
+    if file_type == "csv":
+        return _extract_csv(file_bytes)
+    if file_type == "xlsx":
+        return _extract_xlsx(file_bytes)
+    if file_type == "pdf":
+        return _extract_pdf(file_bytes)
+    # docx: return empty — no python-docx dependency; filename still used for context
+    return ""
 
 
 def _ingest_library_embedding(doc_id: int) -> None:
-    """Background: generate and store embedding for a library document (#59)."""
+    """
+    Background: download doc from S3, extract text content, embed it, and store
+    the embedding + extracted text (#60 — replaces filename-only stub).
+    """
     try:
         doc = LibraryDocument.objects.get(id=doc_id)
-        text = f"{doc.original_name} {doc.doc_type} {' '.join(doc.doc_type.replace('-', ' ').split())}"
-        vector = generate_embedding(text)
+
+        # Download from S3
+        s3 = get_s3_client()
+        bucket = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
+        buf = io.BytesIO()
+        s3.download_fileobj(bucket, doc.s3_key, buf)
+        file_bytes = buf.getvalue()
+
+        # Extract meaningful text from the document
+        extracted = _extract_text(file_bytes, doc.file_type)
+
+        # Persist extracted text so the BOM agent can include it in context
+        if extracted:
+            LibraryDocument.objects.filter(pk=doc.pk).update(extracted_text=extracted)
+            doc.extracted_text = extracted
+
+        # Embed extracted content; fall back to name+type if extraction produced nothing
+        embed_source = extracted if extracted else f"{doc.original_name} {doc.doc_type}"
+        vector = generate_embedding(embed_source)
+
         LibraryEmbedding.objects.update_or_create(
             document=doc,
             defaults={"embedding_json": vector, "doc_type": doc.doc_type},

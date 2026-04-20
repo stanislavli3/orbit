@@ -5,6 +5,7 @@ from .bom_views import (
     BomRunInputsView,
     BomRunQuestionsView,
     BomRunExcelView,
+    BomRunLogView,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path("runs/<int:pk>/inputs/", BomRunInputsView.as_view(), name="bom-run-inputs"),
     path("runs/<int:pk>/questions/", BomRunQuestionsView.as_view(), name="bom-run-questions"),
     path("runs/<int:pk>/excel/", BomRunExcelView.as_view(), name="bom-run-excel"),
+    path("runs/<int:pk>/log/", BomRunLogView.as_view(), name="bom-run-log"),
 ]

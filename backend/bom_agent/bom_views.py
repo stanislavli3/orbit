@@ -114,6 +114,15 @@ def _build_questions(run: BomResearchRun, user) -> list:
 class BomRunListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request):
+        project_id = request.query_params.get("project_id")
+        runs = BomResearchRun.objects.filter(created_by=request.user).prefetch_related(
+            "line_items__quotes"
+        )
+        if project_id:
+            runs = runs.filter(project_id=project_id)
+        return Response(BomResearchRunSerializer(runs, many=True).data)
+
     def post(self, request):
         project_id = request.data.get("project_id")
         if not project_id:
@@ -252,6 +261,58 @@ class BomRunExcelView(APIView):
             return Response(
                 {"detail": "Excel report not yet generated."}, status=status.HTTP_404_NOT_FOUND
             )
-        from files_api.s3_service import generate_presigned_url
+        from files_api.s3_service import generate_presigned_url, get_s3_object_metadata
+
         url = generate_presigned_url(run.excel_s3_key, expires=3600)
-        return Response({"url": url})
+        metadata = get_s3_object_metadata(run.excel_s3_key)
+        generated_at = (
+            metadata.get("last_modified").isoformat()
+            if metadata.get("last_modified")
+            else (run.completed_at.isoformat() if run.completed_at else None)
+        )
+        filename = run.excel_s3_key.rsplit("/", 1)[-1] if "/" in run.excel_s3_key else run.excel_s3_key
+        return Response(
+            {
+                "url": url,
+                "file_size": metadata.get("size"),
+                "generated_at": generated_at,
+                "filename": filename,
+            }
+        )
+
+
+class BomRunLogView(APIView):
+    """
+    GET /api/bom/runs/<id>/log/?since=HH:MM:SS
+
+    Returns log entries for a run, optionally filtered to only entries whose
+    timestamp is strictly after `since`.  Also returns the current run status
+    so the frontend knows when to stop polling (status == "completed" | "failed").
+
+    Response:
+        {
+          "run_id": 42,
+          "status": "researching",
+          "entries": [
+            {"ts": "12:04:01", "type": "search", "message": "..."},
+            ...
+          ]
+        }
+    """
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        run = get_object_or_404(BomResearchRun, pk=pk, created_by=request.user)
+
+        since = request.query_params.get("since", "").strip()
+        entries = list(run.research_log or [])
+
+        if since:
+            entries = [e for e in entries if e.get("ts", "") > since]
+
+        return Response({
+            "run_id": run.pk,
+            "status": run.status,
+            "entries": entries,
+        })
