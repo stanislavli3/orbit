@@ -7,6 +7,10 @@ import os
 from django.contrib.auth.models import User
 from django.test import TestCase
 from django.core import signing
+from unittest.mock import patch
+
+from django.contrib.auth.models import User
+from django.test import TestCase
 from django.utils import timezone
 from openpyxl import load_workbook
 from rest_framework.test import APIClient
@@ -14,6 +18,7 @@ from rest_framework.test import APIClient
 from bom_agent.excel_export import render_bom_workbook, upload_bom_workbook
 from bom_agent.gmail_integration import decrypt_secret, upsert_gmail_credential
 from bom_agent.models import BomLineItem, BomResearchRun, SupplierQuote, TeamContact, TeamRequest, GmailCredential
+from bom_agent.models import BomLineItem, BomResearchRun, SupplierQuote
 from bom_agent.research_pipeline import run_bom_research
 from projects.models import Project
 

@@ -13,6 +13,7 @@ import { BomResultsPanel } from './BomResultsPanel';
 import { BomEmailPanel } from './BomEmailPanel';
 import type { BomEmailComposerTrigger } from './BomEmailPanel';
 import type { BomQuestion, LibraryDocType } from '../../api/types';
+import type { LibraryDocType } from '../../api/types';
 
 const LIBRARY_DOC_TYPES: { value: LibraryDocType; label: string }[] = [
   { value: 'avl', label: 'Approved Vendor List' },
@@ -1066,6 +1067,9 @@ export function ProjectDetailPage() {
           <BomResultsPanel
             runs={bomRuns}
             selectedRun={selectedBomRun ?? activeBomRun ?? null}
+          <BomResultsPanel
+            runs={bomRuns}
+            selectedRun={activeBomRun ?? selectedBomRun ?? null}
             selectedRunId={activeBomRun?.id ?? selectedBomRunId}
             onSelectRun={(runId) => setSelectedBomRunId(runId)}
           />
