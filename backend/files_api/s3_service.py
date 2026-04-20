@@ -30,6 +30,16 @@ def upload_file_to_s3(file_obj, project_id):
     return key
 
 
+def upload_bytes_to_s3(data: bytes, key: str, content_type: str | None = None) -> str:
+    s3 = get_s3_client()
+    bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")
+    kwargs = {"Bucket": bucket_name, "Key": key, "Body": data}
+    if content_type:
+        kwargs["ContentType"] = content_type
+    s3.put_object(**kwargs)
+    return key
+
+
 def download_file_from_s3(s3_key: str) -> bytes:
     s3 = get_s3_client()
     bucket_name = os.getenv("AWS_STORAGE_BUCKET_NAME")

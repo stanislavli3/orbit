@@ -93,3 +93,27 @@
 2. `cd apps/web && npm run build` → 0 TS errors
 3. Manual: sign in → `/vault` shows real projects → click project → files load → Library tab shows empty state
 4. `curl GET /api/projects/` (no auth) → 401 (AllowAny bug fixed)
+
+---
+
+# Issue #63 — Excel BOM workbook generation with openpyxl (Phase 3)
+
+- [x] Inspect BOM run data shape, dependency availability, and test harness requirements for workbook generation
+- [x] Implement workbook builder with 5 required sheets, formula cells, formatting, and conditional formatting
+- [x] Integrate workbook generation/upload into BOM research completion and persist `BomResearchRun.excel_s3_key`
+- [x] Verify `GET /api/bom/runs/<id>/excel/` returns a presigned URL for generated workbooks
+- [x] Create `scripts/recalc.py` to validate workbook formulas and fail on formula/load errors
+- [x] Add automated tests for workbook structure, formula placement, formatting markers, upload integration, and download endpoint
+- [x] Run targeted verification and document results, gaps, and follow-ups
+
+## Review — Issue #63
+- Added `backend/bom_agent/excel_export.py` to build a 5-sheet BOM workbook with preserved Excel formulas, freeze panes, consistent styling, supplier conditional formatting, input coloring, research/source log rows, and risk matrix output.
+- Wired `run_bom_research()` to generate/upload the workbook on completion, persist `BomResearchRun.excel_s3_key`, and enrich `research_log` entries with structured metadata useful for the workbook.
+- Added `upload_bytes_to_s3()` in `backend/files_api/s3_service.py` for direct `.xlsx` uploads and kept the existing `/api/bom/runs/<id>/excel/` presigned download flow intact.
+- Added `scripts/recalc.py` to validate workbook loadability, required sheet presence, and formula tokenization with zero formula errors.
+- Verification:
+- `./backend/.venv/bin/python -m ruff check backend/bom_agent/excel_export.py backend/bom_agent/research_pipeline.py backend/files_api/s3_service.py backend/bom_agent/tests.py scripts/recalc.py`
+- `cd backend && ./.venv/bin/python -m pytest bom_agent/tests.py -q`
+- `cd backend && ./.venv/bin/python manage.py check`
+- `cd backend && ./.venv/bin/python ../scripts/recalc.py /tmp/bom-sample.xlsx`
+- Follow-up: the requested example formula `=D2*F2` conflicts with the specified column order (`Qty` is column `E`), so the workbook uses `=E2*F2` for extended cost.
