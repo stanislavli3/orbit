@@ -250,37 +250,29 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
   const [activeSection, setActiveSection] = useState<'feed' | 'items'>('feed');
   const [collapsed, setCollapsed] = useState(false);
   const logEndRef = useRef<HTMLDivElement>(null);
-
-  // Accumulated log entries — appended incrementally from the /log/ endpoint
-  const [logEntries, setLogEntries] = useState<BomLogEntry[]>([]);
   // Track the ts of the last received entry so we only fetch new ones
   const sinceRef = useRef<string>('');
-  // Track the run status from the log endpoint (to control polling)
-  const [logStatus, setLogStatus] = useState<BomResearchRun['status'] | undefined>(
-    initialRun?.status,
-  );
+  const logEntriesRef = useRef<BomLogEntry[]>([]);
 
   // ── Log polling (incremental, 3 s) ──────────────────────────────────────────
-  const { data: logData } = useQuery<BomLogResponse>({
+  const { data: logData } = useQuery<BomLogResponse & { entries: BomLogEntry[] }>({
     queryKey: ['bom-log', runId],
     queryFn: async () => {
       const since = sinceRef.current ? `?since=${sinceRef.current}` : '';
       const res = await apiFetch(`/api/bom/runs/${runId}/log/${since}`);
       if (!res.ok) throw new Error(`${res.status}`);
-      return res.json();
+      const payload = (await res.json()) as BomLogResponse;
+      if (payload.entries.length > 0) {
+        logEntriesRef.current = [...logEntriesRef.current, ...payload.entries];
+        sinceRef.current = payload.entries[payload.entries.length - 1].ts;
+      }
+      return { ...payload, entries: logEntriesRef.current };
     },
-    refetchInterval: () => (isDone(logStatus) ? false : 3000),
+    refetchInterval: (query) => {
+      const status = (query.state.data as BomLogResponse | undefined)?.status ?? initialRun?.status;
+      return isDone(status) ? false : 3000;
+    },
   });
-
-  // Append new entries and advance the `since` cursor
-  useEffect(() => {
-    if (!logData) return;
-    setLogStatus(logData.status);
-    if (logData.entries.length > 0) {
-      setLogEntries((prev) => [...prev, ...logData.entries]);
-      sinceRef.current = logData.entries[logData.entries.length - 1].ts;
-    }
-  }, [logData]);
 
   // ── Run detail polling (line items + results, 3 s) ───────────────────────────
   const { data: run } = useQuery<BomResearchRun>({
@@ -291,12 +283,16 @@ export function BomLivePanel({ runId, initialRun, onClose }: Props) {
       return res.json();
     },
     initialData: initialRun,
-    refetchInterval: () => (isDone(logStatus) ? false : 3000),
+    refetchInterval: (query) => {
+      const status = (query.state.data as BomResearchRun | undefined)?.status ?? logData?.status ?? initialRun?.status;
+      return isDone(status) ? false : 3000;
+    },
   });
 
   const items = run?.line_items ?? [];
   const resultsJson = (run?.results_json ?? {}) as Record<string, unknown>;
-  const runStatus = run?.status ?? logStatus;
+  const runStatus = run?.status ?? logData?.status ?? initialRun?.status;
+  const logEntries = logData?.entries ?? [];
 
   // Auto-scroll feed when new entries arrive
   useEffect(() => {

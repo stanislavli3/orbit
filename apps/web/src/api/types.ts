@@ -124,8 +124,10 @@ export interface SupplierQuote {
   moq: number;
   lead_time_days: number;
   tooling_cost: string;
+  landed_cost_usd?: string | null;
   source_url: string;
   notes: string;
+  is_avl: boolean;
   is_selected: boolean;
 }
 
@@ -152,6 +154,13 @@ export interface BomResearchRun {
   line_items: BomLineItem[];
   created_at: string;
   completed_at: string | null;
+}
+
+export interface BomExcelDownloadResponse {
+  url: string;
+  file_size: number | null;
+  generated_at: string | null;
+  filename: string;
 }
 
 export interface BomLogEntry {

@@ -37,12 +37,13 @@ def _client() -> anthropic.Anthropic:
 
 # ── Log helper ────────────────────────────────────────────────────────────────
 
-def _log(run, log_type: str, message: str) -> None:
+def _log(run, log_type: str, message: str, **extra) -> None:
     """Append a timestamped entry immediately — one DB write per call."""
     from .models import BomResearchRun
 
     ts = datetime.now(timezone.utc).strftime("%H:%M:%S")
     entry = {"ts": ts, "type": log_type, "message": message}
+    entry.update({key: value for key, value in extra.items() if value not in (None, "")})
     new_log = run.research_log + [entry]
     BomResearchRun.objects.filter(pk=run.pk).update(research_log=new_log)
     run.research_log = new_log
@@ -201,7 +202,14 @@ def _handle_record_material_spec(item, run, inputs: dict) -> str:
         item.material_spec = full_spec
 
     lib_tag = " [from Library]" if found_in_library else ""
-    _log(run, "material", f"  Material confirmed: {material} ({source}){lib_tag}")
+    _log(
+        run,
+        "material",
+        f"  Material confirmed: {material} ({source}){lib_tag}",
+        item_id=item.id,
+        part_name=item.part_name,
+        source=source,
+    )
     _update_results(run, f"item_{item.id}", {
         "material": material,
         "material_standard": standard,
@@ -242,6 +250,10 @@ def _handle_record_supplier_quote(item, run, inputs: dict) -> str:
         f"  Quoted: {inputs['supplier_name']}{avl_tag} — "
         f"${inputs['unit_price']}/unit{landed_str}, "
         f"MOQ {inputs['moq']}, {inputs['lead_time_days']}d lead, {country}",
+        item_id=item.id,
+        part_name=item.part_name,
+        supplier_name=inputs["supplier_name"],
+        source_url=inputs.get("source_url", ""),
     )
     return "Quote recorded."
 
@@ -262,7 +274,13 @@ def _handle_record_risk_flags(item, run, inputs: dict) -> str:
     summary = inputs.get("summary", "")
     log_type = "risk" if flags else "info"
     flag_str = ", ".join(flags) if flags else "none"
-    _log(run, log_type, f"  Risk flags: {flag_str}. {summary}")
+    _log(
+        run,
+        log_type,
+        f"  Risk flags: {flag_str}. {summary}",
+        item_id=item.id,
+        part_name=item.part_name,
+    )
 
     _update_results(run, f"item_{item.id}", {
         "risk_flags": flags,
@@ -334,6 +352,8 @@ def _research_item(
         run, "search",
         f"Researching: {item.part_name} "
         f"(qty {item.quantity}, material: {item.material_spec or 'TBD'})",
+        item_id=item.id,
+        part_name=item.part_name,
     )
     BomLineItem.objects.filter(pk=item.pk).update(status="researching")
     item.refresh_from_db()
@@ -435,6 +455,19 @@ Output only tool calls — no narrative text."""
             tool_results = []
             for block in response.content:
                 if block.type == "server_tool_use":
+                    query = ""
+                    if getattr(block, "name", "") == "web_search":
+                        raw_input = getattr(block, "input", {}) or {}
+                        if isinstance(raw_input, dict):
+                            query = raw_input.get("query", "") or raw_input.get("q", "")
+                        _log(
+                            run,
+                            "search",
+                            f"  Search query: {query}" if query else "  Search query executed",
+                            item_id=item.id,
+                            part_name=item.part_name,
+                            query=query,
+                        )
                     # Anthropic-hosted tools (e.g. web_search): execution is handled
                     # server-side; we return an empty result to continue the turn.
                     tool_results.append({
@@ -493,6 +526,7 @@ def run_bom_research(run_id: int) -> None:
     import datetime as dt
     from .models import BomResearchRun
     from assistant.rag import find_library_docs
+    from .excel_export import upload_bom_workbook
 
     try:
         run = BomResearchRun.objects.prefetch_related("line_items").get(pk=run_id)
@@ -586,10 +620,17 @@ def run_bom_research(run_id: int) -> None:
             f"{total_quotes} supplier quotes captured",
         )
 
+        run.refresh_from_db()
+        run.completed_at = dt.datetime.now(dt.timezone.utc)
+        excel_key = upload_bom_workbook(run)
         BomResearchRun.objects.filter(pk=run.pk).update(
+            excel_s3_key=excel_key,
             status="completed",
-            completed_at=dt.datetime.now(dt.timezone.utc),
+            completed_at=run.completed_at,
         )
+        run.excel_s3_key = excel_key
+
+        _log(run, "info", "Excel workbook generated and uploaded", source_url=excel_key)
         _log(run, "info", "✅ BOM run completed")
 
     except Exception:
