@@ -59,3 +59,16 @@ def generate_presigned_url(s3_key: str, expires: int = 3600) -> str:
         Params={"Bucket": os.getenv("AWS_STORAGE_BUCKET_NAME"), "Key": s3_key},
         ExpiresIn=expires,
     )
+
+
+def get_s3_object_metadata(s3_key: str) -> dict:
+    s3 = get_s3_client()
+    response = s3.head_object(
+        Bucket=os.getenv("AWS_STORAGE_BUCKET_NAME"),
+        Key=s3_key,
+    )
+    return {
+        "size": response.get("ContentLength"),
+        "last_modified": response.get("LastModified"),
+        "content_type": response.get("ContentType"),
+    }

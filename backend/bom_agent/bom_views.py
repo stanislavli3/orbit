@@ -114,6 +114,15 @@ def _build_questions(run: BomResearchRun, user) -> list:
 class BomRunListCreateView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
+    def get(self, request):
+        project_id = request.query_params.get("project_id")
+        runs = BomResearchRun.objects.filter(created_by=request.user).prefetch_related(
+            "line_items__quotes"
+        )
+        if project_id:
+            runs = runs.filter(project_id=project_id)
+        return Response(BomResearchRunSerializer(runs, many=True).data)
+
     def post(self, request):
         project_id = request.data.get("project_id")
         if not project_id:
@@ -252,9 +261,24 @@ class BomRunExcelView(APIView):
             return Response(
                 {"detail": "Excel report not yet generated."}, status=status.HTTP_404_NOT_FOUND
             )
-        from files_api.s3_service import generate_presigned_url
+        from files_api.s3_service import generate_presigned_url, get_s3_object_metadata
+
         url = generate_presigned_url(run.excel_s3_key, expires=3600)
-        return Response({"url": url})
+        metadata = get_s3_object_metadata(run.excel_s3_key)
+        generated_at = (
+            metadata.get("last_modified").isoformat()
+            if metadata.get("last_modified")
+            else (run.completed_at.isoformat() if run.completed_at else None)
+        )
+        filename = run.excel_s3_key.rsplit("/", 1)[-1] if "/" in run.excel_s3_key else run.excel_s3_key
+        return Response(
+            {
+                "url": url,
+                "file_size": metadata.get("size"),
+                "generated_at": generated_at,
+                "filename": filename,
+            }
+        )
 
 
 class BomRunLogView(APIView):

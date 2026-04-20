@@ -117,3 +117,27 @@
 - `cd backend && ./.venv/bin/python manage.py check`
 - `cd backend && ./.venv/bin/python ../scripts/recalc.py /tmp/bom-sample.xlsx`
 - Follow-up: the requested example formula `=D2*F2` conflicts with the specified column order (`Qty` is column `E`), so the workbook uses `=E2*F2` for extended cost.
+
+---
+
+# Issue #64 — BOM results table & Excel download (Phase 3)
+
+- [x] Inspect current BOM/project detail frontend flow and confirm API gaps for history/download metadata
+- [x] Add minimal backend support for `GET /api/bom/runs/?project_id=<id>` and Excel metadata needed by the UI
+- [x] Extend frontend BOM types/client usage for run history and Excel download payloads
+- [x] Implement project-detail BOM results panel with sortable/filterable table and expandable supplier comparison rows
+- [x] Add row-level risk badges, client-side status filter, and run history actions (`View` / `Download`)
+- [x] Add Excel download button with presigned URL open behavior, file size, and generation timestamp
+- [x] Run targeted verification (`manage.py`/frontend build or lint) and document results/follow-ups
+
+## Review — Issue #64
+- Added BOM run history support to the backend: `GET /api/bom/runs/?project_id=<id>` now returns the project’s runs, and `/api/bom/runs/<id>/excel/` now includes `url`, `file_size`, `generated_at`, and `filename`.
+- Added [BomResultsPanel.tsx](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/app/components/BomResultsPanel.tsx) for the Phase 3 UI: sortable/filterable BOM results table, expandable supplier quote sub-table, row risk badges, Excel header download action, and run history with `View` / `Download`.
+- Wired [ProjectDetailPage.tsx](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/app/components/ProjectDetailPage.tsx) to load BOM history/detail data, keep a selected run, show current results inline, and preserve the live research panel flow.
+- Extended API typings in [types.ts](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/api/types.ts) for `is_avl`, Excel metadata, and related BOM payloads; also cleaned up [BomLivePanel.tsx](/Users/amandafogel/Visual%20Studio%20Code/Orbit/apps/web/src/app/components/BomLivePanel.tsx) to satisfy the repo’s React hooks lint rule.
+- Verification:
+- `cd backend && ./.venv/bin/python -m pytest bom_agent/tests.py -q`
+- `cd backend && ./.venv/bin/python manage.py check`
+- `cd apps/web && npm run lint`
+- `cd apps/web && npm run build`
+- Follow-up: the `COTS` filter is derived client-side from sourced parts whose best quote has `tooling_cost === 0`, since there is no dedicated backend status for COTS today.

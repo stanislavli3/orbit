@@ -168,17 +168,73 @@ class BomRunExcelViewTests(TestCase):
         with patch(
             "files_api.s3_service.generate_presigned_url",
             return_value="https://example.com/download.xlsx?sig=1",
-        ) as presign_mock:
+        ) as presign_mock, patch(
+            "files_api.s3_service.get_s3_object_metadata",
+            return_value={
+                "size": 4096,
+                "last_modified": timezone.now(),
+                "content_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            },
+        ) as metadata_mock:
             response = self.client.get(f"/api/bom/runs/{self.run.id}/excel/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.json()["url"], "https://example.com/download.xlsx?sig=1"
-        )
+        payload = response.json()
+        self.assertEqual(payload["url"], "https://example.com/download.xlsx?sig=1")
+        self.assertEqual(payload["file_size"], 4096)
+        self.assertEqual(payload["filename"], "report.xlsx")
+        self.assertIsNotNone(payload["generated_at"])
         presign_mock.assert_called_once_with(
             "bom-reports/1/run-1/report.xlsx",
             expires=3600,
         )
+        metadata_mock.assert_called_once_with("bom-reports/1/run-1/report.xlsx")
+
+
+class BomRunListViewTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(
+            username="history-user",
+            email="history@example.com",
+            password="x",
+        )
+        self.other_user = User.objects.create_user(
+            username="history-other",
+            email="history-other@example.com",
+            password="x",
+        )
+        self.project = Project.objects.create(name="History Project", owner=self.user)
+        self.other_project = Project.objects.create(name="Other Project", owner=self.other_user)
+        self.run_one = BomResearchRun.objects.create(
+            project=self.project,
+            created_by=self.user,
+            status="completed",
+            completed_at=timezone.now(),
+        )
+        BomLineItem.objects.create(run=self.run_one, part_name="Bracket", quantity=4, status="sourced")
+        self.run_two = BomResearchRun.objects.create(
+            project=self.project,
+            created_by=self.user,
+            status="researching",
+        )
+        BomLineItem.objects.create(run=self.run_two, part_name="Valve", quantity=2, status="researching")
+        other_run = BomResearchRun.objects.create(
+            project=self.other_project,
+            created_by=self.other_user,
+            status="completed",
+        )
+        BomLineItem.objects.create(run=other_run, part_name="Hidden", quantity=1, status="sourced")
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+
+    def test_bom_run_list_filters_by_project_and_user(self):
+        response = self.client.get(f"/api/bom/runs/?project_id={self.project.id}")
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(len(payload), 2)
+        self.assertEqual(payload[0]["id"], self.run_two.id)
+        self.assertEqual(payload[1]["id"], self.run_one.id)
+        self.assertEqual(len(payload[0]["line_items"]), 1)
 
 
 class BomResearchPipelineTests(TestCase):
