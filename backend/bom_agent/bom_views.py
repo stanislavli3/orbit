@@ -209,11 +209,14 @@ class BomRunListCreateView(APIView):
                             if (result or {}).get("appearance", {}).get("materials") else "",
                     )
             else:
-                # Fall back to one item per file
+                # For STEP files use the FILE_DESCRIPTION header value as the part name
+                # when available — it's more meaningful than the raw filename.
+                step_description = (result or {}).get("file_description") if result else None
+                part_name = step_description or f.original_name
                 BomLineItem.objects.create(
                     run=run,
                     file=f,
-                    part_name=f.original_name,
+                    part_name=part_name,
                 )
 
         # If no processed files, create a placeholder

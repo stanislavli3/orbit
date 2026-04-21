@@ -455,6 +455,8 @@ Output only tool calls — no narrative text."""
             tool_results = []
             for block in response.content:
                 if block.type == "server_tool_use":
+                    # Anthropic-hosted tools (e.g. web_search): execution is handled
+                    # server-side; we return an empty result to continue the turn.
                     query = ""
                     if getattr(block, "name", "") == "web_search":
                         raw_input = getattr(block, "input", {}) or {}
@@ -468,8 +470,6 @@ Output only tool calls — no narrative text."""
                             part_name=item.part_name,
                             query=query,
                         )
-                    # Anthropic-hosted tools (e.g. web_search): execution is handled
-                    # server-side; we return an empty result to continue the turn.
                     tool_results.append({
                         "type": "tool_result",
                         "tool_use_id": block.id,
@@ -523,14 +523,29 @@ def run_bom_research(run_id: int) -> None:
         → completed  (summary written)
         → failed  (on unhandled exception)
     """
-    import datetime as dt
-    from .models import BomResearchRun
-    from assistant.rag import find_library_docs
-    from .excel_export import upload_bom_workbook
+    import django.db
+    django.db.close_old_connections()
 
+    run = None
     try:
-        run = BomResearchRun.objects.prefetch_related("line_items").get(pk=run_id)
-    except BomResearchRun.DoesNotExist:
+        import datetime as dt
+        from .models import BomResearchRun
+        from assistant.rag import find_library_docs
+        from .excel_export import upload_bom_workbook
+
+        try:
+            run = BomResearchRun.objects.prefetch_related("line_items").get(pk=run_id)
+        except BomResearchRun.DoesNotExist:
+            return
+
+    except Exception:
+        err = traceback.format_exc()
+        if run is not None:
+            try:
+                _log(run, "error", f"Pipeline startup failed: {err[:400]}")
+                _set_status(run, "failed")
+            except Exception:
+                pass
         return
 
     try:

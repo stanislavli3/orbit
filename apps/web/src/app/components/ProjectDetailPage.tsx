@@ -11,9 +11,9 @@ import { BomQuestionsPanel } from './BomQuestionsPanel';
 import { BomLivePanel } from './BomLivePanel';
 import { BomResultsPanel } from './BomResultsPanel';
 import { BomEmailPanel } from './BomEmailPanel';
+import { EngineeringProfileCard } from './EngineeringProfileCard';
 import type { BomEmailComposerTrigger } from './BomEmailPanel';
 import type { BomQuestion, LibraryDocType } from '../../api/types';
-import type { LibraryDocType } from '../../api/types';
 
 const LIBRARY_DOC_TYPES: { value: LibraryDocType; label: string }[] = [
   { value: 'avl', label: 'Approved Vendor List' },
@@ -88,7 +88,7 @@ function SkeletonRow() {
   );
 }
 
-function ExtractionResultPanel({ fileId, apiFetch, description }: { fileId: number; apiFetch: ReturnType<typeof useApiClient>; description?: string }) {
+function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fileId: number; fileName: string; apiFetch: ReturnType<typeof useApiClient>; description?: string }) {
   const { data, isLoading } = useQuery<ExtractionResult>({
     queryKey: ['file-result', fileId],
     queryFn: async () => {
@@ -134,8 +134,31 @@ function ExtractionResultPanel({ fileId, apiFetch, description }: { fileId: numb
     bodyMd = bodyLines.join('\n').trim();
   }
 
+  async function handleProfileDownload() {
+    const res = await apiFetch(`/api/files/${fileId}/profile/`);
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${fileName.replace(/\.[^.]+$/, '')}_profile.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="border-t border-[#E6E6E6] bg-[#FAFAFA]">
+
+      {/* Engineering Profile card */}
+      {data.profile && Object.keys(data.profile).length > 0 && (
+        <div className="mx-6 mt-5 mb-2">
+          <EngineeringProfileCard
+            profile={data.profile}
+            fileName={fileName}
+            onDownload={handleProfileDownload}
+          />
+        </div>
+      )}
 
       {/* AI Description card */}
       {description && (
@@ -432,8 +455,25 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
   const [promoteDocType, setPromoteDocType] = useState<LibraryDocType | ''>('');
   const [showPromoteModal, setShowPromoteModal] = useState(false);
   const [promoting, setPromoting] = useState(false);
+  const [extracting, setExtracting] = useState(false);
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+
+  const handleExtract = async () => {
+    setExtracting(true);
+    try {
+      const res = await apiFetch(`/api/files/${file.id}/extract/`, { method: 'POST' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error ?? `Failed (${res.status})`);
+      }
+      await queryClient.invalidateQueries({ queryKey: ['project-files', projectId] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to start extraction');
+    } finally {
+      setExtracting(false);
+    }
+  };
 
   async function handlePromote() {
     if (!promoteDocType) return;
@@ -539,6 +579,16 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
               >
                 <FileStatusBadge status={file.status} />
               </button>
+            ) : file.status === 'uploaded' && !file.optimistic ? (
+              <button
+                onClick={handleExtract}
+                disabled={extracting}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all disabled:opacity-50 bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE] hover:bg-[#EDE9FE]"
+              >
+                {extracting
+                  ? <><Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} /> Starting…</>
+                  : 'Run Extraction'}
+              </button>
             ) : (
               <FileStatusBadge status={file.status} optimistic={file.optimistic} />
             )}
@@ -617,7 +667,7 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
                 </button>
               </div>
             </div>
-          ) : file.status === 'processing' || file.status === 'uploaded' || file.optimistic ? (
+          ) : (file.status === 'processing' || file.optimistic) || (file.status === 'uploaded' && !file.description) ? (
             <span className="text-[12px] text-[#9CA3AF] italic flex items-center gap-1.5">
               <Loader2 className="w-3 h-3 animate-spin" strokeWidth={1.5} />
               Generating description…
@@ -643,7 +693,7 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
       </div>
 
       {expanded && file.status === 'processed' && (
-        <ExtractionResultPanel fileId={file.id} apiFetch={apiFetch} description={file.description} />
+        <ExtractionResultPanel fileId={file.id} fileName={file.original_name} apiFetch={apiFetch} description={file.description} />
       )}
 
       {/* Add to Library promote modal */}
@@ -677,9 +727,110 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
   );
 }
 
+function ExtractionRunCard({ file, apiFetch, projectId }: { file: FileLike; apiFetch: ReturnType<typeof useApiClient>; projectId: string }) {
+  const [expanded, setExpanded] = useState(false);
+  const [extracting, setExtracting] = useState(false);
+  const queryClient = useQueryClient();
+
+  const handleExtract = async () => {
+    setExtracting(true);
+    try {
+      const res = await apiFetch(`/api/files/${file.id}/extract/`, { method: 'POST' });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err?.error ?? `Failed (${res.status})`);
+      }
+      await queryClient.invalidateQueries({ queryKey: ['project-files', projectId] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to start extraction');
+    } finally {
+      setExtracting(false);
+    }
+  };
+
+  const statusConfig: Record<string, { label: string; className: string; icon: React.ReactNode }> = {
+    processed: {
+      label: 'Extracted',
+      className: 'bg-[#ECFDF5] text-[#065F46] border border-emerald-100',
+      icon: <CheckCircle2 className="w-3 h-3" strokeWidth={2} />,
+    },
+    processing: {
+      label: 'Processing',
+      className: 'bg-[#F4F4F4] text-[#6B7280] border border-[#E6E6E6]',
+      icon: <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />,
+    },
+    failed: {
+      label: 'Failed',
+      className: 'bg-[#FEF2F2] text-[#DC2626] border border-red-100',
+      icon: <AlertCircle className="w-3 h-3" strokeWidth={2} />,
+    },
+  };
+
+  const cfg = statusConfig[file.status];
+
+  return (
+    <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden">
+      <div className="flex items-center gap-4 px-5 py-4">
+        <div className="w-9 h-9 bg-[#F4F4F4] rounded-lg flex items-center justify-center flex-shrink-0">
+          <File className="w-[18px] h-[18px] text-[#6B7280]" strokeWidth={1.5} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-[#111111] truncate">{file.original_name}</p>
+          <p className="text-[12px] text-[#9CA3AF]">
+            {formatDate(file.created_at)} · {formatBytes(file.file_size)} ·{' '}
+            <span className="uppercase font-medium">{file.file_type || '—'}</span>
+          </p>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {file.status === 'uploaded' ? (
+            <button
+              onClick={handleExtract}
+              disabled={extracting}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] font-semibold transition-all disabled:opacity-50 bg-[#F5F3FF] text-[#7C3AED] border border-[#DDD6FE] hover:bg-[#EDE9FE]"
+            >
+              {extracting
+                ? <><Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} /> Starting…</>
+                : 'Run Extraction'}
+            </button>
+          ) : cfg ? (
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium ${cfg.className}`}>
+              {cfg.icon}
+              {cfg.label}
+            </span>
+          ) : null}
+          {file.status === 'processed' && (
+            <button
+              onClick={() => setExpanded((v) => !v)}
+              className="w-8 h-8 flex items-center justify-center hover:bg-[#E6E6E6] rounded-lg transition-colors"
+              title={expanded ? 'Collapse' : 'View profile'}
+            >
+              {expanded
+                ? <ChevronUp className="w-4 h-4 text-[#6B7280]" />
+                : <ChevronDown className="w-4 h-4 text-[#6B7280]" />}
+            </button>
+          )}
+          {file.status === 'failed' && (
+            <button
+              onClick={handleExtract}
+              disabled={extracting}
+              className="inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[11px] font-medium transition-all disabled:opacity-50 hover:bg-[#FEF2F2] text-[#DC2626]"
+            >
+              {extracting ? <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} /> : 'Retry'}
+            </button>
+          )}
+        </div>
+      </div>
+      {expanded && file.status === 'processed' && (
+        <ExtractionResultPanel fileId={file.id} fileName={file.original_name} apiFetch={apiFetch} description={file.description} />
+      )}
+    </div>
+  );
+}
+
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [activeTab, setActiveTab] = useState<'vault' | 'library'>('vault');
+  const [activeTab, setActiveTab] = useState<'vault' | 'library' | 'extraction'>('vault');
+  const [extractionFilter, setExtractionFilter] = useState<'all' | 'uploaded' | 'processing' | 'processed' | 'failed'>('all');
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [optimisticFiles, setOptimisticFiles] = useState<FileLike[]>([]);
@@ -802,6 +953,7 @@ export function ProjectDetailPage() {
     const optimistic: FileLike = {
       id: tempId,
       project: Number(id),
+      project_name: project?.name ?? null,
       uploaded_by: 0,
       original_name: file.name,
       description: '',
@@ -973,7 +1125,7 @@ export function ProjectDetailPage() {
               <Download className="w-4 h-4 inline mr-2" strokeWidth={1.5} />
               Export
             </button>
-            {activeTab === 'vault' ? (
+            {activeTab === 'vault' || activeTab === 'extraction' ? (
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
@@ -1021,6 +1173,22 @@ export function ProjectDetailPage() {
               Library
             </span>
           </button>
+          <button
+            onClick={() => setActiveTab('extraction')}
+            className={`pb-4 border-b-2 transition-colors ${
+              activeTab === 'extraction' ? 'border-[#111111] text-[#111111]' : 'border-transparent text-[#6B7280] hover:text-[#111111]'
+            }`}
+          >
+            <span className="text-sm flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" strokeWidth={1.5} />
+              Extraction Runs
+              {files && files.filter(f => f.status === 'processing' || f.status === 'uploaded').length > 0 && (
+                <span className="inline-flex items-center justify-center w-4 h-4 bg-amber-100 text-amber-700 rounded-full text-[10px] font-bold">
+                  {files.filter(f => f.status === 'processing' || f.status === 'uploaded').length}
+                </span>
+              )}
+            </span>
+          </button>
         </div>
       </div>
 
@@ -1066,13 +1234,66 @@ export function ProjectDetailPage() {
 
           <BomResultsPanel
             runs={bomRuns}
-            selectedRun={selectedBomRun ?? activeBomRun ?? null}
-          <BomResultsPanel
-            runs={bomRuns}
             selectedRun={activeBomRun ?? selectedBomRun ?? null}
             selectedRunId={activeBomRun?.id ?? selectedBomRunId}
             onSelectRun={(runId) => setSelectedBomRunId(runId)}
           />
+
+          {activeTab === 'extraction' && (() => {
+            const FILTERS = [
+              { value: 'all' as const, label: 'All' },
+              { value: 'processing' as const, label: 'Processing' },
+              { value: 'processed' as const, label: 'Extracted' },
+              { value: 'failed' as const, label: 'Failed' },
+            ];
+            const filtered = combinedFiles.filter((f) => {
+              if (extractionFilter === 'all') return true;
+              return f.status === extractionFilter;
+            });
+            return (
+              <div>
+                {/* Filter chips */}
+                <div className="flex items-center gap-2 mb-4">
+                  {FILTERS.map((f) => {
+                    const count = f.value === 'all'
+                      ? combinedFiles.length
+                      : combinedFiles.filter(x => x.status === f.value).length;
+                    return (
+                      <button
+                        key={f.value}
+                        onClick={() => setExtractionFilter(f.value)}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${
+                          extractionFilter === f.value
+                            ? 'bg-[#111111] text-white border-[#111111]'
+                            : 'bg-white text-[#6B7280] border-[#E6E6E6] hover:border-[#9CA3AF]'
+                        }`}
+                      >
+                        {f.label}
+                        <span className={`text-[10px] font-bold ${extractionFilter === f.value ? 'text-white/60' : 'text-[#9CA3AF]'}`}>
+                          {count}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Extraction run cards */}
+                {filtered.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-16 bg-white border border-[#E6E6E6] rounded-xl text-center">
+                    <CheckCircle2 className="w-8 h-8 text-[#D1D5DB] mb-3" strokeWidth={1.5} />
+                    <p className="text-[#111111] text-sm font-medium mb-1">No extraction runs</p>
+                    <p className="text-[#6B7280] text-[12px]">Upload CAD files to start an extraction run.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {filtered.map((file) => (
+                      <ExtractionRunCard key={file.id} file={file} apiFetch={apiFetch} projectId={id!} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
 
           {activeTab === 'vault' ? (
             <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden">
