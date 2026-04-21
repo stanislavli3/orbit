@@ -10,6 +10,7 @@ export interface Project {
 export interface UploadedFile {
   id: number;
   project: number;
+  project_name: string | null;
   uploaded_by: number;
   original_name: string;
   description: string;
@@ -19,6 +20,20 @@ export interface UploadedFile {
   created_at: string;
 }
 
+export interface EngineeringProfile {
+  part_number: string | null;
+  name: string | null;
+  material: { value: string | null; confidence: number } | null;
+  category: string | null;
+  dimensions: string | null;
+  revision: string | null;
+  volume: { value: string | null; confidence: number } | null;
+  provenance: {
+    sources: string[];
+    warnings: string[];
+  };
+}
+
 export interface ExtractionResult {
   schema: string | null;
   file_description: string | null;
@@ -26,6 +41,7 @@ export interface ExtractionResult {
   confidence: number;
   warnings: string[];
   extracted_at: string;
+  profile?: EngineeringProfile;
   // Extended fields from rich extractor
   source_file?: string;
   created_at?: string;

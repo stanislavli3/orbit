@@ -2,6 +2,7 @@ import json
 import os
 import threading
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,17 +16,38 @@ from .embeddings import generate_embedding
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_BYTES", 100_000_000))  # 100 MB default
 
 
-def _run_extraction(file_id: int, s3_key: str, file_name: str, file_type: str):
+def _run_description(file_id: int, s3_key: str, file_name: str, file_type: str):
+    """Generate AI description on upload only. Status stays 'uploaded'."""
     from .s3_service import download_file_from_s3
     from .extractor import extract_step_header
     from .ai_description import generate_file_description
 
     try:
+        file_bytes = download_file_from_s3(s3_key)
+        result = extract_step_header(file_bytes)
+        description = generate_file_description(file_name, file_type, result)
+        if description:
+            UploadedFile.objects.filter(id=file_id).update(description=description)
+    except Exception:
+        pass  # Non-fatal: description stays empty, file is still usable
+
+
+def _run_extraction(file_id: int, s3_key: str, file_name: str, file_type: str):
+    """Full extraction: STEP parse + profile + embedding. Triggered on demand."""
+    from .s3_service import download_file_from_s3
+    from .extractor import extract_step_header
+    from .ai_description import generate_file_description, generate_engineering_profile
+
+    try:
         UploadedFile.objects.filter(id=file_id).update(status="processing")
         file_bytes = download_file_from_s3(s3_key)
         result = extract_step_header(file_bytes)
-        ExtractionResult.objects.create(file_id=file_id, result_json=result)
         description = generate_file_description(file_name, file_type, result)
+        profile = generate_engineering_profile(file_name, file_type, result)
+        result["profile"] = profile
+        ExtractionResult.objects.update_or_create(
+            file_id=file_id, defaults={"result_json": result}
+        )
         UploadedFile.objects.filter(id=file_id).update(
             status="processed", description=description
         )
@@ -95,13 +117,47 @@ class FileUploadView(APIView):
         )
 
         threading.Thread(
-            target=_run_extraction,
+            target=_run_description,
             args=(file_record.id, s3_key, uploaded_file.name, ext),
             daemon=True,
         ).start()
 
         serializer = UploadedFileSerializer(file_record)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+class FileExtractView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, file_id):
+        file_record = get_object_or_404(
+            UploadedFile, id=file_id, project__owner=request.user
+        )
+        if file_record.status == "processing":
+            return Response(
+                {"error": "Extraction already in progress"},
+                status=status.HTTP_409_CONFLICT,
+            )
+        threading.Thread(
+            target=_run_extraction,
+            args=(file_record.id, file_record.s3_key, file_record.original_name, file_record.file_type),
+            daemon=True,
+        ).start()
+        return Response({"status": "processing"}, status=status.HTTP_202_ACCEPTED)
+
+
+class AllFilesView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        files = (
+            UploadedFile.objects
+            .filter(project__owner=request.user)
+            .select_related("project")
+            .order_by("-created_at")
+        )
+        serializer = UploadedFileSerializer(files, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ProjectFileListView(APIView):
@@ -178,3 +234,27 @@ class FileDownloadView(APIView):
         )
         url = generate_presigned_url(file_record.s3_key)
         return Response({"url": url}, status=status.HTTP_200_OK)
+
+
+class FileProfileDownloadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, file_id):
+        file_record = get_object_or_404(
+            UploadedFile, id=file_id, project__owner=request.user
+        )
+        try:
+            extraction = file_record.result
+        except ExtractionResult.DoesNotExist:
+            return Response(
+                {"error": "Profile not available yet"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        profile = extraction.result_json.get("profile") or {}
+        safe_name = file_record.original_name.rsplit(".", 1)[0].replace(" ", "_")
+        response = HttpResponse(
+            json.dumps(profile, indent=2),
+            content_type="application/json",
+        )
+        response["Content-Disposition"] = f'attachment; filename="{safe_name}_profile.json"'
+        return response

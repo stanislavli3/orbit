@@ -337,10 +337,11 @@ export function BomEmailPanel({
   useEffect(() => {
     if (composerTrigger == null || runId == null) return;
 
+    const trigger = composerTrigger;
     let cancelled = false;
     async function handleTrigger() {
       try {
-        if (composerTrigger.type === 'question' && composerTrigger.question) {
+        if (trigger.type === 'question' && trigger.question) {
           const response = await apiFetch(`/api/bom/runs/${runId}/draft-emails/`, {
             method: 'POST',
           });
@@ -350,8 +351,8 @@ export function BomEmailPanel({
           }
           const payload = (await response.json()) as TeamRequestDraftResponse;
           const matching =
-            payload.requests.find((request) => request.question_key === composerTrigger.question?.id)
-            ?? payload.requests.find((request) => request.question === composerTrigger.question?.text)
+            payload.requests.find((request) => request.question_key === trigger.question?.id)
+            ?? payload.requests.find((request) => request.question === trigger.question?.text)
             ?? null;
           void queryClient.invalidateQueries({ queryKey: ['bom-emails', runId] });
           if (!cancelled && matching) {
@@ -360,9 +361,9 @@ export function BomEmailPanel({
           } else if (!cancelled) {
             toast.message('Drafts generated for outstanding team questions.');
           }
-        } else if (composerTrigger.type === 'request' && composerTrigger.requestId) {
+        } else if (trigger.type === 'request' && trigger.requestId) {
           if (!cancelled) {
-            setSelectedRequestId(composerTrigger.requestId);
+            setSelectedRequestId(trigger.requestId);
             setComposerOpen(true);
           }
         }

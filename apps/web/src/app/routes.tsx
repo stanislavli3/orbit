@@ -6,6 +6,7 @@ import { HistoryPage } from './components/HistoryPage';
 import { ProjectDetailPage } from './components/ProjectDetailPage';
 import { SettingsPage } from './components/SettingsPage';
 import { LibraryPage } from './components/LibraryPage';
+import { ExtractionRunsPage } from './components/ExtractionRunsPage';
 import { SignInPage } from './components/SignInPage';
 import { SsoCallbackPage } from './components/SsoCallbackPage';
 
@@ -26,7 +27,7 @@ export const router = createBrowserRouter([
       { path: 'assistant', Component: AssistantPage },
       { path: 'vault', Component: VaultPage },
       { path: 'project/:id', Component: ProjectDetailPage },
-      { path: 'extraction-runs', Component: VaultPage }, // Placeholder
+      { path: 'extraction-runs', Component: ExtractionRunsPage },
       { path: 'workflows', Component: VaultPage }, // Placeholder
       { path: 'history', Component: HistoryPage },
       { path: 'library', Component: LibraryPage },
