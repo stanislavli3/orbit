@@ -12,7 +12,6 @@ import {
 } from "./ui/dialog";
 import {
   Bot,
-  Vault,
   PlayCircle,
   Workflow,
   History,
@@ -342,7 +341,7 @@ function getSidebarContent(
       ],
     },
     vault: {
-      title: "Vault",
+      title: "Projects",
       sections: [
         {
           title: "Quick Actions",
@@ -389,14 +388,17 @@ function getSidebarContent(
             {
               icon: <Zap size={16} className={ic} />,
               label: "Active runs",
+              path: "/extraction-runs?status=active",
             },
             {
               icon: <CheckCircle size={16} className={ic} />,
               label: "Completed",
+              path: "/extraction-runs?status=extracted",
             },
             {
               icon: <Archive size={16} className={ic} />,
-              label: "Archived",
+              label: "Failed",
+              path: "/extraction-runs?status=failed",
             },
           ],
         },
@@ -549,7 +551,7 @@ function IconNavButton({
 
 const iconNavItems = [
   { id: "assistant", icon: <Bot size={16} />, label: "Assistant", path: "/assistant" },
-  { id: "vault", icon: <Vault size={16} />, label: "Vault", path: "/vault" },
+  { id: "vault", icon: <FolderOpen size={16} />, label: "Projects", path: "/vault" },
   { id: "extraction-runs", icon: <PlayCircle size={16} />, label: "Extraction Runs", path: "/extraction-runs" },
   { id: "workflows", icon: <Workflow size={16} />, label: "Workflows", path: "/workflows" },
   { id: "history", icon: <History size={16} />, label: "History", path: "/history" },
