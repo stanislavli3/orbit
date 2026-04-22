@@ -1,10 +1,11 @@
-import { useState, useRef, useCallback } from 'react';
-import { Upload, Trash2, Download, BookOpen, X, Loader2, FileText, CheckCircle2 } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { Upload, Trash2, Download, BookOpen, X, Loader2, FileText, CheckCircle2, Filter } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
 import type { LibraryDocument, LibraryDocType } from '../../api/types';
 import { toast } from 'sonner';
 import { TopBar } from './TopBar';
+import { useSearchParams } from 'react-router';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
 
@@ -137,6 +138,7 @@ export function LibraryPage() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
 
   // Upload flow state
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -147,6 +149,10 @@ export function LibraryPage() {
   const [retagDoc, setRetagDoc] = useState<LibraryDocument | null>(null);
   const [retagging, setRetagging] = useState(false);
 
+  // Filter state
+  const [filterType, setFilterType] = useState<LibraryDocType | 'all'>('all');
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+
   const invalidate = useCallback(() => qc.invalidateQueries({ queryKey: ['library'] }), [qc]);
 
   const { data: docs = [], isLoading } = useQuery<LibraryDocument[]>({
@@ -156,6 +162,34 @@ export function LibraryPage() {
       if (!res.ok) throw new Error('Failed to load library');
       return res.json();
     },
+  });
+
+  // Sidebar quick-action signals via URL params
+  const uploadParam = searchParams.get('upload');
+  const filterParam = searchParams.get('filter');
+  const viewParam = searchParams.get('view');
+
+  useEffect(() => {
+    if (uploadParam === '1') {
+      fileRef.current?.click();
+      setSearchParams((p) => { p.delete('upload'); return p; }, { replace: true });
+    }
+  }, [uploadParam, setSearchParams]);
+
+  useEffect(() => {
+    if (filterParam === '1') {
+      setShowFilterPanel(true);
+      setSearchParams((p) => { p.delete('filter'); return p; }, { replace: true });
+    }
+  }, [filterParam, setSearchParams]);
+
+  const visibleDocs = docs.filter((doc) => {
+    if (viewParam === 'recent') {
+      const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      if (new Date(doc.uploaded_at).getTime() < weekAgo) return false;
+    }
+    if (filterType !== 'all' && doc.doc_type !== filterType) return false;
+    return true;
   });
 
   async function handleFileSelected(file: File) {
@@ -256,6 +290,33 @@ export function LibraryPage() {
           />
         </div>
 
+        {/* Filter bar */}
+        {(showFilterPanel || filterType !== 'all') && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <button
+              onClick={() => setFilterType('all')}
+              className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${filterType === 'all' ? 'bg-[#2B2824] text-white border-[#2B2824]' : 'bg-white text-[#8B7F73] border-[#E8E0D3] hover:border-[#A89D91]'}`}
+            >
+              All types
+            </button>
+            {DOC_TYPES.map((t) => (
+              <button
+                key={t.value}
+                onClick={() => setFilterType(filterType === t.value ? 'all' : t.value)}
+                className={`px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${filterType === t.value ? 'bg-[#2B2824] text-white border-[#2B2824]' : 'bg-white text-[#8B7F73] border-[#E8E0D3] hover:border-[#A89D91]'}`}
+              >
+                {t.label}
+              </button>
+            ))}
+            <button
+              onClick={() => { setFilterType('all'); setShowFilterPanel(false); }}
+              className="ml-auto flex items-center gap-1 text-[12px] text-[#A89D91] hover:text-[#2B2824] transition-colors"
+            >
+              <X className="w-3.5 h-3.5" /> Clear
+            </button>
+          </div>
+        )}
+
         {/* Document list */}
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
@@ -264,10 +325,16 @@ export function LibraryPage() {
         ) : docs.length === 0 ? (
           <div className="text-center py-16 border border-dashed border-[#E8E0D3] rounded-xl bg-white">
             <BookOpen className="w-10 h-10 mx-auto text-[#D1D5DB] mb-3" />
-            <p className="text-sm font-medium text-[#2B2824]">Your Library is empty</p>
+            <p className="text-sm font-medium text-[#2B2824]">Knowledge Base is empty</p>
             <p className="text-xs text-[#8B7F73] mt-1 max-w-sm mx-auto">
               Add your AVL, material specs, compliance docs, and supplier scorecards. The BOM agent will reference them automatically before searching the web.
             </p>
+          </div>
+        ) : visibleDocs.length === 0 ? (
+          <div className="text-center py-12 border border-dashed border-[#E8E0D3] rounded-xl bg-white">
+            <Filter className="w-8 h-8 mx-auto text-[#D1D5DB] mb-3" />
+            <p className="text-sm font-medium text-[#2B2824]">No documents match</p>
+            <p className="text-xs text-[#8B7F73] mt-1">Try adjusting your filters.</p>
           </div>
         ) : (
           <div className="bg-white border border-[#E8E0D3] rounded-xl overflow-hidden">
@@ -283,7 +350,7 @@ export function LibraryPage() {
                 </tr>
               </thead>
               <tbody>
-                {docs.map((doc) => (
+                {visibleDocs.map((doc) => (
                   <tr key={doc.id} className="border-t border-[#F2EDE3] hover:bg-[#FFFCF7] transition-colors group">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2.5">

@@ -61,7 +61,8 @@ def _run_extraction(file_id: int, s3_key: str, file_name: str, file_type: str):
         UploadedFile.objects.filter(id=file_id).update(status="failed")
 
 
-ALLOWED_EXTENSIONS = {"step", "stp", "pdf", "dwg", "dxf", "iges", "igs"}
+VAULT_EXTENSIONS = {"step", "stp", "pdf", "dwg", "dxf", "iges", "igs"}
+LIBRARY_EXTENSIONS = {"xlsx", "csv", "pdf", "docx"}
 
 
 class FileUploadView(APIView):
@@ -70,6 +71,10 @@ class FileUploadView(APIView):
     def post(self, request):
         uploaded_file = request.FILES.get("file")
         project_id = request.data.get("project_id")
+        category = request.data.get("category", "vault")
+
+        if category not in ("vault", "library"):
+            category = "vault"
 
         if not uploaded_file:
             return Response(
@@ -89,15 +94,16 @@ class FileUploadView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        allowed_extensions = VAULT_EXTENSIONS if category == "vault" else LIBRARY_EXTENSIONS
         ext = (
             uploaded_file.name.rsplit(".", 1)[-1].lower()
             if "." in uploaded_file.name
             else ""
         )
-        if ext not in ALLOWED_EXTENSIONS:
+        if ext not in allowed_extensions:
             return Response(
                 {
-                    "error": f"Unsupported file type '.{ext}'. Allowed: {', '.join(sorted(ALLOWED_EXTENSIONS))}"
+                    "error": f"Unsupported file type '.{ext}'. Allowed: {', '.join(sorted(allowed_extensions))}"
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -114,13 +120,15 @@ class FileUploadView(APIView):
             s3_key=s3_key,
             file_size=uploaded_file.size,
             status="uploaded",
+            category=category,
         )
 
-        threading.Thread(
-            target=_run_description,
-            args=(file_record.id, s3_key, uploaded_file.name, ext),
-            daemon=True,
-        ).start()
+        if category == "vault":
+            threading.Thread(
+                target=_run_description,
+                args=(file_record.id, s3_key, uploaded_file.name, ext),
+                daemon=True,
+            ).start()
 
         serializer = UploadedFileSerializer(file_record)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -171,8 +179,11 @@ class ProjectFileListView(APIView):
                 {"error": "Project not found"}, status=status.HTTP_404_NOT_FOUND
             )
 
-        files = UploadedFile.objects.filter(project=project).order_by("-created_at")
-        serializer = UploadedFileSerializer(files, many=True)
+        qs = UploadedFile.objects.filter(project=project).order_by("-created_at")
+        category = request.query_params.get("category")
+        if category in ("vault", "library"):
+            qs = qs.filter(category=category)
+        serializer = UploadedFileSerializer(qs, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
