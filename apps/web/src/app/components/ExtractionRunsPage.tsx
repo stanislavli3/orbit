@@ -59,22 +59,22 @@ function LightProfileCard({ profile, fileName }: {
     profile.provenance.sources.length > 0 || profile.provenance.warnings.length > 0;
 
   return (
-    <div className="rounded-xl overflow-hidden bg-white border border-[#E6E6E6]">
+    <div className="rounded-xl overflow-hidden bg-white border border-[#E8E0D3]">
       {/* Part number + badge */}
       <div className="flex items-center justify-between px-5 pt-5 pb-3">
-        <span className="text-[15px] font-bold tracking-wider text-[#111111]">
+        <span className="text-[15px] font-bold tracking-wider text-[#2B2824]">
           {partLabel}
         </span>
         <span
           className="text-[10px] font-semibold tracking-widest uppercase px-2.5 py-1 rounded-full"
-          style={{ background: '#F3F4F6', color: '#6B7280', border: '1px solid #E5E7EB' }}
+          style={{ background: '#F3F4F6', color: '#8B7F73', border: '1px solid #E5E7EB' }}
         >
           Extracted
         </span>
       </div>
 
       {/* Divider */}
-      <div className="mx-5 mb-1 h-px bg-[#E6E6E6]" />
+      <div className="mx-5 mb-1 h-px bg-[#E8E0D3]" />
 
       {/* Fields */}
       <div className="px-5 py-2 space-y-0">
@@ -90,10 +90,10 @@ function LightProfileCard({ profile, fileName }: {
             key={label}
             className="flex items-center justify-between gap-4 py-2.5 border-b border-[#F3F4F6]"
           >
-            <span className="text-[11px] font-medium w-20 flex-shrink-0 text-[#9CA3AF]">
+            <span className="text-[11px] font-medium w-20 flex-shrink-0 text-[#A89D91]">
               {label}
             </span>
-            <span className="flex-1 text-[13px] font-medium text-right text-[#111111]">
+            <span className="flex-1 text-[13px] font-medium text-right text-[#2B2824]">
               {value ? (
                 pill ? (
                   <span
@@ -119,12 +119,12 @@ function LightProfileCard({ profile, fileName }: {
       {/* Provenance */}
       {hasProvenance && (
         <div className="mx-5 mt-3 mb-5 rounded-lg px-4 py-3 bg-[#F9FAFB] border border-[#E5E7EB]">
-          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2 text-[#9CA3AF]">
+          <p className="text-[10px] font-semibold uppercase tracking-widest mb-2 text-[#A89D91]">
             Provenance
           </p>
           {profile.provenance.sources.length > 0 && (
-            <p className="text-[12px] mb-2 text-[#6B7280]">
-              <span className="text-[#9CA3AF]">Sources: </span>
+            <p className="text-[12px] mb-2 text-[#8B7F73]">
+              <span className="text-[#A89D91]">Sources: </span>
               {profile.provenance.sources.map((s, i) => (
                 <span key={i}>
                   {i > 0 && <span className="text-[#D1D5DB]">, </span>}
@@ -189,27 +189,27 @@ function ExtractionRunCard({ file, apiFetch, queryClient }: {
   const statusBadge = {
     processed: { label: 'Extracted', bg: 'rgba(37,99,235,0.08)', color: '#2563EB', border: 'rgba(37,99,235,0.20)' },
     processing: { label: 'Processing', bg: 'rgba(217,119,6,0.08)', color: '#D97706', border: 'rgba(217,119,6,0.20)' },
-    uploaded:   { label: 'Ready',      bg: 'rgba(107,114,128,0.08)', color: '#6B7280', border: 'rgba(107,114,128,0.20)' },
+    uploaded:   { label: 'Ready',      bg: 'rgba(107,114,128,0.08)', color: '#8B7F73', border: 'rgba(107,114,128,0.20)' },
     failed:     { label: 'Failed',     bg: 'rgba(220,38,38,0.08)',  color: '#DC2626', border: 'rgba(220,38,38,0.20)' },
-  }[file.status] ?? { label: file.status, bg: 'rgba(107,114,128,0.08)', color: '#6B7280', border: 'rgba(107,114,128,0.20)' };
+  }[file.status] ?? { label: file.status, bg: 'rgba(107,114,128,0.08)', color: '#8B7F73', border: 'rgba(107,114,128,0.20)' };
 
   const isSpinning = file.status === 'processing';
 
   // TODO dark mode — card bg: linear-gradient(160deg, #0D0D1A 0%, #111126 100%), border: rgba(255,255,255,0.08)
   return (
-    <div className="rounded-xl overflow-hidden transition-all bg-white border border-[#E6E6E6]">
+    <div className="rounded-xl overflow-hidden transition-all bg-white border border-[#E8E0D3]">
       {/* Card header */}
       <div className="flex items-center gap-3 px-5 py-4">
         {/* TODO dark mode — icon bg: rgba(255,255,255,0.06), icon color: rgba(255,255,255,0.35) */}
         <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#F3F4F6]">
-          <File className="w-[18px] h-[18px] text-[#9CA3AF]" strokeWidth={1.5} />
+          <File className="w-[18px] h-[18px] text-[#A89D91]" strokeWidth={1.5} />
         </div>
         <div className="flex-1 min-w-0">
           {/* TODO dark mode — filename: rgba(255,255,255,0.85), meta: rgba(255,255,255,0.3) */}
-          <p className="text-[13px] font-semibold truncate text-[#111111]">
+          <p className="text-[13px] font-semibold truncate text-[#2B2824]">
             {file.original_name}
           </p>
-          <p className="text-[11px] mt-0.5 text-[#9CA3AF]">
+          <p className="text-[11px] mt-0.5 text-[#A89D91]">
             {file.project_name && <span>{file.project_name} · </span>}
             {formatDate(file.created_at)} · {formatBytes(file.file_size)} ·{' '}
             <span className="uppercase font-medium">{file.file_type || '—'}</span>
@@ -246,7 +246,7 @@ function ExtractionRunCard({ file, apiFetch, queryClient }: {
             // TODO dark mode — chevron color: rgba(255,255,255,0.35), hover bg: rgba(255,255,255,0.08)
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-[#9CA3AF] hover:bg-[#F3F4F6]"
+              className="w-8 h-8 flex items-center justify-center rounded-lg transition-colors text-[#A89D91] hover:bg-[#F3F4F6]"
               title={expanded ? 'Collapse' : 'View profile'}
             >
               {expanded
@@ -270,17 +270,17 @@ function ExtractionRunCard({ file, apiFetch, queryClient }: {
       {/* Expanded: profile */}
       {expanded && file.status === 'processed' && (
         // TODO dark mode — expanded border: rgba(255,255,255,0.06)
-        <div className="border-t border-[#E6E6E6]">
+        <div className="border-t border-[#E8E0D3]">
           {resultLoading ? (
             <div className="flex items-center justify-center py-10">
               {/* TODO dark mode — spinner: rgba(255,255,255,0.25) */}
-              <Loader2 className="w-5 h-5 animate-spin text-[#9CA3AF]" />
+              <Loader2 className="w-5 h-5 animate-spin text-[#A89D91]" />
             </div>
           ) : result?.profile && Object.keys(result.profile).length > 0 ? (
             <LightProfileCard profile={result.profile} fileName={file.original_name} />
           ) : (
             // TODO dark mode — empty text: rgba(255,255,255,0.3)
-            <p className="px-5 py-6 text-[12px] text-[#9CA3AF]">
+            <p className="px-5 py-6 text-[12px] text-[#A89D91]">
               No engineering profile available for this file.
             </p>
           )}
@@ -365,20 +365,23 @@ export function ExtractionRunsPage() {
   const empty = emptyMessages[statusParam] ?? { heading: 'Nothing here', sub: '' };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-hidden" style={{ background: '#F7F7F7' }}>
+    <div className="flex-1 flex flex-col h-full overflow-hidden" style={{ background: '#FAF7F2' }}>
       {/* Header */}
-      <div className="bg-white border-b border-[#E6E6E6] px-8 py-5 flex items-center justify-between">
+      <div className="bg-[#FFFCF7] border-b border-[#E8E0D3] px-8 pt-6 pb-5 flex items-end justify-between gap-6">
         <div>
-          <h1 className="text-[#111111] text-lg font-semibold leading-none mb-1">Extraction Runs</h1>
-          <p className="text-[#9CA3AF] text-[13px]">
+          <h1 className="font-display text-[28px] leading-[1.15] text-[#2B2824] tracking-tight font-medium">Extraction Runs</h1>
+          <svg aria-hidden="true" viewBox="0 0 220 12" className="mt-1 -ml-[2px] h-[10px] w-[180px] -rotate-[0.5deg] block" fill="none" preserveAspectRatio="none">
+            <path d="M2 7 Q 22 2, 44 6 T 88 5 Q 112 9, 136 4 T 180 6 Q 200 3, 218 7" stroke="#C66A4E" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <p className="text-[#8B7F73] text-sm mt-2">
             {allFiles.length} file{allFiles.length !== 1 ? 's' : ''} across all projects
           </p>
         </div>
         {/* New Run navigates to the Pending tab where vault-uploaded files await extraction */}
         <a
           href="/extraction-runs?status=pending"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors no-underline"
-          style={{ background: '#111111', color: '#fff' }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors no-underline shrink-0"
+          style={{ background: '#2B2824', color: '#FAF7F2' }}
         >
           <Plus className="w-4 h-4" strokeWidth={2} />
           New Run
@@ -386,7 +389,7 @@ export function ExtractionRunsPage() {
       </div>
 
       {/* Filter chips */}
-      <div className="bg-white border-b border-[#E6E6E6] px-8 py-3 flex items-center gap-2">
+      <div className="bg-white border-b border-[#E8E0D3] px-8 py-3 flex items-center gap-2">
         {FILTERS.map((f) => {
           const active = statusParam === f.value;
           return (
@@ -395,8 +398,8 @@ export function ExtractionRunsPage() {
               href={`/extraction-runs?status=${f.value}`}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors no-underline"
               style={active
-                ? { background: '#111111', color: '#fff', borderColor: '#111111' }
-                : { background: '#fff', color: '#6B7280', borderColor: '#E6E6E6' }}
+                ? { background: '#2B2824', color: '#fff', borderColor: '#2B2824' }
+                : { background: '#fff', color: '#8B7F73', borderColor: '#E8E0D3' }}
             >
               {f.label}
               <span className="text-[10px] font-bold" style={{ opacity: active ? 0.5 : 0.7 }}>
@@ -419,10 +422,10 @@ export function ExtractionRunsPage() {
         ) : filtered.length === 0 ? (
           // TODO dark mode — empty state bg: linear-gradient(160deg, #0D0D1A 0%, #111126 100%), border: rgba(255,255,255,0.07)
           //   icon: rgba(255,255,255,0.15), heading: rgba(255,255,255,0.5), sub: rgba(255,255,255,0.25)
-          <div className="flex flex-col items-center justify-center py-24 rounded-xl text-center bg-white border border-[#E6E6E6]">
+          <div className="flex flex-col items-center justify-center py-24 rounded-xl text-center bg-white border border-[#E8E0D3]">
             <CheckCircle2 className="w-10 h-10 mb-4 text-[#D1D5DB]" strokeWidth={1.5} />
-            <p className="text-[15px] font-medium mb-2 text-[#6B7280]">{empty.heading}</p>
-            <p className="text-[12px] text-[#9CA3AF]">{empty.sub}</p>
+            <p className="text-[15px] font-medium mb-2 text-[#8B7F73]">{empty.heading}</p>
+            <p className="text-[12px] text-[#A89D91]">{empty.sub}</p>
           </div>
         ) : (
           <div className="space-y-3 max-w-3xl">

@@ -3,7 +3,7 @@ import { useSignIn } from '@clerk/clerk-react';
 
 function OrbitLogo() {
   return (
-    <div className="w-9 h-9 bg-[#111111] rounded-lg flex items-center justify-center shrink-0">
+    <div className="w-9 h-9 bg-[#2B2824] rounded-lg flex items-center justify-center shrink-0">
       <span className="text-white text-sm font-bold tracking-tight">O</span>
     </div>
   );
@@ -51,9 +51,9 @@ export function SignInPage() {
   };
 
   return (
-    <div className="w-full h-screen flex bg-[#F7F7F7]">
+    <div className="w-full h-screen flex bg-[#FAF7F2]">
       {/* Left panel — branding / decorative */}
-      <div className="hidden lg:flex lg:w-[52%] bg-[#111111] flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[52%] bg-[#2B2824] flex-col justify-between p-12 relative overflow-hidden">
         {/* Subtle grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.04]"
@@ -71,7 +71,7 @@ export function SignInPage() {
         {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
           <div className="w-8 h-8 bg-white rounded-md flex items-center justify-center">
-            <span className="text-[#111111] text-sm font-bold tracking-tight">O</span>
+            <span className="text-[#2B2824] text-sm font-bold tracking-tight">O</span>
           </div>
           <span className="text-white text-base font-semibold tracking-tight">Orbit</span>
         </div>
@@ -79,12 +79,12 @@ export function SignInPage() {
         {/* Center copy */}
         <div className="relative z-10 space-y-6">
           <div className="space-y-3">
-            <p className="text-[#6B7280] text-xs uppercase tracking-widest font-medium">Engineering Intelligence</p>
+            <p className="text-[#8B7F73] text-xs uppercase tracking-widest font-medium">Engineering Intelligence</p>
             <h1 className="text-white text-[2.6rem] leading-[1.15] font-semibold tracking-tight">
               Your engineering<br />files, understood.
             </h1>
           </div>
-          <p className="text-[#9CA3AF] text-sm leading-relaxed max-w-xs">
+          <p className="text-[#A89D91] text-sm leading-relaxed max-w-xs">
             Analyze CAD files, extract metadata, and generate insights across your entire project vault.
           </p>
 
@@ -98,7 +98,7 @@ export function SignInPage() {
             ].map((feature) => (
               <div key={feature} className="flex items-center gap-2.5">
                 <div className="w-1 h-1 rounded-full bg-[#4B5563]" />
-                <span className="text-[#6B7280] text-sm">{feature}</span>
+                <span className="text-[#8B7F73] text-sm">{feature}</span>
               </div>
             ))}
           </div>
@@ -106,7 +106,7 @@ export function SignInPage() {
 
         {/* Bottom tagline */}
         <div className="relative z-10">
-          <p className="text-[#374151] text-xs">Built for engineers who ship.</p>
+          <p className="text-[#4A4038] text-xs">Built for engineers who ship.</p>
         </div>
       </div>
 
@@ -115,14 +115,14 @@ export function SignInPage() {
         {/* Mobile logo */}
         <div className="lg:hidden absolute top-8 left-8 flex items-center gap-2.5">
           <OrbitLogo />
-          <span className="text-[#111111] text-base font-semibold tracking-tight">Orbit</span>
+          <span className="text-[#2B2824] text-base font-semibold tracking-tight">Orbit</span>
         </div>
 
         <div className="w-full max-w-[360px] space-y-8">
           {/* Header */}
           <div className="space-y-2">
-            <h2 className="text-[#111111] text-2xl font-semibold tracking-tight">Sign in to Orbit</h2>
-            <p className="text-[#6B7280] text-sm">
+            <h2 className="text-[#2B2824] text-2xl font-semibold tracking-tight">Sign in to Orbit</h2>
+            <p className="text-[#8B7F73] text-sm">
               Access your engineering vault and AI assistant.
             </p>
           </div>
@@ -137,10 +137,10 @@ export function SignInPage() {
             <button
               onClick={handleGoogleSignIn}
               disabled={googleLoading}
-              className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-[#111111] text-sm font-medium hover:bg-[#F7F7F7] hover:border-[#D1D5DB] active:bg-[#F0F0F0] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
+              className="w-full flex items-center justify-center gap-3 px-4 py-2.5 bg-white border border-[#E8E0D3] rounded-lg text-[#2B2824] text-sm font-medium hover:bg-[#FAF7F2] hover:border-[#D1D5DB] active:bg-[#EEE6D8] disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-150 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
             >
               {googleLoading ? (
-                <svg className="animate-spin w-[18px] h-[18px] text-[#6B7280]" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin w-[18px] h-[18px] text-[#8B7F73]" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                 </svg>
@@ -152,13 +152,13 @@ export function SignInPage() {
           </div>
 
           {/* Footer */}
-          <p className="text-[#9CA3AF] text-xs text-center leading-relaxed">
+          <p className="text-[#A89D91] text-xs text-center leading-relaxed">
             By continuing, you agree to Orbit's{' '}
-            <a href="#" className="text-[#6B7280] underline underline-offset-2 hover:text-[#111111] transition-colors">
+            <a href="#" className="text-[#8B7F73] underline underline-offset-2 hover:text-[#2B2824] transition-colors">
               Terms of Service
             </a>{' '}
             and{' '}
-            <a href="#" className="text-[#6B7280] underline underline-offset-2 hover:text-[#111111] transition-colors">
+            <a href="#" className="text-[#8B7F73] underline underline-offset-2 hover:text-[#2B2824] transition-colors">
               Privacy Policy
             </a>
             .

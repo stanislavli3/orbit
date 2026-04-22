@@ -30,9 +30,34 @@ from .team_requests import (
     route_contact,
 )
 from .gmail_integration import poll_run_replies, send_team_request_via_gmail
+from .research_pipeline import _log
 
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
+
+import re
+
+# STEP file header values that look like schema version strings rather than part
+# names, e.g. "STEP AP203", "ISO 10303-21", "AUTOMOTIVE_DESIGN". Treat as junk and
+# fall back to the upload filename — a machined part is never called "STEP AP203".
+_JUNK_PART_NAME_PATTERNS = [
+    re.compile(r"^\s*STEP\s*AP\s*\d+\s*$", re.IGNORECASE),
+    re.compile(r"^\s*ISO\s*10303(-\s*\d+)?\s*$", re.IGNORECASE),
+    re.compile(r"^\s*AP\s*\d+\s*$", re.IGNORECASE),
+    re.compile(r"^\s*AUTOMOTIVE[_\s]DESIGN\s*$", re.IGNORECASE),
+    re.compile(r"^\s*CONFIG[_\s]CONTROL[_\s]DESIGN\s*$", re.IGNORECASE),
+]
+
+
+def _is_junk_part_name(s: str) -> bool:
+    if not s or not s.strip():
+        return True
+    s = s.strip()
+    # Very short / numeric-only strings are never useful
+    if len(s) < 3 or s.isdigit():
+        return True
+    return any(p.match(s) for p in _JUNK_PART_NAME_PATTERNS)
+
 
 _STANDARD_QUESTIONS = [
     {
@@ -160,6 +185,12 @@ def _send_request(team_request: TeamRequest) -> None:
             "gmail_thread_id",
         ]
     )
+    verb = "Follow-up sent" if is_follow_up_send else "Email sent"
+    _log(
+        team_request.run,
+        "email",
+        f"📧 {verb} to {team_request.recipient_email} — awaiting reply",
+    )
 
 
 # ── Views ─────────────────────────────────────────────────────────────────────
@@ -209,10 +240,22 @@ class BomRunListCreateView(APIView):
                             if (result or {}).get("appearance", {}).get("materials") else "",
                     )
             else:
-                # For STEP files use the FILE_DESCRIPTION header value as the part name
-                # when available — it's more meaningful than the raw filename.
+                # For STEP files use the FILE_DESCRIPTION header value as the
+                # part name when available. But many STEP headers contain the
+                # schema version (e.g. "STEP AP203") rather than an actual part
+                # name — detect those and fall back to the filename, which is
+                # usually much more useful as a research handle.
                 step_description = (result or {}).get("file_description") if result else None
-                part_name = step_description or f.original_name
+                if step_description and not _is_junk_part_name(step_description):
+                    part_name = step_description
+                else:
+                    # Strip common CAD extensions from the filename for a cleaner label
+                    fn = f.original_name or ""
+                    for ext in (".step", ".stp", ".STEP", ".STP", ".igs", ".iges", ".IGS", ".IGES"):
+                        if fn.endswith(ext):
+                            fn = fn[: -len(ext)]
+                            break
+                    part_name = fn or f.original_name
                 BomLineItem.objects.create(
                     run=run,
                     file=f,
@@ -423,6 +466,11 @@ class BomRunDraftEmailsView(APIView):
                 },
             )
             created_or_updated.append(team_request)
+            _log(
+                run,
+                "email",
+                f"📧 Draft email generated for {contact.full_name} — {question.get('text', '')[:80]}",
+            )
 
         if created_or_updated:
             run.status = "awaiting_team_input"
@@ -573,6 +621,11 @@ class BomRunEmailFollowUpView(APIView):
         team_request.status = "draft"
         team_request.approved_at = None
         team_request.save(update_fields=["email_subject", "email_body", "status", "approved_at"])
+        _log(
+            run,
+            "email",
+            f"⏰ 48h no reply — follow-up draft generated for {team_request.recipient_name}",
+        )
         return Response(TeamRequestSerializer(team_request).data)
 
 

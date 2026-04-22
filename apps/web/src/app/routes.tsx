@@ -7,6 +7,11 @@ import { ProjectDetailPage } from './components/ProjectDetailPage';
 import { SettingsPage } from './components/SettingsPage';
 import { LibraryPage } from './components/LibraryPage';
 import { ExtractionRunsPage } from './components/ExtractionRunsPage';
+import { BomAgentPage } from './components/BomAgentPage';
+import { BomRunPage } from './components/BomRunPage';
+import { BomAnalyticsPage } from './components/BomAnalyticsPage';
+import { ProjectAnalyticsPage } from './components/ProjectAnalyticsPage';
+import { FileResultPage } from './components/FileResultPage';
 import { SignInPage } from './components/SignInPage';
 import { SsoCallbackPage } from './components/SsoCallbackPage';
 
@@ -27,7 +32,12 @@ export const router = createBrowserRouter([
       { path: 'assistant', Component: AssistantPage },
       { path: 'vault', Component: VaultPage },
       { path: 'project/:id', Component: ProjectDetailPage },
+      { path: 'project/:id/analytics', Component: ProjectAnalyticsPage },
+      { path: 'project/:id/file/:fileId/result', Component: FileResultPage },
       { path: 'extraction-runs', Component: ExtractionRunsPage },
+      { path: 'bom', Component: BomAgentPage },
+      { path: 'bom/:id', Component: BomRunPage },
+      { path: 'bom/:id/analytics', Component: BomAnalyticsPage },
       { path: 'workflows', Component: VaultPage }, // Placeholder
       { path: 'history', Component: HistoryPage },
       { path: 'library', Component: LibraryPage },

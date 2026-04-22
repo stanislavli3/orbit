@@ -35,12 +35,12 @@ type Tab = 'all' | 'yours' | 'shared';
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden animate-pulse">
-      <div className="h-28 bg-[#F4F4F4]" />
+    <div className="bg-white border border-[#E8E0D3] rounded-xl overflow-hidden animate-pulse">
+      <div className="h-28 bg-[#F2EDE3]" />
       <div className="p-4">
-        <div className="h-3.5 bg-[#EBEBEB] rounded w-3/4 mb-2" />
-        <div className="h-3 bg-[#EBEBEB] rounded w-1/2 mb-3" />
-        <div className="h-3 bg-[#EBEBEB] rounded w-1/4" />
+        <div className="h-3.5 bg-[#E8E0D3] rounded w-3/4 mb-2" />
+        <div className="h-3 bg-[#E8E0D3] rounded w-1/2 mb-3" />
+        <div className="h-3 bg-[#E8E0D3] rounded w-1/4" />
       </div>
     </div>
   );
@@ -165,17 +165,17 @@ export function VaultPage() {
             return (
               <div className="flex items-center gap-4 mb-6 px-0.5">
                 <div className="flex items-center gap-1.5">
-                  <Folder className="w-3.5 h-3.5 text-[#9CA3AF]" strokeWidth={1.5} />
-                  <span className="text-[12px] text-[#6B7280]">
-                    <span className="font-semibold text-[#111111]">{projects.length}</span>
+                  <Folder className="w-3.5 h-3.5 text-[#A89D91]" strokeWidth={1.5} />
+                  <span className="text-[12px] text-[#8B7F73]">
+                    <span className="font-semibold text-[#2B2824]">{projects.length}</span>
                     {' '}{projects.length === 1 ? 'project' : 'projects'}
                   </span>
                 </div>
-                <div className="w-px h-3 bg-[#E6E6E6]" />
+                <div className="w-px h-3 bg-[#E8E0D3]" />
                 <div className="flex items-center gap-1.5">
-                  <Files className="w-3.5 h-3.5 text-[#9CA3AF]" strokeWidth={1.5} />
-                  <span className="text-[12px] text-[#6B7280]">
-                    <span className="font-semibold text-[#111111]">{totalFiles}</span>
+                  <Files className="w-3.5 h-3.5 text-[#A89D91]" strokeWidth={1.5} />
+                  <span className="text-[12px] text-[#8B7F73]">
+                    <span className="font-semibold text-[#2B2824]">{totalFiles}</span>
                     {' '}{totalFiles === 1 ? 'file' : 'files'} total
                   </span>
                 </div>
@@ -199,8 +199,8 @@ export function VaultPage() {
                     onClick={() => setTab(t)}
                     className={`text-sm pb-2 border-b-2 transition-colors ${
                       active
-                        ? 'text-[#111111] font-medium border-[#111111]'
-                        : 'text-[#9CA3AF] font-normal border-transparent hover:text-[#6B7280]'
+                        ? 'text-[#2B2824] font-medium border-[#2B2824]'
+                        : 'text-[#A89D91] font-normal border-transparent hover:text-[#8B7F73]'
                     }`}
                   >
                     {labels[t]}
@@ -210,18 +210,18 @@ export function VaultPage() {
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#9CA3AF]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#A89D91]" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search projects…"
-                className="w-64 pl-9 pr-8 py-1.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#C4C4C4] focus:shadow-sm transition-all"
+                className="w-64 pl-9 pr-8 py-1.5 bg-white border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#C4B8A8] focus:shadow-sm transition-all"
               />
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#A89D91] hover:text-[#8B7F73] transition-colors"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
@@ -241,8 +241,8 @@ export function VaultPage() {
               <div className="w-12 h-12 bg-[#FEF2F2] rounded-xl flex items-center justify-center mb-4">
                 <Folder className="w-6 h-6 text-[#DC2626]" strokeWidth={1.5} />
               </div>
-              <p className="text-[#111111] font-medium mb-1">Failed to load projects</p>
-              <p className="text-[#6B7280] text-sm">Check that the API server is running on port 8000.</p>
+              <p className="text-[#2B2824] font-medium mb-1">Failed to load projects</p>
+              <p className="text-[#8B7F73] text-sm">Check that the API server is running on port 8000.</p>
             </div>
           )}
 
@@ -250,11 +250,11 @@ export function VaultPage() {
             if (tab === 'shared') {
               return (
                 <div className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="w-14 h-14 bg-[#F4F4F4] rounded-2xl flex items-center justify-center mb-4">
-                    <Users className="w-7 h-7 text-[#9CA3AF]" strokeWidth={1.5} />
+                  <div className="w-14 h-14 bg-[#F2EDE3] rounded-2xl flex items-center justify-center mb-4">
+                    <Users className="w-7 h-7 text-[#A89D91]" strokeWidth={1.5} />
                   </div>
-                  <p className="text-[#111111] font-medium mb-1">No shared projects yet</p>
-                  <p className="text-[#9CA3AF] text-sm">Projects shared with you will appear here.</p>
+                  <p className="text-[#2B2824] font-medium mb-1">No shared projects yet</p>
+                  <p className="text-[#A89D91] text-sm">Projects shared with you will appear here.</p>
                 </div>
               );
             }
@@ -272,15 +272,15 @@ export function VaultPage() {
                 <div className="flex flex-col items-center justify-center py-24 text-center">
                   <div
                     onClick={() => setDialogOpen(true)}
-                    className="w-20 h-20 border-2 border-dashed border-[#E6E6E6] rounded-2xl flex items-center justify-center mb-5 cursor-pointer hover:border-[#C4C4C4] hover:bg-[#FAFAFA] transition-all group/icon"
+                    className="w-20 h-20 border-2 border-dashed border-[#E8E0D3] rounded-2xl flex items-center justify-center mb-5 cursor-pointer hover:border-[#C4B8A8] hover:bg-[#FFFCF7] transition-all group/icon"
                   >
-                    <Folder className="w-8 h-8 text-[#D1D5DB] group-hover/icon:text-[#9CA3AF] transition-colors" strokeWidth={1.5} />
+                    <Folder className="w-8 h-8 text-[#D1D5DB] group-hover/icon:text-[#A89D91] transition-colors" strokeWidth={1.5} />
                   </div>
-                  <p className="text-[#111111] text-[14px] font-semibold mb-1.5">No projects yet</p>
-                  <p className="text-[#9CA3AF] text-[13px] mb-5 max-w-xs">Create your first project to start uploading engineering files and extracting metadata.</p>
+                  <p className="text-[#2B2824] text-[14px] font-semibold mb-1.5">No projects yet</p>
+                  <p className="text-[#A89D91] text-[13px] mb-5 max-w-xs">Create your first project to start uploading engineering files and extracting metadata.</p>
                   <button
                     onClick={() => setDialogOpen(true)}
-                    className="px-4 py-2 bg-[#111111] text-white text-[13px] font-medium rounded-lg hover:bg-[#1F1F1F] transition-colors"
+                    className="px-4 py-2 bg-[#2B2824] text-white text-[13px] font-medium rounded-lg hover:bg-[#3D3530] transition-colors"
                   >
                     Create project
                   </button>
@@ -291,11 +291,11 @@ export function VaultPage() {
             if (filtered.length === 0) {
               return (
                 <div className="flex flex-col items-center justify-center py-24 text-center">
-                  <div className="w-14 h-14 bg-[#F4F4F4] rounded-2xl flex items-center justify-center mb-4">
-                    <Search className="w-7 h-7 text-[#9CA3AF]" strokeWidth={1.5} />
+                  <div className="w-14 h-14 bg-[#F2EDE3] rounded-2xl flex items-center justify-center mb-4">
+                    <Search className="w-7 h-7 text-[#A89D91]" strokeWidth={1.5} />
                   </div>
-                  <p className="text-[#111111] font-medium mb-1">No results for "{search}"</p>
-                  <button onClick={() => setSearch('')} className="text-[#6B7280] text-sm hover:text-[#111111] transition-colors">
+                  <p className="text-[#2B2824] font-medium mb-1">No results for "{search}"</p>
+                  <button onClick={() => setSearch('')} className="text-[#8B7F73] text-sm hover:text-[#2B2824] transition-colors">
                     Clear search
                   </button>
                 </div>
@@ -316,21 +316,21 @@ export function VaultPage() {
                     <Popover>
                       <PopoverTrigger asChild>
                         <button
-                          className="absolute top-2.5 right-2.5 z-10 opacity-0 group-hover/card:opacity-100 w-7 h-7 flex items-center justify-center rounded-md bg-white border border-[#E6E6E6] text-[#6B7280] hover:text-[#111111] hover:border-[#C4C4C4] transition-all shadow-sm"
+                          className="absolute top-2.5 right-2.5 z-10 opacity-0 group-hover/card:opacity-100 w-7 h-7 flex items-center justify-center rounded-md bg-white border border-[#E8E0D3] text-[#8B7F73] hover:text-[#2B2824] hover:border-[#C4B8A8] transition-all shadow-sm"
                         >
                           <MoreVertical className="w-3.5 h-3.5" />
                         </button>
                       </PopoverTrigger>
                       <PopoverContent align="end" sideOffset={6} className="w-36 p-1">
                         <button
-                          className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[13px] text-[#111111] rounded hover:bg-[#F4F4F4] transition-colors"
+                          className="w-full flex items-center gap-2 px-2.5 py-1.5 text-[13px] text-[#2B2824] rounded hover:bg-[#F2EDE3] transition-colors"
                           onClick={() => {
                             setRenameProject(project);
                             setRenameValue(project.name);
                             setRenameError('');
                           }}
                         >
-                          <Pencil className="w-3.5 h-3.5 text-[#6B7280]" />
+                          <Pencil className="w-3.5 h-3.5 text-[#8B7F73]" />
                           Rename
                         </button>
                         <button
@@ -366,28 +366,28 @@ export function VaultPage() {
               </p>
             )}
             <div className="space-y-1.5">
-              <label className="text-[#374151] text-xs font-medium">Project name</label>
+              <label className="text-[#4A4038] text-xs font-medium">Project name</label>
               <input
                 type="text"
                 value={renameValue}
                 onChange={(e) => setRenameValue(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleRenameProject()}
                 autoFocus
-                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all"
+                className="w-full px-3 py-2.5 bg-white border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] focus:ring-1 focus:ring-[#2B2824] transition-all"
               />
             </div>
           </div>
           <DialogFooter>
             <button
               onClick={() => setRenameProject(null)}
-              className="px-4 py-2 text-sm text-[#6B7280] hover:text-[#111111] transition-colors"
+              className="px-4 py-2 text-sm text-[#8B7F73] hover:text-[#2B2824] transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleRenameProject}
               disabled={!renameValue.trim() || renaming}
-              className="px-4 py-2 bg-[#111111] text-white text-sm font-medium rounded-lg hover:bg-[#1F1F1F] disabled:opacity-50 transition-colors"
+              className="px-4 py-2 bg-[#2B2824] text-white text-sm font-medium rounded-lg hover:bg-[#3D3530] disabled:opacity-50 transition-colors"
             >
               {renaming ? 'Saving...' : 'Save'}
             </button>
@@ -434,7 +434,7 @@ export function VaultPage() {
               </p>
             )}
             <div className="space-y-1.5">
-              <label className="text-[#374151] text-xs font-medium">Project name</label>
+              <label className="text-[#4A4038] text-xs font-medium">Project name</label>
               <input
                 type="text"
                 value={projectName}
@@ -442,17 +442,17 @@ export function VaultPage() {
                 onKeyDown={(e) => e.key === 'Enter' && handleCreateProject()}
                 placeholder="e.g. Gearbox Assembly Rev B"
                 autoFocus
-                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all"
+                className="w-full px-3 py-2.5 bg-white border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] focus:ring-1 focus:ring-[#2B2824] transition-all"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[#374151] text-xs font-medium">Description <span className="text-[#9CA3AF]">(optional)</span></label>
+              <label className="text-[#4A4038] text-xs font-medium">Description <span className="text-[#A89D91]">(optional)</span></label>
               <textarea
                 value={projectDesc}
                 onChange={(e) => setProjectDesc(e.target.value)}
                 placeholder="What is this project for?"
                 rows={3}
-                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all resize-none"
+                className="w-full px-3 py-2.5 bg-white border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] focus:ring-1 focus:ring-[#2B2824] transition-all resize-none"
               />
             </div>
           </div>
@@ -460,14 +460,14 @@ export function VaultPage() {
           <DialogFooter>
             <button
               onClick={() => setDialogOpen(false)}
-              className="px-4 py-2 text-sm text-[#6B7280] hover:text-[#111111] transition-colors"
+              className="px-4 py-2 text-sm text-[#8B7F73] hover:text-[#2B2824] transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleCreateProject}
               disabled={!projectName.trim() || submitting}
-              className="px-4 py-2 bg-[#111111] text-white text-sm font-medium rounded-lg hover:bg-[#1F1F1F] disabled:opacity-50 transition-colors"
+              className="px-4 py-2 bg-[#2B2824] text-white text-sm font-medium rounded-lg hover:bg-[#3D3530] disabled:opacity-50 transition-colors"
             >
               {submitting ? 'Creating...' : 'Create project'}
             </button>
