@@ -463,11 +463,12 @@ function getSidebarContent(
             {
               icon: <Plus size={16} className={ic} />,
               label: "Add document",
-              path: "/library",
+              path: "/library?upload=1",
             },
             {
               icon: <Filter size={16} className={ic} />,
               label: "Filter",
+              path: "/library?filter=1",
             },
           ],
         },
@@ -477,10 +478,12 @@ function getSidebarContent(
             {
               icon: <FileText size={16} className={ic} />,
               label: "Recent documents",
+              path: "/library?view=recent",
             },
             {
               icon: <Database size={16} className={ic} />,
               label: "All documents",
+              path: "/library?view=all",
             },
           ],
         },

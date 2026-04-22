@@ -10,6 +10,10 @@ class UploadedFile(models.Model):
         ("processed", "Processed"),
         ("failed", "Failed"),
     ]
+    CATEGORY_CHOICES = [
+        ("vault", "Vault"),
+        ("library", "Library"),
+    ]
 
     project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name="files")
     uploaded_by = models.ForeignKey(
@@ -21,6 +25,7 @@ class UploadedFile(models.Model):
     s3_key = models.CharField(max_length=500, unique=True)
     file_size = models.BigIntegerField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="uploaded")
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES, default="vault")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

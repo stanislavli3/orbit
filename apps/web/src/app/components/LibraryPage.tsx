@@ -1,9 +1,10 @@
-import { useState, useRef, useCallback } from 'react';
-import { Upload, Trash2, Download, BookOpen, X, Loader2, FileText, CheckCircle2 } from 'lucide-react';
+import { useState, useRef, useCallback, useEffect } from 'react';
+import { Upload, Trash2, Download, BookOpen, X, Loader2, FileText, CheckCircle2, Filter } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
 import type { LibraryDocument, LibraryDocType } from '../../api/types';
 import { toast } from 'sonner';
+import { useSearchParams } from 'react-router';
 import { TopBar } from './TopBar';
 
 // ── Constants ─────────────────────────────────────────────────────────────────
@@ -137,6 +138,13 @@ export function LibraryPage() {
   const qc = useQueryClient();
   const fileRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [filterType, setFilterType] = useState<LibraryDocType | 'all'>('all');
+  const [showFilterPanel, setShowFilterPanel] = useState(false);
+
+  const viewParam = searchParams.get('view');
+  const uploadParam = searchParams.get('upload');
+  const filterParam = searchParams.get('filter');
 
   // Upload flow state
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -149,6 +157,22 @@ export function LibraryPage() {
 
   const invalidate = useCallback(() => qc.invalidateQueries({ queryKey: ['library'] }), [qc]);
 
+  // Handle URL param: ?upload=1 → open file picker
+  useEffect(() => {
+    if (uploadParam === '1' && fileRef.current) {
+      fileRef.current.click();
+      setSearchParams((prev) => { prev.delete('upload'); return prev; }, { replace: true });
+    }
+  }, [uploadParam, setSearchParams]);
+
+  // Handle URL param: ?filter=1 → open filter panel
+  useEffect(() => {
+    if (filterParam === '1') {
+      setShowFilterPanel(true);
+      setSearchParams((prev) => { prev.delete('filter'); return prev; }, { replace: true });
+    }
+  }, [filterParam, setSearchParams]);
+
   const { data: docs = [], isLoading } = useQuery<LibraryDocument[]>({
     queryKey: ['library'],
     queryFn: async () => {
@@ -156,6 +180,15 @@ export function LibraryPage() {
       if (!res.ok) throw new Error('Failed to load library');
       return res.json();
     },
+  });
+
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const visibleDocs = docs.filter((doc) => {
+    if (viewParam === 'recent') {
+      if (new Date(doc.uploaded_at) < sevenDaysAgo) return false;
+    }
+    if (filterType !== 'all' && doc.doc_type !== filterType) return false;
+    return true;
   });
 
   async function handleFileSelected(file: File) {
@@ -226,7 +259,7 @@ export function LibraryPage() {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-[#F9F9F9]">
-      <TopBar title="Library" subtitle="Workspace reference documents used by the BOM research agent." />
+      <TopBar title="Knowledge Base" subtitle="Workspace reference documents used by the BOM research agent." />
 
       <div className="flex-1 overflow-y-auto px-8 py-8">
         {/* Upload zone */}
@@ -256,6 +289,41 @@ export function LibraryPage() {
           />
         </div>
 
+        {/* Filter bar */}
+        {(showFilterPanel || filterType !== 'all') && (
+          <div className="flex items-center gap-2 mb-4 flex-wrap">
+            <span className="flex items-center gap-1.5 text-xs text-[#6B7280] font-medium">
+              <Filter className="w-3.5 h-3.5" /> Filter by type:
+            </span>
+            {(['all', ...DOC_TYPES.map((t) => t.value)] as ('all' | LibraryDocType)[]).map((v) => (
+              <button
+                key={v}
+                onClick={() => setFilterType(v)}
+                className={`px-3 py-1 rounded-full text-xs border transition-colors ${
+                  filterType === v
+                    ? 'bg-[#111111] text-white border-[#111111]'
+                    : 'bg-white text-[#6B7280] border-[#E6E6E6] hover:border-[#111111]'
+                }`}
+              >
+                {v === 'all' ? 'All types' : DOC_TYPES.find((t) => t.value === v)?.label ?? v}
+              </button>
+            ))}
+            {(filterType !== 'all' || viewParam === 'recent') && (
+              <button
+                onClick={() => { setFilterType('all'); setSearchParams({}, { replace: true }); }}
+                className="ml-auto text-xs text-[#9CA3AF] hover:text-[#111111] flex items-center gap-1"
+              >
+                <X className="w-3 h-3" /> Clear filters
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* View label */}
+        {viewParam === 'recent' && (
+          <p className="text-xs text-[#9CA3AF] mb-3">Showing documents uploaded in the last 7 days</p>
+        )}
+
         {/* Document list */}
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
@@ -264,10 +332,20 @@ export function LibraryPage() {
         ) : docs.length === 0 ? (
           <div className="text-center py-16 border border-dashed border-[#E6E6E6] rounded-xl bg-white">
             <BookOpen className="w-10 h-10 mx-auto text-[#D1D5DB] mb-3" />
-            <p className="text-sm font-medium text-[#111111]">Your Library is empty</p>
+            <p className="text-sm font-medium text-[#111111]">Knowledge Base is empty</p>
             <p className="text-xs text-[#6B7280] mt-1 max-w-sm mx-auto">
               Add your AVL, material specs, compliance docs, and supplier scorecards. The BOM agent will reference them automatically before searching the web.
             </p>
+          </div>
+        ) : visibleDocs.length === 0 ? (
+          <div className="text-center py-12 border border-dashed border-[#E6E6E6] rounded-xl bg-white">
+            <p className="text-sm font-medium text-[#111111]">No documents match the current filter</p>
+            <button
+              onClick={() => { setFilterType('all'); setSearchParams({}, { replace: true }); }}
+              className="mt-2 text-xs text-[#6B7280] hover:text-[#111111] underline"
+            >
+              Clear filters
+            </button>
           </div>
         ) : (
           <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden">
@@ -283,7 +361,7 @@ export function LibraryPage() {
                 </tr>
               </thead>
               <tbody>
-                {docs.map((doc) => (
+                {visibleDocs.map((doc) => (
                   <tr key={doc.id} className="border-t border-[#F4F4F4] hover:bg-[#FAFAFA] transition-colors group">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2.5">
