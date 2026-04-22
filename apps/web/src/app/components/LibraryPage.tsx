@@ -226,7 +226,7 @@ export function LibraryPage() {
 
   return (
     <div className="flex-1 flex flex-col h-full bg-[#F9F9F9]">
-      <TopBar title="Library" subtitle="Workspace reference documents used by the BOM research agent." />
+      <TopBar title="Knowledge Base" subtitle="Workspace reference documents used by the BOM research agent." />
 
       <div className="flex-1 overflow-y-auto px-8 py-8">
         {/* Upload zone */}
