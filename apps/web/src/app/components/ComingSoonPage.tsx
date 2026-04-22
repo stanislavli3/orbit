@@ -12,11 +12,11 @@ export function ComingSoonPage({ title, subtitle = '', description }: ComingSoon
       <TopBar title={title} subtitle={subtitle} />
       <div className="flex-1 flex items-center justify-center">
         <div className="text-center max-w-sm">
-          <div className="w-12 h-12 bg-[#F4F4F4] rounded-xl flex items-center justify-center mx-auto mb-4">
+          <div className="w-12 h-12 bg-[#F2EDE3] rounded-xl flex items-center justify-center mx-auto mb-4">
             <div className="w-5 h-5 rounded-full border-2 border-dashed border-[#D1D5DB]" />
           </div>
-          <p className="text-[#111111] text-sm font-semibold mb-1">{title}</p>
-          <p className="text-[#9CA3AF] text-sm">
+          <p className="text-[#2B2824] text-sm font-semibold mb-1">{title}</p>
+          <p className="text-[#A89D91] text-sm">
             {description ?? 'This feature is coming soon.'}
           </p>
         </div>

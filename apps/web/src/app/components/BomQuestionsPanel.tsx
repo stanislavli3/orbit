@@ -31,11 +31,11 @@ function QuestionCard({
   return (
     <div className="space-y-3">
       {/* Question text */}
-      <p className="text-sm font-medium text-[#111111] leading-snug">{question.text}</p>
+      <p className="text-sm font-medium text-[#2B2824] leading-snug">{question.text}</p>
 
       {/* Context file tag */}
       {question.context_file && (
-        <span className="inline-block text-[11px] px-2 py-0.5 rounded bg-[#F4F4F4] text-[#6B7280] font-mono">
+        <span className="inline-block text-[11px] px-2 py-0.5 rounded bg-[#F2EDE3] text-[#8B7F73] font-mono">
           {question.context_file}
         </span>
       )}
@@ -50,8 +50,8 @@ function QuestionCard({
               onClick={() => onChange(opt)}
               className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
                 answer === opt
-                  ? 'border-[#111111] bg-[#111111] text-white'
-                  : 'border-[#E6E6E6] text-[#374151] hover:border-[#111111]'
+                  ? 'border-[#2B2824] bg-[#2B2824] text-white'
+                  : 'border-[#E8E0D3] text-[#4A4038] hover:border-[#2B2824]'
               }`}
             >
               {opt}
@@ -77,8 +77,8 @@ function QuestionCard({
                 }}
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors flex items-center gap-1.5 ${
                   selected
-                    ? 'border-[#111111] bg-[#111111] text-white'
-                    : 'border-[#E6E6E6] text-[#374151] hover:border-[#111111]'
+                    ? 'border-[#2B2824] bg-[#2B2824] text-white'
+                    : 'border-[#E8E0D3] text-[#4A4038] hover:border-[#2B2824]'
                 }`}
               >
                 {selected && <Check className="w-3 h-3" />}
@@ -96,27 +96,27 @@ function QuestionCard({
           value={typeof answer === 'string' ? answer : ''}
           onChange={(e) => onChange(e.target.value)}
           placeholder="Type your answer… (optional)"
-          className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111] transition-colors"
+          className="w-full px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824] transition-colors"
         />
       )}
 
       {/* Team contact suggestion */}
       {contact && (
-        <div className="rounded-xl border border-[#E6E6E6] bg-[#FAFAFA] p-3 space-y-2">
+        <div className="rounded-xl border border-[#E8E0D3] bg-[#FFFCF7] p-3 space-y-2">
           <div className="flex items-start gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#F4F4F4] flex items-center justify-center flex-shrink-0 text-[11px] font-semibold text-[#6B7280]">
+            <div className="w-7 h-7 rounded-full bg-[#F2EDE3] flex items-center justify-center flex-shrink-0 text-[11px] font-semibold text-[#8B7F73]">
               {contact.full_name.charAt(0)}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[12px] font-medium text-[#111111]">{contact.full_name}</p>
-              <p className="text-[11px] text-[#6B7280]">{contact.role}</p>
+              <p className="text-[12px] font-medium text-[#2B2824]">{contact.full_name}</p>
+              <p className="text-[11px] text-[#8B7F73]">{contact.role}</p>
               <div className="flex flex-wrap gap-1 mt-1">
                 {contact.expertise_tags.map((t) => (
-                  <span key={t} className="px-1.5 py-0.5 rounded-full bg-[#F0F0F0] text-[10px] text-[#6B7280]">{t}</span>
+                  <span key={t} className="px-1.5 py-0.5 rounded-full bg-[#EEE6D8] text-[10px] text-[#8B7F73]">{t}</span>
                 ))}
               </div>
             </div>
-            <span className="flex items-center gap-1 text-[11px] text-[#9CA3AF]">
+            <span className="flex items-center gap-1 text-[11px] text-[#A89D91]">
               {contact.preferred_channel === 'slack'
                 ? <><MessageSquare className="w-3 h-3" /> Slack</>
                 : <><Mail className="w-3 h-3" /> Email</>}
@@ -126,7 +126,7 @@ function QuestionCard({
             <button
               type="button"
               onClick={() => onDraftEmail(question)}
-              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 border border-[#E6E6E6] rounded-lg text-xs text-[#374151] hover:bg-white hover:border-[#111111] transition-colors"
+              className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 border border-[#E8E0D3] rounded-lg text-xs text-[#4A4038] hover:bg-white hover:border-[#2B2824] transition-colors"
             >
               <Mail className="w-3 h-3" />
               Draft email to {contact.full_name.split(' ')[0]}
@@ -135,7 +135,7 @@ function QuestionCard({
               <button
                 type="button"
                 onClick={() => onChange(question.default!)}
-                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 border border-[#E6E6E6] rounded-lg text-xs text-[#374151] hover:bg-white hover:border-[#111111] transition-colors"
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 border border-[#E8E0D3] rounded-lg text-xs text-[#4A4038] hover:bg-white hover:border-[#2B2824] transition-colors"
               >
                 Use default: {question.default}
               </button>
@@ -229,28 +229,28 @@ export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: 
       {/* Panel */}
       <div className="w-full max-w-lg bg-white flex flex-col h-full shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F4F4F4]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F2EDE3]">
           <div>
-            <h2 className="text-base font-semibold text-[#111111]">Generate BOM</h2>
-            <p className="text-xs text-[#6B7280] mt-0.5">Answer a few questions to start research</p>
+            <h2 className="text-base font-semibold text-[#2B2824]">Generate BOM</h2>
+            <p className="text-xs text-[#8B7F73] mt-0.5">Answer a few questions to start research</p>
           </div>
-          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#111111] transition-colors">
+          <button onClick={onClose} className="text-[#A89D91] hover:text-[#2B2824] transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Progress */}
         {total > 0 && (
-          <div className="px-6 py-3 border-b border-[#F4F4F4]">
+          <div className="px-6 py-3 border-b border-[#F2EDE3]">
             <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-[#6B7280]">
+              <span className="text-xs text-[#8B7F73]">
                 Question {step + 1} of {total}
               </span>
-              <span className="text-xs text-[#6B7280]">{answeredCount} answered</span>
+              <span className="text-xs text-[#8B7F73]">{answeredCount} answered</span>
             </div>
-            <div className="h-1 bg-[#F4F4F4] rounded-full overflow-hidden">
+            <div className="h-1 bg-[#F2EDE3] rounded-full overflow-hidden">
               <div
-                className="h-full bg-[#111111] rounded-full transition-all"
+                className="h-full bg-[#2B2824] rounded-full transition-all"
                 style={{ width: `${((step + 1) / total) * 100}%` }}
               />
             </div>
@@ -261,7 +261,7 @@ export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: 
         <div className="flex-1 overflow-y-auto px-6 py-6">
           {isLoading && (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="w-6 h-6 animate-spin text-[#9CA3AF]" />
+              <Loader2 className="w-6 h-6 animate-spin text-[#A89D91]" />
             </div>
           )}
 
@@ -272,8 +272,8 @@ export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: 
           {!isLoading && !isError && total === 0 && (
             <div className="text-center py-12">
               <Check className="w-10 h-10 mx-auto text-green-500 mb-3" />
-              <p className="text-sm font-medium text-[#111111]">No questions needed!</p>
-              <p className="text-xs text-[#6B7280] mt-1">Click Submit to start BOM research.</p>
+              <p className="text-sm font-medium text-[#2B2824]">No questions needed!</p>
+              <p className="text-xs text-[#8B7F73] mt-1">Click Submit to start BOM research.</p>
             </div>
           )}
 
@@ -313,11 +313,11 @@ export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: 
         </div>
 
         {/* Footer */}
-        <div className="flex items-center gap-2 px-6 py-4 border-t border-[#F4F4F4]">
+        <div className="flex items-center gap-2 px-6 py-4 border-t border-[#F2EDE3]">
           {step > 0 && (
             <button
               onClick={handleBack}
-              className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4] transition-colors"
+              className="px-4 py-2 text-sm border border-[#E8E0D3] rounded-lg hover:bg-[#F2EDE3] transition-colors"
             >
               Back
             </button>
@@ -327,7 +327,7 @@ export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: 
             <button
               onClick={() => submitMutation.mutate()}
               disabled={submitMutation.isPending}
-              className="px-5 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
+              className="px-5 py-2 text-sm bg-[#2B2824] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
             >
               {submitMutation.isPending ? <><Loader2 className="w-4 h-4 animate-spin inline mr-1.5" />Starting…</> : 'Start research'}
             </button>
@@ -335,7 +335,7 @@ export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: 
             <button
               onClick={handleNext}
               disabled={!canAdvance}
-              className="px-5 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-40 transition-colors flex items-center gap-1.5"
+              className="px-5 py-2 text-sm bg-[#2B2824] text-white rounded-lg hover:bg-[#333333] disabled:opacity-40 transition-colors flex items-center gap-1.5"
             >
               Next
               <ChevronRight className="w-4 h-4" />
@@ -344,7 +344,7 @@ export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: 
             <button
               onClick={handleNext}
               disabled={submitMutation.isPending}
-              className="px-5 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
+              className="px-5 py-2 text-sm bg-[#2B2824] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
             >
               {submitMutation.isPending ? <><Loader2 className="w-4 h-4 animate-spin inline mr-1.5" />Starting…</> : 'Submit answers'}
             </button>

@@ -130,11 +130,11 @@ export function AssistantPage() {
             <div className="max-w-3xl w-full">
               {/* Header */}
               <div className="text-center mb-12">
-                <div className="inline-flex items-center justify-center w-14 h-14 bg-[#F4F4F4] rounded-xl mb-4">
-                  <Sparkles className="w-7 h-7 text-[#111111]" strokeWidth={1.5} />
+                <div className="inline-flex items-center justify-center w-14 h-14 bg-[#F2EDE3] rounded-xl mb-4">
+                  <Sparkles className="w-7 h-7 text-[#2B2824]" strokeWidth={1.5} />
                 </div>
-                <h2 className="text-[#111111] mb-2">How can I help you today?</h2>
-                <p className="text-[#6B7280] text-sm">
+                <h2 className="text-[#2B2824] mb-2">How can I help you today?</h2>
+                <p className="text-[#8B7F73] text-sm">
                   I can analyze CAD files, extract metadata, and help you understand your engineering data.
                 </p>
               </div>
@@ -145,14 +145,14 @@ export function AssistantPage() {
                   <button
                     key={prompt.title}
                     onClick={() => handleSend(prompt.title)}
-                    className="flex items-start gap-3 p-4 bg-white border border-[#E6E6E6] rounded-xl hover:bg-[#FAFAFA] transition-colors text-left"
+                    className="flex items-start gap-3 p-4 bg-white border border-[#E8E0D3] rounded-xl hover:bg-[#FFFCF7] transition-colors text-left"
                   >
                     <div className="mt-0.5">
-                      <prompt.icon className="w-[18px] h-[18px] text-[#6B7280]" strokeWidth={1.5} />
+                      <prompt.icon className="w-[18px] h-[18px] text-[#8B7F73]" strokeWidth={1.5} />
                     </div>
                     <div>
-                      <h4 className="text-[#111111] text-[13px] mb-1">{prompt.title}</h4>
-                      <p className="text-[#6B7280] text-[12px] leading-relaxed">{prompt.description}</p>
+                      <h4 className="text-[#2B2824] text-[13px] mb-1">{prompt.title}</h4>
+                      <p className="text-[#8B7F73] text-[12px] leading-relaxed">{prompt.description}</p>
                     </div>
                   </button>
                 ))}
@@ -174,19 +174,19 @@ export function AssistantPage() {
                   className={`flex gap-4 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                 >
                   {message.role === 'assistant' && (
-                    <div className="w-8 h-8 bg-[#F4F4F4] rounded-lg flex items-center justify-center flex-shrink-0">
-                      <Sparkles className="w-4 h-4 text-[#111111]" strokeWidth={1.5} />
+                    <div className="w-8 h-8 bg-[#F2EDE3] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Sparkles className="w-4 h-4 text-[#2B2824]" strokeWidth={1.5} />
                     </div>
                   )}
                   <div
                     className={`max-w-[70%] px-4 py-3 rounded-xl ${
                       message.role === 'user'
-                        ? 'bg-[#111111] text-white'
-                        : 'bg-white border border-[#E6E6E6] text-[#111111]'
+                        ? 'bg-[#2B2824] text-white'
+                        : 'bg-white border border-[#E8E0D3] text-[#2B2824]'
                     }`}
                   >
                     {message.isPending ? (
-                      <div className="flex gap-1 text-sm text-[#6B7280]">
+                      <div className="flex gap-1 text-sm text-[#8B7F73]">
                         <span className="animate-pulse">•</span>
                         <span className="animate-pulse" style={{ animationDelay: '0.1s' }}>•</span>
                         <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>•</span>
@@ -201,7 +201,7 @@ export function AssistantPage() {
                         {message.sources.map((source) => (
                           <span
                             key={source.id}
-                            className="px-2 py-1 text-[11px] border border-[#E6E6E6] rounded-full bg-[#F9FAFB] text-[#111111]"
+                            className="px-2 py-1 text-[11px] border border-[#E8E0D3] rounded-full bg-[#F9FAFB] text-[#2B2824]"
                           >
                             {source.name}
                           </span>
@@ -210,8 +210,8 @@ export function AssistantPage() {
                     )}
                   </div>
                   {message.role === 'user' && (
-                    <div className="w-8 h-8 bg-[#E6E6E6] rounded-lg flex items-center justify-center flex-shrink-0">
-                      <span className="text-[#111111] text-sm font-medium">U</span>
+                    <div className="w-8 h-8 bg-[#E8E0D3] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <span className="text-[#2B2824] text-sm font-medium">U</span>
                     </div>
                   )}
                 </div>
@@ -221,7 +221,7 @@ export function AssistantPage() {
         )}
 
         {/* Input Area */}
-        <div className="border-t border-[#E6E6E6] bg-white px-8 py-4">
+        <div className="border-t border-[#E8E0D3] bg-white px-8 py-4">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-end gap-3">
               <div className="flex-1 relative">
@@ -236,19 +236,19 @@ export function AssistantPage() {
                   }}
                   placeholder="Ask about your engineering files..."
                   rows={1}
-                  className="w-full px-4 py-3 bg-white border border-[#E6E6E6] rounded-xl text-sm placeholder:text-[#6B7280] focus:outline-none focus:border-[#111111] transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-white border border-[#E8E0D3] rounded-xl text-sm placeholder:text-[#8B7F73] focus:outline-none focus:border-[#2B2824] transition-colors resize-none"
                   style={{ minHeight: '44px', maxHeight: '120px' }}
                 />
               </div>
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim() || isSending}
-                className="w-11 h-11 flex items-center justify-center bg-[#111111] text-white rounded-xl hover:bg-[#2A2A2A] disabled:bg-[#E6E6E6] disabled:text-[#6B7280] transition-colors flex-shrink-0"
+                className="w-11 h-11 flex items-center justify-center bg-[#2B2824] text-white rounded-xl hover:bg-[#3D3530] disabled:bg-[#E8E0D3] disabled:text-[#8B7F73] transition-colors flex-shrink-0"
               >
                 <Send className="w-[18px] h-[18px]" strokeWidth={1.5} />
               </button>
             </div>
-            <p className="text-[#6B7280] text-[11px] mt-2 text-center">
+            <p className="text-[#8B7F73] text-[11px] mt-2 text-center">
               Press Enter to send, Shift + Enter for new line
             </p>
           </div>

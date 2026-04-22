@@ -109,29 +109,29 @@ function ComposerModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 px-4">
-      <div className="w-full max-w-6xl rounded-3xl border border-[#E6E6E6] bg-white shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between border-b border-[#F0F0F0] px-6 py-4">
+      <div className="w-full max-w-6xl rounded-3xl border border-[#E8E0D3] bg-white shadow-2xl overflow-hidden">
+        <div className="flex items-center justify-between border-b border-[#EEE6D8] px-6 py-4">
           <div>
-            <p className="text-sm font-semibold text-[#111111]">Email Draft Composer</p>
-            <p className="text-[12px] text-[#6B7280] mt-0.5">Edit, approve, and send team-request drafts for this BOM run.</p>
+            <p className="text-sm font-semibold text-[#2B2824]">Email Draft Composer</p>
+            <p className="text-[12px] text-[#8B7F73] mt-0.5">Edit, approve, and send team-request drafts for this BOM run.</p>
           </div>
-          <button onClick={onClose} className="rounded-lg p-2 text-[#6B7280] hover:bg-[#F4F4F4] hover:text-[#111111]">
+          <button onClick={onClose} className="rounded-lg p-2 text-[#8B7F73] hover:bg-[#F2EDE3] hover:text-[#2B2824]">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="grid min-h-[620px] lg:grid-cols-[280px_minmax(0,1fr)]">
-          <aside className="border-r border-[#F0F0F0] bg-[#FBFBFB] p-4">
+          <aside className="border-r border-[#EEE6D8] bg-[#FCF9F4] p-4">
             <div className="flex items-center justify-between gap-2 mb-3">
               <div>
-                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Drafts</p>
-                <p className="text-[11px] text-[#9CA3AF] mt-1">{allDrafts.length} total</p>
+                <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Drafts</p>
+                <p className="text-[11px] text-[#A89D91] mt-1">{allDrafts.length} total</p>
               </div>
               {allDrafts.some((item) => item.status === 'draft') && (
                 <button
                   type="button"
                   onClick={() => void onApproveAll()}
-                  className="inline-flex items-center gap-1 rounded-lg border border-[#E6E6E6] bg-white px-2.5 py-1.5 text-[11px] font-medium text-[#111111] hover:border-[#111111]"
+                  className="inline-flex items-center gap-1 rounded-lg border border-[#E8E0D3] bg-white px-2.5 py-1.5 text-[11px] font-medium text-[#2B2824] hover:border-[#2B2824]"
                 >
                   <CheckCheck className="w-3.5 h-3.5" />
                   Approve all
@@ -148,11 +148,11 @@ function ComposerModal({
                     type="button"
                     onClick={() => onSelectRequest(item.id)}
                     className={`w-full rounded-2xl border px-3 py-3 text-left transition-colors ${
-                      active ? 'border-[#111111] bg-white' : 'border-[#E6E6E6] bg-white hover:border-[#BDBDBD]'
+                      active ? 'border-[#2B2824] bg-white' : 'border-[#E8E0D3] bg-white hover:border-[#BDBDBD]'
                     }`}
                   >
-                    <p className="text-[12px] font-medium text-[#111111]">{item.recipient_name}</p>
-                    <p className="text-[11px] text-[#6B7280] mt-0.5 line-clamp-2">{item.question}</p>
+                    <p className="text-[12px] font-medium text-[#2B2824]">{item.recipient_name}</p>
+                    <p className="text-[11px] text-[#8B7F73] mt-0.5 line-clamp-2">{item.question}</p>
                     <span className={`mt-2 inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium ${status.className}`}>
                       {status.label}
                     </span>
@@ -165,15 +165,15 @@ function ComposerModal({
           <div className="p-6 space-y-5">
             <div className="flex items-start justify-between gap-4 flex-wrap">
               <div>
-                <p className="text-lg font-semibold text-[#111111]">{request.recipient_name}</p>
-                <p className="text-[12px] text-[#6B7280] mt-1">{request.question}</p>
+                <p className="text-lg font-semibold text-[#2B2824]">{request.recipient_name}</p>
+                <p className="text-[12px] text-[#8B7F73] mt-1">{request.question}</p>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${statusPresentation(request).className}`}>
                   {statusPresentation(request).label}
                 </span>
                 {sentState && (
-                  <span className="text-[12px] text-[#6B7280]">
+                  <span className="text-[12px] text-[#8B7F73]">
                     ✅ Sent at {formatDateTime(request.sent_at)}
                   </span>
                 )}
@@ -182,42 +182,42 @@ function ComposerModal({
 
             <div className="grid gap-4 md:grid-cols-2">
               <label className="block">
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Recipient name</span>
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Recipient name</span>
                 <input
                   value={draftState.recipient_name}
                   disabled={!editing || !canEdit}
                   onChange={(event) => setDraftState((current) => ({ ...current, recipient_name: event.target.value }))}
-                  className="w-full rounded-xl border border-[#E6E6E6] px-3 py-2.5 text-sm focus:border-[#111111] focus:outline-none disabled:bg-[#F8F8F8] disabled:text-[#6B7280]"
+                  className="w-full rounded-xl border border-[#E8E0D3] px-3 py-2.5 text-sm focus:border-[#2B2824] focus:outline-none disabled:bg-[#F8F8F8] disabled:text-[#8B7F73]"
                 />
               </label>
               <label className="block">
-                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Recipient email</span>
+                <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Recipient email</span>
                 <input
                   value={draftState.recipient_email}
                   disabled={!editing || !canEdit}
                   onChange={(event) => setDraftState((current) => ({ ...current, recipient_email: event.target.value }))}
-                  className="w-full rounded-xl border border-[#E6E6E6] px-3 py-2.5 text-sm focus:border-[#111111] focus:outline-none disabled:bg-[#F8F8F8] disabled:text-[#6B7280]"
+                  className="w-full rounded-xl border border-[#E8E0D3] px-3 py-2.5 text-sm focus:border-[#2B2824] focus:outline-none disabled:bg-[#F8F8F8] disabled:text-[#8B7F73]"
                 />
               </label>
             </div>
 
             <label className="block">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Subject</span>
+              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Subject</span>
               <input
                 value={draftState.email_subject}
                 disabled={!editing || !canEdit}
                 onChange={(event) => setDraftState((current) => ({ ...current, email_subject: event.target.value }))}
-                className="w-full rounded-xl border border-[#E6E6E6] px-3 py-2.5 text-sm focus:border-[#111111] focus:outline-none disabled:bg-[#F8F8F8] disabled:text-[#6B7280]"
+                className="w-full rounded-xl border border-[#E8E0D3] px-3 py-2.5 text-sm focus:border-[#2B2824] focus:outline-none disabled:bg-[#F8F8F8] disabled:text-[#8B7F73]"
               />
             </label>
 
             <label className="block">
-              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Body</span>
+              <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Body</span>
               <textarea
                 value={draftState.email_body}
                 disabled={!editing || !canEdit}
                 onChange={(event) => setDraftState((current) => ({ ...current, email_body: event.target.value }))}
-                className="min-h-[260px] w-full rounded-2xl border border-[#E6E6E6] px-4 py-3 text-sm leading-relaxed focus:border-[#111111] focus:outline-none disabled:bg-[#F8F8F8] disabled:text-[#6B7280]"
+                className="min-h-[260px] w-full rounded-2xl border border-[#E8E0D3] px-4 py-3 text-sm leading-relaxed focus:border-[#2B2824] focus:outline-none disabled:bg-[#F8F8F8] disabled:text-[#8B7F73]"
               />
             </label>
 
@@ -228,13 +228,13 @@ function ComposerModal({
               </div>
             )}
 
-            <div className="flex items-center justify-between gap-3 flex-wrap border-t border-[#F0F0F0] pt-4">
+            <div className="flex items-center justify-between gap-3 flex-wrap border-t border-[#EEE6D8] pt-4">
               <div className="flex items-center gap-2 flex-wrap">
                 <button
                   type="button"
                   onClick={() => setEditing((current) => !current)}
                   disabled={!canEdit}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#E6E6E6] px-3 py-2 text-sm text-[#111111] hover:border-[#111111] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#E8E0D3] px-3 py-2 text-sm text-[#2B2824] hover:border-[#2B2824] disabled:cursor-not-allowed disabled:text-[#A89D91]"
                 >
                   <Pencil className="w-4 h-4" />
                   {editing ? 'Editing' : 'Edit'}
@@ -243,7 +243,7 @@ function ComposerModal({
                   type="button"
                   onClick={() => void onSave(draftState)}
                   disabled={!canEdit}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#E6E6E6] px-3 py-2 text-sm text-[#111111] hover:border-[#111111] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#E8E0D3] px-3 py-2 text-sm text-[#2B2824] hover:border-[#2B2824] disabled:cursor-not-allowed disabled:text-[#A89D91]"
                 >
                   Save
                 </button>
@@ -251,7 +251,7 @@ function ComposerModal({
                   type="button"
                   onClick={() => void onApprove()}
                   disabled={!canApprove}
-                  className="inline-flex items-center gap-2 rounded-xl bg-[#111111] px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-[#D1D5DB]"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[#2B2824] px-3 py-2 text-sm font-medium text-white disabled:cursor-not-allowed disabled:bg-[#D1D5DB]"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   Approve
@@ -260,7 +260,7 @@ function ComposerModal({
                   type="button"
                   onClick={() => void onDiscard()}
                   disabled={!canEdit}
-                  className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-3 py-2 text-sm text-red-700 hover:border-red-400 disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-red-200 px-3 py-2 text-sm text-red-700 hover:border-red-400 disabled:cursor-not-allowed disabled:text-[#A89D91]"
                 >
                   <Trash2 className="w-4 h-4" />
                   Discard
@@ -500,26 +500,26 @@ export function BomEmailPanel({
 
   return (
     <>
-      <section className="mb-8 rounded-3xl border border-[#E6E6E6] bg-white overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#F0F0F0] bg-[linear-gradient(135deg,#FDFCFB_0%,#F8FAFC_100%)]">
+      <section className="mb-8 rounded-3xl border border-[#E8E0D3] bg-white overflow-hidden">
+        <div className="px-6 py-5 border-b border-[#EEE6D8] bg-[linear-gradient(135deg,#FDFCFB_0%,#F8FAFC_100%)]">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6E6E6] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6B7280]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E0D3] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8B7F73]">
                 <Mail className="w-3.5 h-3.5" />
                 Team Requests
               </div>
-              <h2 className="text-xl font-semibold text-[#111111] mt-3">Email Status Tracker</h2>
-              <p className="text-sm text-[#6B7280] mt-1">
+              <h2 className="text-xl font-semibold text-[#2B2824] mt-3">Email Status Tracker</h2>
+              <p className="text-sm text-[#8B7F73] mt-1">
                 Track BOM clarification emails, approvals, replies, and follow-ups in one place.
               </p>
             </div>
             <div className="flex items-center gap-2 flex-wrap">
-              {isLoading && <Loader2 className="w-4 h-4 animate-spin text-[#6B7280]" />}
+              {isLoading && <Loader2 className="w-4 h-4 animate-spin text-[#8B7F73]" />}
               {emails.some((request) => request.status === 'draft') && (
                 <button
                   type="button"
                   onClick={() => setComposerOpen(true)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#E6E6E6] bg-white px-4 py-2.5 text-sm font-medium text-[#111111] hover:border-[#111111]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#E8E0D3] bg-white px-4 py-2.5 text-sm font-medium text-[#2B2824] hover:border-[#2B2824]"
                 >
                   <MessageSquareText className="w-4 h-4" />
                   Open drafts
@@ -531,8 +531,8 @@ export function BomEmailPanel({
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px]">
-            <thead className="bg-[#FAFAFA] border-b border-[#EFEFEF]">
-              <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">
+            <thead className="bg-[#FFFCF7] border-b border-[#EFEFEF]">
+              <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">
                 <th className="px-4 py-3">Contact</th>
                 <th className="px-4 py-3">Question</th>
                 <th className="px-4 py-3">Status</th>
@@ -542,7 +542,7 @@ export function BomEmailPanel({
             <tbody>
               {emails.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-10 text-center text-sm text-[#6B7280]">
+                  <td colSpan={4} className="px-4 py-10 text-center text-sm text-[#8B7F73]">
                     No team email drafts have been created for this BOM run yet.
                   </td>
                 </tr>
@@ -552,20 +552,20 @@ export function BomEmailPanel({
                 const status = statusPresentation(request);
                 return (
                   <>
-                    <tr key={request.id} className="border-b border-[#F0F0F0] align-top">
+                    <tr key={request.id} className="border-b border-[#EEE6D8] align-top">
                       <td className="px-4 py-4">
                         <div>
-                          <p className="text-sm font-medium text-[#111111]">{request.recipient_name}</p>
-                          <p className="text-[12px] text-[#6B7280] mt-1">{request.recipient_email}</p>
+                          <p className="text-sm font-medium text-[#2B2824]">{request.recipient_name}</p>
+                          <p className="text-[12px] text-[#8B7F73] mt-1">{request.recipient_email}</p>
                         </div>
                       </td>
-                      <td className="px-4 py-4 text-sm text-[#374151]">{request.question}</td>
+                      <td className="px-4 py-4 text-sm text-[#4A4038]">{request.question}</td>
                       <td className="px-4 py-4">
                         <div className="space-y-2">
                           <span className={`inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${status.className}`}>
                             {status.label}
                           </span>
-                          <p className="text-[12px] text-[#6B7280]">{status.detail}</p>
+                          <p className="text-[12px] text-[#8B7F73]">{status.detail}</p>
                         </div>
                       </td>
                       <td className="px-4 py-4">
@@ -577,7 +577,7 @@ export function BomEmailPanel({
                                 setSelectedRequestId(request.id);
                                 setComposerOpen(true);
                               }}
-                              className="rounded-lg border border-[#E6E6E6] px-3 py-1.5 text-[12px] font-medium text-[#111111] hover:border-[#111111]"
+                              className="rounded-lg border border-[#E8E0D3] px-3 py-1.5 text-[12px] font-medium text-[#2B2824] hover:border-[#2B2824]"
                             >
                               View draft
                             </button>
@@ -598,7 +598,7 @@ export function BomEmailPanel({
                                 expanded ? current.filter((value) => value !== request.id) : [...current, request.id],
                               )
                             }
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E6E6E6] text-[#6B7280] hover:border-[#111111] hover:text-[#111111]"
+                            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E8E0D3] text-[#8B7F73] hover:border-[#2B2824] hover:text-[#2B2824]"
                           >
                             {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                           </button>
@@ -606,28 +606,28 @@ export function BomEmailPanel({
                       </td>
                     </tr>
                     {expanded && (
-                      <tr key={`${request.id}-timeline`} className="border-b border-[#F0F0F0] bg-[#FBFBFB]">
+                      <tr key={`${request.id}-timeline`} className="border-b border-[#EEE6D8] bg-[#FCF9F4]">
                         <td colSpan={4} className="px-4 py-4">
-                          <div className="rounded-2xl border border-[#E6E6E6] bg-white p-4">
-                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Timeline</p>
+                          <div className="rounded-2xl border border-[#E8E0D3] bg-white p-4">
+                            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Timeline</p>
                             <div className="mt-3 grid gap-3 md:grid-cols-4">
-                              <div className="rounded-xl border border-[#E6E6E6] bg-[#FAFAFA] px-3 py-3">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Draft created</p>
-                                <p className="text-[12px] text-[#111111] mt-2">{formatDateTime(request.created_at)}</p>
+                              <div className="rounded-xl border border-[#E8E0D3] bg-[#FFFCF7] px-3 py-3">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Draft created</p>
+                                <p className="text-[12px] text-[#2B2824] mt-2">{formatDateTime(request.created_at)}</p>
                               </div>
-                              <div className="rounded-xl border border-[#E6E6E6] bg-[#FAFAFA] px-3 py-3">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Approved</p>
-                                <p className="text-[12px] text-[#111111] mt-2">
+                              <div className="rounded-xl border border-[#E8E0D3] bg-[#FFFCF7] px-3 py-3">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Approved</p>
+                                <p className="text-[12px] text-[#2B2824] mt-2">
                                   {request.approved_at ? formatDateTime(request.approved_at) : 'Pending'}
                                 </p>
                               </div>
-                              <div className="rounded-xl border border-[#E6E6E6] bg-[#FAFAFA] px-3 py-3">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Sent</p>
-                                <p className="text-[12px] text-[#111111] mt-2">{request.sent_at ? formatDateTime(request.sent_at) : 'Not sent yet'}</p>
+                              <div className="rounded-xl border border-[#E8E0D3] bg-[#FFFCF7] px-3 py-3">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Sent</p>
+                                <p className="text-[12px] text-[#2B2824] mt-2">{request.sent_at ? formatDateTime(request.sent_at) : 'Not sent yet'}</p>
                               </div>
-                              <div className="rounded-xl border border-[#E6E6E6] bg-[#FAFAFA] px-3 py-3">
-                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Answered</p>
-                                <p className="text-[12px] text-[#111111] mt-2">{request.answered_at ? formatDateTime(request.answered_at) : 'Awaiting reply'}</p>
+                              <div className="rounded-xl border border-[#E8E0D3] bg-[#FFFCF7] px-3 py-3">
+                                <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Answered</p>
+                                <p className="text-[12px] text-[#2B2824] mt-2">{request.answered_at ? formatDateTime(request.answered_at) : 'Awaiting reply'}</p>
                               </div>
                             </div>
                             {request.response && (

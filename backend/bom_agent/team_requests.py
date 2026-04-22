@@ -270,19 +270,10 @@ def maybe_resume_research(run, message: str | None = None) -> bool:
         run.status = "researching"
         run.save(update_fields=["status"])
 
-    if message:
-        log_entries = list(run.research_log or [])
-        log_entries.append(
-            {
-                "ts": timezone.now().strftime("%H:%M:%S"),
-                "type": "info",
-                "message": message,
-            }
-        )
-        run.research_log = log_entries
-        run.save(update_fields=["research_log"])
+    from .research_pipeline import _log, run_bom_research
 
-    from .research_pipeline import run_bom_research
+    if message:
+        _log(run, "email", f"✅ {message}")
 
     threading.Thread(target=run_bom_research, args=(run.pk,), daemon=True).start()
     return True
