@@ -17,6 +17,7 @@ export interface UploadedFile {
   file_type: string;
   file_size: number;
   status: 'uploaded' | 'processing' | 'processed' | 'failed';
+  category: 'vault' | 'library';
   created_at: string;
 }
 

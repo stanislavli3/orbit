@@ -138,7 +138,7 @@ export function VaultPage() {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
       <TopBar
-        title="Vault"
+        title="Projects"
         subtitle="Upload, store, and analyze engineering files and their extracted profiles."
       />
 

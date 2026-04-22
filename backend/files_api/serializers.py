@@ -20,6 +20,7 @@ class UploadedFileSerializer(serializers.ModelSerializer):
             "file_type",
             "file_size",
             "status",
+            "category",
             "created_at",
         ]
         read_only_fields = [
