@@ -134,7 +134,7 @@ function SortButton({
     <button
       type="button"
       onClick={() => onClick(sortKey)}
-      className={`inline-flex items-center gap-1 transition-colors ${active ? 'text-[#111111]' : 'text-[#6B7280] hover:text-[#111111]'}`}
+      className={`inline-flex items-center gap-1 transition-colors ${active ? 'text-[#2B2824]' : 'text-[#8B7F73] hover:text-[#2B2824]'}`}
     >
       <span>{label}</span>
       {active ? (
@@ -227,12 +227,12 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
   }
 
   return (
-    <div className="rounded-2xl border border-[#E6E6E6] bg-white overflow-hidden">
-      <div className="px-5 py-4 border-b border-[#EFEFEF] bg-[#FBFBFB]">
+    <div className="rounded-2xl border border-[#E8E0D3] bg-white overflow-hidden">
+      <div className="px-5 py-4 border-b border-[#EFEFEF] bg-[#FCF9F4]">
         <div className="flex items-center justify-between gap-3 flex-wrap">
           <div>
-            <p className="text-sm font-semibold text-[#111111]">Results Table</p>
-            <p className="text-[12px] text-[#6B7280] mt-0.5">
+            <p className="text-sm font-semibold text-[#2B2824]">Results Table</p>
+            <p className="text-[12px] text-[#8B7F73] mt-0.5">
               {run.line_items.length} part{run.line_items.length !== 1 ? 's' : ''} · client-side sort and filter
             </p>
           </div>
@@ -249,8 +249,8 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
                 onClick={() => setFilter(option.value as FilterValue)}
                 className={`px-3 py-1.5 rounded-full border text-[12px] transition-colors ${
                   filter === option.value
-                    ? 'bg-[#111111] text-white border-[#111111]'
-                    : 'bg-white text-[#4B5563] border-[#E6E6E6] hover:border-[#111111]'
+                    ? 'bg-[#2B2824] text-white border-[#2B2824]'
+                    : 'bg-white text-[#4B5563] border-[#E8E0D3] hover:border-[#2B2824]'
                 }`}
               >
                 {option.label}
@@ -262,7 +262,7 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[1080px]">
-          <thead className="bg-[#FAFAFA] border-b border-[#EFEFEF]">
+          <thead className="bg-[#FFFCF7] border-b border-[#EFEFEF]">
             <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.16em]">
               <th className="px-4 py-3"><SortButton label="#" sortKey="index" activeSort={sort} onClick={toggleSort} /></th>
               <th className="px-4 py-3"><SortButton label="Part Name" sortKey="part_name" activeSort={sort} onClick={toggleSort} /></th>
@@ -273,13 +273,13 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
               <th className="px-4 py-3"><SortButton label="Supplier" sortKey="supplier" activeSort={sort} onClick={toggleSort} /></th>
               <th className="px-4 py-3"><SortButton label="Lead Time" sortKey="lead_time" activeSort={sort} onClick={toggleSort} /></th>
               <th className="px-4 py-3"><SortButton label="Status" sortKey="status" activeSort={sort} onClick={toggleSort} /></th>
-              <th className="px-4 py-3 text-right text-[#6B7280]">Expand</th>
+              <th className="px-4 py-3 text-right text-[#8B7F73]">Expand</th>
             </tr>
           </thead>
           <tbody>
             {sortedRows.length === 0 && (
               <tr>
-                <td colSpan={10} className="px-4 py-10 text-center text-sm text-[#6B7280]">
+                <td colSpan={10} className="px-4 py-10 text-center text-sm text-[#8B7F73]">
                   No rows match the current filter.
                 </td>
               </tr>
@@ -289,14 +289,14 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
               const open = expandedId === row.item.id;
               return (
                 <>
-                  <tr key={row.item.id} className="border-b border-[#F0F0F0] align-top hover:bg-[#FCFCFC]">
-                    <td className="px-4 py-4 text-sm text-[#6B7280]">{row.index}</td>
+                  <tr key={row.item.id} className="border-b border-[#EEE6D8] align-top hover:bg-[#FCFCFC]">
+                    <td className="px-4 py-4 text-sm text-[#8B7F73]">{row.index}</td>
                     <td className="px-4 py-4">
                       <div className="space-y-2">
                         <div>
-                          <p className="text-sm font-medium text-[#111111]">{row.item.part_name}</p>
+                          <p className="text-sm font-medium text-[#2B2824]">{row.item.part_name}</p>
                           {row.item.part_number && (
-                            <p className="text-[11px] font-mono text-[#9CA3AF] mt-0.5">{row.item.part_number}</p>
+                            <p className="text-[11px] font-mono text-[#A89D91] mt-0.5">{row.item.part_number}</p>
                           )}
                         </div>
                         {riskBadges.length > 0 && (
@@ -310,14 +310,14 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
                         )}
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-[#374151]">{row.material}</td>
-                    <td className="px-4 py-4 text-sm text-[#111111]">{row.item.quantity}</td>
-                    <td className="px-4 py-4 text-sm font-medium text-[#111111]">{formatCurrency(row.unitCost)}</td>
-                    <td className="px-4 py-4 text-sm font-medium text-[#111111]">{formatCurrency(row.extendedCost)}</td>
-                    <td className="px-4 py-4 text-sm text-[#374151]">{row.supplier}</td>
-                    <td className="px-4 py-4 text-sm text-[#374151]">{row.leadTime != null ? `${row.leadTime}d` : '—'}</td>
+                    <td className="px-4 py-4 text-sm text-[#4A4038]">{row.material}</td>
+                    <td className="px-4 py-4 text-sm text-[#2B2824]">{row.item.quantity}</td>
+                    <td className="px-4 py-4 text-sm font-medium text-[#2B2824]">{formatCurrency(row.unitCost)}</td>
+                    <td className="px-4 py-4 text-sm font-medium text-[#2B2824]">{formatCurrency(row.extendedCost)}</td>
+                    <td className="px-4 py-4 text-sm text-[#4A4038]">{row.supplier}</td>
+                    <td className="px-4 py-4 text-sm text-[#4A4038]">{row.leadTime != null ? `${row.leadTime}d` : '—'}</td>
                     <td className="px-4 py-4">
-                      <span className="inline-flex items-center rounded-full border border-[#E6E6E6] bg-[#FAFAFA] px-2.5 py-1 text-[11px] font-medium text-[#374151]">
+                      <span className="inline-flex items-center rounded-full border border-[#E8E0D3] bg-[#FFFCF7] px-2.5 py-1 text-[11px] font-medium text-[#4A4038]">
                         {row.displayStatus}
                       </span>
                     </td>
@@ -325,26 +325,26 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
                       <button
                         type="button"
                         onClick={() => setExpandedId(open ? null : row.item.id)}
-                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E6E6E6] text-[#6B7280] hover:border-[#111111] hover:text-[#111111]"
+                        className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-[#E8E0D3] text-[#8B7F73] hover:border-[#2B2824] hover:text-[#2B2824]"
                       >
                         {open ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                       </button>
                     </td>
                   </tr>
                   {open && (
-                    <tr key={`${row.item.id}-expanded`} className="border-b border-[#F0F0F0] bg-[#FBFBFB]">
+                    <tr key={`${row.item.id}-expanded`} className="border-b border-[#EEE6D8] bg-[#FCF9F4]">
                       <td colSpan={10} className="px-4 py-4">
                         <div className="rounded-xl border border-[#EAEAEA] bg-white overflow-hidden">
                           <div className="px-4 py-3 border-b border-[#EFEFEF] flex items-center justify-between gap-3 flex-wrap">
                             <div>
-                              <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">Supplier Comparison</p>
+                              <p className="text-[12px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">Supplier Comparison</p>
                               {row.summary && <p className="text-[12px] text-[#4B5563] mt-1">{row.summary}</p>}
                             </div>
                           </div>
                           <div className="overflow-x-auto">
                             <table className="w-full min-w-[760px]">
-                              <thead className="bg-[#FAFAFA] border-b border-[#EFEFEF]">
-                                <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-[#6B7280]">
+                              <thead className="bg-[#FFFCF7] border-b border-[#EFEFEF]">
+                                <tr className="text-left text-[11px] font-semibold uppercase tracking-[0.16em] text-[#8B7F73]">
                                   <th className="px-4 py-3">Supplier</th>
                                   <th className="px-4 py-3">Unit Price</th>
                                   <th className="px-4 py-3">MOQ</th>
@@ -355,8 +355,8 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
                               </thead>
                               <tbody>
                                 {row.item.quotes.map((quote) => (
-                                  <tr key={quote.id} className="border-b border-[#F4F4F4] last:border-b-0 align-top">
-                                    <td className="px-4 py-3 text-sm text-[#111111]">
+                                  <tr key={quote.id} className="border-b border-[#F2EDE3] last:border-b-0 align-top">
+                                    <td className="px-4 py-3 text-sm text-[#2B2824]">
                                       <div className="flex items-center gap-2 flex-wrap">
                                         <span>{quote.supplier_name}</span>
                                         {!quote.is_avl && (
@@ -366,16 +366,16 @@ function ResultsTable({ run }: { run: BomResearchRun }) {
                                         )}
                                       </div>
                                     </td>
-                                    <td className="px-4 py-3 text-sm text-[#111111]">{formatCurrency(Number(quote.unit_price))}</td>
-                                    <td className="px-4 py-3 text-sm text-[#374151]">{quote.moq}</td>
-                                    <td className="px-4 py-3 text-sm text-[#374151]">{quote.lead_time_days}d</td>
-                                    <td className="px-4 py-3 text-sm text-[#374151]">{formatCurrency(Number(quote.tooling_cost))}</td>
+                                    <td className="px-4 py-3 text-sm text-[#2B2824]">{formatCurrency(Number(quote.unit_price))}</td>
+                                    <td className="px-4 py-3 text-sm text-[#4A4038]">{quote.moq}</td>
+                                    <td className="px-4 py-3 text-sm text-[#4A4038]">{quote.lead_time_days}d</td>
+                                    <td className="px-4 py-3 text-sm text-[#4A4038]">{formatCurrency(Number(quote.tooling_cost))}</td>
                                     <td className="px-4 py-3 text-sm text-[#4B5563]">{quote.notes || '—'}</td>
                                   </tr>
                                 ))}
                                 {row.item.quotes.length === 0 && (
                                   <tr>
-                                    <td colSpan={6} className="px-4 py-6 text-center text-sm text-[#6B7280]">
+                                    <td colSpan={6} className="px-4 py-6 text-center text-sm text-[#8B7F73]">
                                       No supplier quotes captured for this part.
                                     </td>
                                   </tr>
@@ -430,16 +430,16 @@ export function BomResultsPanel({ runs, selectedRun, selectedRunId, onSelectRun 
 
   return (
     <section className="mb-8 space-y-5">
-      <div className="rounded-3xl border border-[#E6E6E6] bg-white overflow-hidden">
-        <div className="px-6 py-5 border-b border-[#F0F0F0] bg-[linear-gradient(135deg,#FCFCFC_0%,#F5F7FA_100%)]">
+      <div className="rounded-3xl border border-[#E8E0D3] bg-white overflow-hidden">
+        <div className="px-6 py-5 border-b border-[#EEE6D8] bg-[linear-gradient(135deg,#FCFCFC_0%,#F5F7FA_100%)]">
           <div className="flex items-start justify-between gap-4 flex-wrap">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#E6E6E6] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#6B7280]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#E8E0D3] bg-white px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-[#8B7F73]">
                 <FileSpreadsheet className="w-3.5 h-3.5" />
                 BOM Research
               </div>
-              <h2 className="text-xl font-semibold text-[#111111] mt-3">Results & Run History</h2>
-              <p className="text-sm text-[#6B7280] mt-1">
+              <h2 className="text-xl font-semibold text-[#2B2824] mt-3">Results & Run History</h2>
+              <p className="text-sm text-[#8B7F73] mt-1">
                 Review sourced parts, compare supplier quotes, and reopen previous BOM research runs.
               </p>
             </div>
@@ -448,14 +448,14 @@ export function BomResultsPanel({ runs, selectedRun, selectedRunId, onSelectRun 
               {selectedRun?.status === 'completed' && excelDownload && (
                 <div className="text-right">
                   <p className="text-[12px] text-[#4B5563]">{formatBytes(excelDownload.file_size)}</p>
-                  <p className="text-[11px] text-[#9CA3AF]">Generated {formatDateTime(excelDownload.generated_at)}</p>
+                  <p className="text-[11px] text-[#A89D91]">Generated {formatDateTime(excelDownload.generated_at)}</p>
                 </div>
               )}
               <button
                 type="button"
                 onClick={() => selectedRunId && openExcelDownload(selectedRunId)}
                 disabled={!selectedRunId || selectedRun?.status !== 'completed' || excelLoading}
-                className="inline-flex items-center gap-2 rounded-xl bg-[#111111] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#262626] disabled:cursor-not-allowed disabled:bg-[#D1D5DB]"
+                className="inline-flex items-center gap-2 rounded-xl bg-[#2B2824] px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-[#262626] disabled:cursor-not-allowed disabled:bg-[#D1D5DB]"
               >
                 <Download className="w-4 h-4" />
                 Download Excel
@@ -465,16 +465,16 @@ export function BomResultsPanel({ runs, selectedRun, selectedRunId, onSelectRun 
         </div>
 
         <div className="grid gap-0 lg:grid-cols-[minmax(0,1fr)_320px]">
-          <div className="p-5 border-b border-[#F0F0F0] lg:border-b-0 lg:border-r">
+          <div className="p-5 border-b border-[#EEE6D8] lg:border-b-0 lg:border-r">
             {!selectedRun ? (
-              <div className="rounded-2xl border border-dashed border-[#D6D6D6] bg-[#FAFAFA] px-6 py-12 text-center">
-                <p className="text-sm font-medium text-[#111111]">No BOM runs yet</p>
-                <p className="text-[12px] text-[#6B7280] mt-1">Start a BOM run to see the in-app results table and Excel export.</p>
+              <div className="rounded-2xl border border-dashed border-[#D6D6D6] bg-[#FFFCF7] px-6 py-12 text-center">
+                <p className="text-sm font-medium text-[#2B2824]">No BOM runs yet</p>
+                <p className="text-[12px] text-[#8B7F73] mt-1">Start a BOM run to see the in-app results table and Excel export.</p>
               </div>
             ) : selectedRun.status === 'completed' ? (
               <ResultsTable run={selectedRun} />
             ) : (
-              <div className="rounded-2xl border border-[#E6E6E6] bg-[#FAFAFA] px-6 py-10">
+              <div className="rounded-2xl border border-[#E8E0D3] bg-[#FFFCF7] px-6 py-10">
                 <div className="flex items-center gap-3">
                   {selectedRun.status === 'failed' ? (
                     <CircleAlert className="w-5 h-5 text-red-500" />
@@ -482,10 +482,10 @@ export function BomResultsPanel({ runs, selectedRun, selectedRunId, onSelectRun 
                     <Clock3 className="w-5 h-5 text-blue-500" />
                   )}
                   <div>
-                    <p className="text-sm font-medium text-[#111111]">
+                    <p className="text-sm font-medium text-[#2B2824]">
                       {selectedRun.status === 'failed' ? 'This BOM run failed' : 'This BOM run is still in progress'}
                     </p>
-                    <p className="text-[12px] text-[#6B7280] mt-1">
+                    <p className="text-[12px] text-[#8B7F73] mt-1">
                       {selectedRun.status === 'failed'
                         ? 'Reopen the run from history or start a new one once inputs are fixed.'
                         : 'The live panel will keep polling while research continues. Results table appears when the run completes.'}
@@ -499,14 +499,14 @@ export function BomResultsPanel({ runs, selectedRun, selectedRunId, onSelectRun 
           <aside className="p-5 bg-[#FCFCFC]">
             <div className="flex items-center justify-between gap-2 mb-4">
               <div>
-                <p className="text-sm font-semibold text-[#111111]">Run History</p>
-                <p className="text-[12px] text-[#6B7280] mt-0.5">{runs.length} run{runs.length !== 1 ? 's' : ''}</p>
+                <p className="text-sm font-semibold text-[#2B2824]">Run History</p>
+                <p className="text-[12px] text-[#8B7F73] mt-0.5">{runs.length} run{runs.length !== 1 ? 's' : ''}</p>
               </div>
             </div>
 
             <div className="space-y-3">
               {runs.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-[#D6D6D6] bg-white px-4 py-6 text-center text-sm text-[#6B7280]">
+                <div className="rounded-2xl border border-dashed border-[#D6D6D6] bg-white px-4 py-6 text-center text-sm text-[#8B7F73]">
                   No BOM runs yet.
                 </div>
               )}
@@ -517,17 +517,17 @@ export function BomResultsPanel({ runs, selectedRun, selectedRunId, onSelectRun 
                   <div
                     key={run.id}
                     className={`rounded-2xl border px-4 py-4 transition-colors ${
-                      active ? 'border-[#111111] bg-white' : 'border-[#E6E6E6] bg-white hover:border-[#B8B8B8]'
+                      active ? 'border-[#2B2824] bg-white' : 'border-[#E8E0D3] bg-white hover:border-[#B8B8B8]'
                     }`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-medium text-[#111111]">Run #{run.id}</p>
-                        <p className="text-[12px] text-[#6B7280] mt-1">
+                        <p className="text-sm font-medium text-[#2B2824]">Run #{run.id}</p>
+                        <p className="text-[12px] text-[#8B7F73] mt-1">
                           {formatDateTime(run.completed_at ?? run.created_at)}
                         </p>
                       </div>
-                      <span className="rounded-full border border-[#E6E6E6] bg-[#FAFAFA] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#4B5563]">
+                      <span className="rounded-full border border-[#E8E0D3] bg-[#FFFCF7] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#4B5563]">
                         {run.status.replace(/_/g, ' ')}
                       </span>
                     </div>
@@ -539,7 +539,7 @@ export function BomResultsPanel({ runs, selectedRun, selectedRunId, onSelectRun 
                       <button
                         type="button"
                         onClick={() => onSelectRun(run.id)}
-                        className="inline-flex items-center rounded-lg border border-[#E6E6E6] bg-white px-3 py-1.5 text-[12px] font-medium text-[#111111] hover:border-[#111111]"
+                        className="inline-flex items-center rounded-lg border border-[#E8E0D3] bg-white px-3 py-1.5 text-[12px] font-medium text-[#2B2824] hover:border-[#2B2824]"
                       >
                         View
                       </button>
@@ -547,7 +547,7 @@ export function BomResultsPanel({ runs, selectedRun, selectedRunId, onSelectRun 
                         type="button"
                         onClick={() => openExcelDownload(run.id)}
                         disabled={!run.excel_s3_key}
-                        className="inline-flex items-center gap-1 rounded-lg border border-[#E6E6E6] bg-white px-3 py-1.5 text-[12px] font-medium text-[#111111] hover:border-[#111111] disabled:cursor-not-allowed disabled:text-[#9CA3AF]"
+                        className="inline-flex items-center gap-1 rounded-lg border border-[#E8E0D3] bg-white px-3 py-1.5 text-[12px] font-medium text-[#2B2824] hover:border-[#2B2824] disabled:cursor-not-allowed disabled:text-[#A89D91]"
                       >
                         <Download className="w-3.5 h-3.5" />
                         Download

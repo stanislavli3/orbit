@@ -23,14 +23,14 @@ const typeLabels = {
 const statusConfig: Record<string, { icon: typeof CheckCircle2; color: string; bgColor: string; label: string }> = {
   completed: {
     icon: CheckCircle2,
-    color: 'text-[#6B7280]',
-    bgColor: 'bg-[#F4F4F4]',
+    color: 'text-[#8B7F73]',
+    bgColor: 'bg-[#F2EDE3]',
     label: 'Completed',
   },
   processed: {
     icon: CheckCircle2,
-    color: 'text-[#6B7280]',
-    bgColor: 'bg-[#F4F4F4]',
+    color: 'text-[#8B7F73]',
+    bgColor: 'bg-[#F2EDE3]',
     label: 'Completed',
   },
   failed: {
@@ -41,14 +41,14 @@ const statusConfig: Record<string, { icon: typeof CheckCircle2; color: string; b
   },
   processing: {
     icon: Clock,
-    color: 'text-[#6B7280]',
-    bgColor: 'bg-[#F4F4F4]',
+    color: 'text-[#8B7F73]',
+    bgColor: 'bg-[#F2EDE3]',
     label: 'Processing',
   },
   uploaded: {
     icon: Clock,
-    color: 'text-[#6B7280]',
-    bgColor: 'bg-[#F4F4F4]',
+    color: 'text-[#8B7F73]',
+    bgColor: 'bg-[#F2EDE3]',
     label: 'Uploaded',
   },
 };
@@ -121,8 +121,8 @@ export function HistoryPage() {
                     onClick={() => setActivityFilter(f)}
                     className={`px-3 py-2 text-sm rounded-lg transition-colors ${
                       activityFilter === f
-                        ? 'text-[#111111] bg-[#E6E6E6]'
-                        : 'text-[#6B7280] hover:text-[#111111] hover:bg-[#F4F4F4]'
+                        ? 'text-[#2B2824] bg-[#E8E0D3]'
+                        : 'text-[#8B7F73] hover:text-[#2B2824] hover:bg-[#F2EDE3]'
                     }`}
                   >
                     {f === 'all' ? 'All activity' : f === 'upload' ? 'Uploads' : f === 'export' ? 'Exports' : 'Chats'}
@@ -131,47 +131,47 @@ export function HistoryPage() {
               </div>
 
               {periodLabel && (
-                <span className="text-xs text-[#6B7280] bg-[#F4F4F4] border border-[#E6E6E6] px-2.5 py-1 rounded-full">
+                <span className="text-xs text-[#8B7F73] bg-[#F2EDE3] border border-[#E8E0D3] px-2.5 py-1 rounded-full">
                   {periodLabel}
                 </span>
               )}
             </div>
 
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8B7F73]" />
               <input
                 type="text"
                 placeholder="Search history"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-64 pl-9 pr-4 py-2 bg-white border border-[#E6E6E6] rounded-lg text-sm placeholder:text-[#6B7280] focus:outline-none focus:border-[#111111] transition-colors"
+                className="w-64 pl-9 pr-4 py-2 bg-white border border-[#E8E0D3] rounded-lg text-sm placeholder:text-[#8B7F73] focus:outline-none focus:border-[#2B2824] transition-colors"
               />
             </div>
           </div>
 
           {/* History List */}
-          <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden">
+          <div className="bg-white border border-[#E8E0D3] rounded-xl overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-[#E6E6E6] bg-[#FAFAFA]">
+            <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-[#E8E0D3] bg-[#FFFCF7]">
               <div className="col-span-5">
-                <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Activity</span>
+                <span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Activity</span>
               </div>
               <div className="col-span-2">
-                <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Project</span>
+                <span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Project</span>
               </div>
               <div className="col-span-2">
-                <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Status</span>
+                <span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Status</span>
               </div>
               <div className="col-span-2">
-                <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Type</span>
+                <span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Type</span>
               </div>
               <div className="col-span-1 flex justify-end">
-                <span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Actions</span>
+                <span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Actions</span>
               </div>
             </div>
 
             {isLoading && (
-              <div className="flex items-center justify-center py-16 text-[#6B7280] text-sm">
+              <div className="flex items-center justify-center py-16 text-[#8B7F73] text-sm">
                 Loading...
               </div>
             )}
@@ -184,10 +184,10 @@ export function HistoryPage() {
 
             {!isLoading && !isError && filtered.length === 0 && (
               <div className="flex flex-col items-center justify-center py-16 gap-3">
-                <div className="w-10 h-10 bg-[#F4F4F4] rounded-lg flex items-center justify-center">
-                  <Inbox className="w-5 h-5 text-[#9CA3AF]" strokeWidth={1.5} />
+                <div className="w-10 h-10 bg-[#F2EDE3] rounded-lg flex items-center justify-center">
+                  <Inbox className="w-5 h-5 text-[#A89D91]" strokeWidth={1.5} />
                 </div>
-                <p className="text-[#6B7280] text-sm">No activity found</p>
+                <p className="text-[#8B7F73] text-sm">No activity found</p>
               </div>
             )}
 
@@ -200,16 +200,16 @@ export function HistoryPage() {
               return (
                 <div
                   key={item.id}
-                  className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[#E6E6E6] last:border-b-0 hover:bg-[#FAFAFA] transition-colors group"
+                  className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[#E8E0D3] last:border-b-0 hover:bg-[#FFFCF7] transition-colors group"
                 >
                   {/* Activity */}
                   <div className="col-span-5 flex items-center gap-3">
-                    <div className="w-9 h-9 bg-[#F4F4F4] rounded-lg flex items-center justify-center flex-shrink-0">
-                      <TypeIcon className="w-[18px] h-[18px] text-[#6B7280]" strokeWidth={1.5} />
+                    <div className="w-9 h-9 bg-[#F2EDE3] rounded-lg flex items-center justify-center flex-shrink-0">
+                      <TypeIcon className="w-[18px] h-[18px] text-[#8B7F73]" strokeWidth={1.5} />
                     </div>
                     <div className="min-w-0">
-                      <p className="text-[#111111] text-sm mb-0.5">{item.title}</p>
-                      <p className="text-[#6B7280] text-[12px] truncate">
+                      <p className="text-[#2B2824] text-sm mb-0.5">{item.title}</p>
+                      <p className="text-[#8B7F73] text-[12px] truncate">
                         {item.detail} · {formatTimestamp(item.created_at)}
                       </p>
                     </div>
@@ -217,7 +217,7 @@ export function HistoryPage() {
 
                   {/* Project */}
                   <div className="col-span-2 flex items-center">
-                    <span className="text-[#111111] text-sm truncate">{item.project}</span>
+                    <span className="text-[#2B2824] text-sm truncate">{item.project}</span>
                   </div>
 
                   {/* Status */}
@@ -230,13 +230,13 @@ export function HistoryPage() {
 
                   {/* Type */}
                   <div className="col-span-2 flex items-center">
-                    <span className="text-[#6B7280] text-sm">{typeLabels[item.type]}</span>
+                    <span className="text-[#8B7F73] text-sm">{typeLabels[item.type]}</span>
                   </div>
 
                   {/* Actions */}
                   <div className="col-span-1 flex items-center justify-end">
-                    <button className="w-8 h-8 flex items-center justify-center hover:bg-[#E6E6E6] rounded-lg transition-colors opacity-0 group-hover:opacity-100">
-                      <MoreVertical className="w-4 h-4 text-[#6B7280]" />
+                    <button className="w-8 h-8 flex items-center justify-center hover:bg-[#E8E0D3] rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                      <MoreVertical className="w-4 h-4 text-[#8B7F73]" />
                     </button>
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export function HistoryPage() {
 
           {!isLoading && !isError && filtered.length > 0 && (
             <div className="mt-6">
-              <p className="text-[#6B7280] text-sm">
+              <p className="text-[#8B7F73] text-sm">
                 Showing {filtered.length} {filtered.length === 1 ? 'activity' : 'activities'}
               </p>
             </div>

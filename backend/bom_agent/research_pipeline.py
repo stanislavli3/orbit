@@ -17,6 +17,7 @@ Log format:   {"ts": "HH:MM:SS", "type": "<type>", "message": "<text>"}
 
 import os
 import json
+import time
 import traceback
 from datetime import datetime, timezone
 
@@ -66,6 +67,107 @@ def _update_results(run, item_key: str, patch: dict) -> None:
     fresh[item_key] = section
     BomResearchRun.objects.filter(pk=run.pk).update(results_json=fresh)
     run.results_json = fresh
+
+
+# ── Rate-limit + context-size helpers ─────────────────────────────────────────
+
+def _is_rate_limit_error(exc: Exception) -> bool:
+    """Detect a 429 rate-limit response in a provider-agnostic way."""
+    if exc.__class__.__name__ == "RateLimitError":
+        return True
+    s = str(exc).lower()
+    return "rate_limit_error" in s or "rate limit" in s or " 429" in s
+
+
+def _call_claude_with_backoff(run, item, *, messages, system, tools, max_tokens=4096, max_retries=2):
+    """
+    messages.create wrapper with one 30 s backoff on HTTP 429 rate-limit errors.
+    Re-raises any other exception, and re-raises 429 after max_retries exhausted.
+    """
+    for attempt in range(max_retries):
+        try:
+            return _client().messages.create(
+                model="claude-sonnet-4-6",
+                max_tokens=max_tokens,
+                system=system,
+                tools=tools,
+                messages=messages,
+            )
+        except Exception as exc:
+            if _is_rate_limit_error(exc) and attempt + 1 < max_retries:
+                wait_s = 30
+                _log(
+                    run, "warn",
+                    f"  ⏸ Rate limit hit on {item.part_name} — waiting {wait_s}s before retry (attempt {attempt + 1}/{max_retries})",
+                    item_id=item.id,
+                    part_name=item.part_name,
+                )
+                time.sleep(wait_s)
+                continue
+            raise
+
+
+def _compact_response_content(content):
+    """
+    Return response.content as a list of plain dicts, with web_search_tool_result
+    blocks aggressively trimmed:
+      - encrypted_content dropped (largest token hog)
+      - top 3 results only
+      - title + url truncated
+    Server-side search has already executed; keeping the full payload in
+    message history only inflates future-turn input tokens.
+    """
+    out = []
+    for block in content:
+        # Convert SDK objects → dicts
+        if hasattr(block, "model_dump"):
+            b = block.model_dump()
+        elif isinstance(block, dict):
+            b = block
+        else:
+            try:
+                b = dict(block.__dict__)
+            except Exception:
+                out.append(block)
+                continue
+
+        if b.get("type") == "web_search_tool_result":
+            raw = b.get("content") or []
+            if isinstance(raw, list):
+                trimmed = []
+                for r in raw[:3]:
+                    if not isinstance(r, dict):
+                        continue
+                    trimmed.append({
+                        "type": r.get("type", "web_search_result"),
+                        "title": (r.get("title") or "")[:80],
+                        "url": (r.get("url") or "")[:120],
+                    })
+                b["content"] = trimmed
+        out.append(b)
+    return out
+
+
+def _finalize_on_api_error(item, run, exc):
+    """
+    On unrecoverable API error: preserve partial results.
+    If ≥ 1 quote was already recorded, mark the item `sourced` with a warning.
+    Otherwise mark `needs_input` as before.
+    """
+    from .models import BomLineItem
+    item.refresh_from_db()
+    quote_count = item.quotes.count()
+    if quote_count > 0:
+        _log(
+            run, "warn",
+            f"  Partial — {item.part_name} kept with {quote_count} quote(s) after API error: {exc}",
+            item_id=item.id,
+            part_name=item.part_name,
+        )
+        BomLineItem.objects.filter(pk=item.pk).update(status="sourced")
+    else:
+        _log(run, "error", f"  API error for {item.part_name}: {exc}")
+        BomLineItem.objects.filter(pk=item.pk).update(status="needs_input")
 
 
 # ── Tool definitions (Sonnet) ─────────────────────────────────────────────────
@@ -140,6 +242,31 @@ _TOOLS = [
                 "is_avl",
                 "country",
             ],
+        },
+    },
+    {
+        "name": "flag_insufficient_data",
+        "description": (
+            "Call this when you genuinely cannot research this part after 2+ searches — "
+            "for example the part name is not identifiable (e.g. a CAD schema string like "
+            "'STEP AP203'), quantity/material are missing, or no supplier data exists. "
+            "This marks the line item as needs_input and surfaces your reason to the user. "
+            "Prefer recording estimated quotes over calling this — only use this when you "
+            "truly cannot proceed."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "reason": {
+                    "type": "string",
+                    "description": "Concrete reason, referencing what you saw. e.g. 'Part name STEP AP203 is a CAD schema version, not a part identifier. Web search returned only CAD-format documentation, no supplier pricing.'",
+                },
+                "what_would_help": {
+                    "type": "string",
+                    "description": "Specific input the user could provide to unblock. e.g. 'An actual part name, a drawing, or a supplier hint'.",
+                },
+            },
+            "required": ["reason", "what_would_help"],
         },
     },
     {
@@ -256,6 +383,33 @@ def _handle_record_supplier_quote(item, run, inputs: dict) -> str:
         source_url=inputs.get("source_url", ""),
     )
     return "Quote recorded."
+
+
+def _handle_flag_insufficient_data(item, run, inputs: dict) -> str:
+    from .models import BomLineItem
+
+    reason = (inputs.get("reason") or "").strip() or "No reason provided."
+    hint = (inputs.get("what_would_help") or "").strip()
+
+    BomLineItem.objects.filter(pk=item.pk).update(status="needs_input")
+    item.status = "needs_input"
+
+    msg = f"  ⚠️ Cannot research {item.part_name} — {reason}"
+    if hint:
+        msg += f" | Would help: {hint}"
+    _log(
+        run, "warn", msg,
+        item_id=item.id,
+        part_name=item.part_name,
+        reason=reason,
+        what_would_help=hint,
+    )
+    _update_results(run, f"item_{item.id}", {
+        "needs_input_reason": reason,
+        "needs_input_hint": hint,
+        "flagged_insufficient": True,
+    })
+    return f"Line item marked needs_input: {reason}"
 
 
 def _handle_record_risk_flags(item, run, inputs: dict) -> str:
@@ -385,6 +539,8 @@ def _research_item(
 
     inputs_summary = json.dumps(run.inputs_json, ensure_ascii=False)[:600]
 
+    _log(run, "info", f"🔎 Researching {item.part_name}…", item_id=item.id, part_name=item.part_name)
+
     system_prompt = f"""You are an expert BOM research agent for mechanical engineering manufacturing.
 
 ## Part
@@ -403,26 +559,47 @@ Quantity per production run: {item.quantity}
 
 {material_ctx}
 
-## Pipeline — call tools in this order
-1. Call record_material_spec once — identify the correct material grade/standard.
-   Check the Library material content above first. If found there, set found_in_library=true.
-   Otherwise infer from the part name and engineering knowledge.
+## Pipeline
+Call tools in this order:
 
-2. Use web_search to find real supplier options (1–3 searches such as
-   "buy [part name] [material] supplier quote" or "[supplier name] [part] pricing").
-   - Search AVL suppliers first if an AVL is provided above.
-   - If no AVL is provided, search for 2–5 reputable suppliers.
+1. record_material_spec — once. Identify the material grade/standard from Library content,
+   user-supplied context, or engineering inference.
 
-3. Call record_supplier_quote 2–5 times — one call per supplier candidate found.
-   - Suppliers in the AVL above must have is_avl=true; all others is_avl=false.
-   - Adjust unit_price for the production volume specified above.
-   - Estimate landed_cost_usd = unit_price + (flat shipping estimate / qty).
-   - Machined / cast parts need a non-zero tooling_cost.
+2. web_search — at least TWO distinct-angle searches before concluding. Examples of
+   different angles for the same part:
+     - Material-first: "6061-T6 aluminum CNC machined bracket supplier quote"
+     - Part-class-first: "[part type] manufacturer catalog USA pricing"
+     - AVL-first (when an AVL is provided above): "[AVL supplier name] [part type] [material]"
+   Prefer AVL suppliers when an AVL exists. Broaden to contract manufacturers /
+   distributors if the first search yields no concrete pricing.
 
-4. Call record_risk_flags once — after all quotes are in.
-   - cost_outlier=true if any quote is more than 2× the median unit price.
+3. record_supplier_quote — 2–5 times. Each call records one supplier candidate.
+   - AVL suppliers: is_avl=true. Others: is_avl=false.
+   - Adjust unit_price for the production volume above.
+   - landed_cost_usd ≈ unit_price + (shipping / qty).
+   - Machined / cast parts must have non-zero tooling_cost.
+   - If searches returned relevant distributors/manufacturers but no explicit
+     price: you may record an estimated quote. Mark that clearly in notes
+     ("Estimated: industry benchmark for 6061-T6 bracket in this size class, no
+     exact quote published"). Estimates are better than 0 quotes.
 
-Output only tool calls — no narrative text."""
+4. record_risk_flags — once, after quotes are in.
+   - cost_outlier=true if any quote deviates >2× from the median.
+
+## Non-negotiable contract
+Before calling end_turn you MUST have done one of the following:
+  (a) Recorded AT LEAST 2 record_supplier_quote calls AND one record_risk_flags call, OR
+  (b) Called flag_insufficient_data(reason, what_would_help) to explicitly surface
+      why this part cannot be researched (e.g. "Part name 'STEP AP203' is a CAD
+      schema version, not a part identifier — need an actual part name or
+      drawing").
+
+Never end your turn with 0 quotes and no flag_insufficient_data call. If the
+searches come back empty or the part name is nonsense, use flag_insufficient_data.
+
+Brief narrative reasoning in text blocks is welcome between tool calls — it
+helps us debug and improve the pipeline.
+"""
 
     messages: list[dict] = [
         {"role": "user", "content": f"Research this part: {item.part_name}"}
@@ -436,16 +613,14 @@ Output only tool calls — no narrative text."""
 
     for _turn in range(15):
         try:
-            response = _client().messages.create(
-                model="claude-sonnet-4-6",
-                max_tokens=1024,
+            response = _call_claude_with_backoff(
+                run, item,
+                messages=messages,
                 system=system_prompt,
                 tools=_TOOLS,
-                messages=messages,
             )
         except Exception as exc:
-            _log(run, "error", f"  API error for {item.part_name}: {exc}")
-            BomLineItem.objects.filter(pk=item.pk).update(status="needs_input")
+            _finalize_on_api_error(item, run, exc)
             return
 
         if response.stop_reason == "end_turn":
@@ -455,13 +630,13 @@ Output only tool calls — no narrative text."""
             tool_results = []
             for block in response.content:
                 if block.type == "server_tool_use":
-                    # Anthropic-hosted tools (e.g. web_search): execution is handled
-                    # server-side; we return an empty result to continue the turn.
-                    query = ""
+                    # Anthropic-hosted tools (e.g. web_search) execute server-side and
+                    # their results come back in the same response as `web_search_tool_result`
+                    # blocks. The client must NOT fabricate a tool_result for these —
+                    # doing so causes "unexpected tool_use_id" 400s on the next turn.
                     if getattr(block, "name", "") == "web_search":
                         raw_input = getattr(block, "input", {}) or {}
-                        if isinstance(raw_input, dict):
-                            query = raw_input.get("query", "") or raw_input.get("q", "")
+                        query = raw_input.get("query", "") or raw_input.get("q", "") if isinstance(raw_input, dict) else ""
                         _log(
                             run,
                             "search",
@@ -470,14 +645,32 @@ Output only tool calls — no narrative text."""
                             part_name=item.part_name,
                             query=query,
                         )
-                    tool_results.append({
-                        "type": "tool_result",
-                        "tool_use_id": block.id,
-                        "content": "",
-                    })
+                    continue
+
+                if block.type == "web_search_tool_result":
+                    # Fx: surface top web-search findings so the user can see what the
+                    # agent actually saw (vs. silent 'search returned nothing' mystery).
+                    raw = getattr(block, "content", None)
+                    results_iter = raw if isinstance(raw, list) else []
+                    top = []
+                    for r in results_iter[:3]:
+                        title = getattr(r, "title", None) if not isinstance(r, dict) else r.get("title")
+                        url = getattr(r, "url", None) if not isinstance(r, dict) else r.get("url")
+                        title = (title or "").strip()
+                        url = (url or "").strip()
+                        if title or url:
+                            top.append(f"{title[:70]}{' — ' if title and url else ''}{url}")
+                    if top:
+                        _log(
+                            run, "search",
+                            "  Top results:\n    • " + "\n    • ".join(top),
+                            item_id=item.id,
+                            part_name=item.part_name,
+                        )
                     continue
 
                 if block.type != "tool_use":
+                    # Skips any remaining server blocks and text reasoning blocks.
                     continue
 
                 try:
@@ -487,6 +680,8 @@ Output only tool calls — no narrative text."""
                         result = _handle_record_supplier_quote(item, run, block.input)
                     elif block.name == "record_risk_flags":
                         result = _handle_record_risk_flags(item, run, block.input)
+                    elif block.name == "flag_insufficient_data":
+                        result = _handle_flag_insufficient_data(item, run, block.input)
                     else:
                         result = f"Unknown tool: {block.name}"
                 except Exception as exc:
@@ -498,16 +693,112 @@ Output only tool calls — no narrative text."""
                     "content": result,
                 })
 
-            messages.append({"role": "assistant", "content": response.content})
+            messages.append({"role": "assistant", "content": _compact_response_content(response.content)})
+            if not tool_results:
+                # Only server-side tools in this turn — let the model continue on
+                # its own findings instead of appending an empty user message
+                # (the API rejects user messages with empty content).
+                continue
             messages.append({"role": "user", "content": tool_results})
         else:
             break
 
-    # Haiku summarisation pass
+    # Ex: quality gate. If the model ended its turn with 0 quotes AND did not
+    # call flag_insufficient_data, give it one targeted retry pointing at the
+    # violation. This catches silent 'I give up' failures.
     item.refresh_from_db()
+    if item.quotes.count() == 0 and item.status != "needs_input":
+        _log(
+            run, "warn",
+            f"  ↻ Retry: {item.part_name} ended with 0 quotes and no flag — prompting for quotes or an explicit flag.",
+            item_id=item.id,
+            part_name=item.part_name,
+        )
+        retry_message = (
+            "You ended your previous turn without recording any record_supplier_quote "
+            "calls AND without calling flag_insufficient_data. This violates the "
+            "non-negotiable contract from the system prompt.\n\n"
+            "Do one of the following now:\n"
+            "  (a) Record AT LEAST 2 record_supplier_quote calls, then record_risk_flags. "
+            "Estimates are acceptable — mark them clearly in `notes` (e.g. "
+            "\"Estimated from industry benchmarks, no public price available\").\n"
+            "  (b) Call flag_insufficient_data with a concrete reason explaining exactly "
+            "what blocked you (e.g. 'Part name is a CAD schema string, not a part').\n\n"
+            "Choose one. Do not end your turn again with 0 quotes and no flag."
+        )
+        messages.append({"role": "user", "content": retry_message})
+        for _retry_turn in range(5):
+            try:
+                response = _call_claude_with_backoff(
+                    run, item,
+                    messages=messages,
+                    system=system_prompt,
+                    tools=_TOOLS,
+                )
+            except Exception as exc:
+                _log(run, "warn", f"  Retry API error for {item.part_name}: {exc}")
+                break
+
+            if response.stop_reason == "end_turn":
+                break
+            if response.stop_reason != "tool_use":
+                break
+
+            tool_results = []
+            for block in response.content:
+                if block.type == "server_tool_use":
+                    continue
+                if block.type == "web_search_tool_result":
+                    continue
+                if block.type != "tool_use":
+                    continue
+                try:
+                    if block.name == "record_material_spec":
+                        result = _handle_record_material_spec(item, run, block.input)
+                    elif block.name == "record_supplier_quote":
+                        result = _handle_record_supplier_quote(item, run, block.input)
+                    elif block.name == "record_risk_flags":
+                        result = _handle_record_risk_flags(item, run, block.input)
+                    elif block.name == "flag_insufficient_data":
+                        result = _handle_flag_insufficient_data(item, run, block.input)
+                    else:
+                        result = f"Unknown tool: {block.name}"
+                except Exception as exc:
+                    result = f"Tool error: {exc}"
+                tool_results.append({
+                    "type": "tool_result",
+                    "tool_use_id": block.id,
+                    "content": result,
+                })
+            messages.append({"role": "assistant", "content": _compact_response_content(response.content)})
+            if not tool_results:
+                continue
+            messages.append({"role": "user", "content": tool_results})
+
+    # Haiku summarisation + final status
+    item.refresh_from_db()
+    quote_count = item.quotes.count()
+    _log(
+        run, "info",
+        f"   ↳ finished {item.part_name} ({quote_count} quote{'s' if quote_count != 1 else ''})",
+        item_id=item.id,
+        part_name=item.part_name,
+    )
     _summarise_item(item, run)
 
-    BomLineItem.objects.filter(pk=item.pk).update(status="sourced")
+    # Correct status: only `sourced` if quotes landed. Otherwise `needs_input`
+    # (preserving an earlier flag_insufficient_data reason if set).
+    if quote_count > 0:
+        BomLineItem.objects.filter(pk=item.pk).update(status="sourced")
+    else:
+        if item.status != "needs_input":
+            _log(
+                run, "warn",
+                f"  ⚠️ {item.part_name}: 0 quotes after retry and no flag_insufficient_data — defaulting to needs_input.",
+                item_id=item.id,
+                part_name=item.part_name,
+            )
+        BomLineItem.objects.filter(pk=item.pk).update(status="needs_input")
 
 
 # ── Main entry point ──────────────────────────────────────────────────────────
@@ -637,7 +928,15 @@ def run_bom_research(run_id: int) -> None:
 
         run.refresh_from_db()
         run.completed_at = dt.datetime.now(dt.timezone.utc)
-        excel_key = upload_bom_workbook(run)
+        excel_key = ""
+        try:
+            excel_key = upload_bom_workbook(run)
+        except Exception as exc:
+            # Running without S3 (e.g. `make dev-local`) or a transient upload
+            # failure shouldn't fail the whole run — the results are already
+            # persisted via BomLineItem / SupplierQuote rows.
+            _log(run, "warn", f"Excel upload skipped — {type(exc).__name__}: {str(exc)[:200]}")
+
         BomResearchRun.objects.filter(pk=run.pk).update(
             excel_s3_key=excel_key,
             status="completed",
@@ -645,7 +944,8 @@ def run_bom_research(run_id: int) -> None:
         )
         run.excel_s3_key = excel_key
 
-        _log(run, "info", "Excel workbook generated and uploaded", source_url=excel_key)
+        if excel_key:
+            _log(run, "info", "Excel workbook generated and uploaded", source_url=excel_key)
         _log(run, "info", "✅ BOM run completed")
 
     except Exception:

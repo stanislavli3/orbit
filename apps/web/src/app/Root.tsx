@@ -7,7 +7,7 @@ export default function Root() {
   return (
     <>
       <SignedIn>
-        <div className="w-full h-screen flex bg-[#F7F7F7]">
+        <div className="w-full h-screen flex bg-[#FAF7F2]">
           <AppSidebar />
           <Outlet />
           <Toaster position="top-center" richColors />

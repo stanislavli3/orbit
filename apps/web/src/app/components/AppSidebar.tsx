@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useClerk } from "@clerk/clerk-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApiClient } from "../../api/client";
-import type { Project } from "../../api/types";
+import type { Project, BomResearchRun } from "../../api/types";
 import {
   Dialog,
   DialogContent,
@@ -35,6 +35,8 @@ import {
   BookOpen,
   Layers,
   Zap,
+  Wrench,
+  Loader2,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 
@@ -45,6 +47,7 @@ const pathToSection: Record<string, string> = {
   "/assistant": "assistant",
   "/vault": "vault",
   "/extraction-runs": "extraction-runs",
+  "/bom": "bom",
   "/workflows": "workflows",
   "/history": "history",
   "/library": "library",
@@ -53,8 +56,16 @@ const pathToSection: Record<string, string> = {
 
 function OrbitLogo() {
   return (
-    <div className="w-7 h-7 bg-[#111111] rounded-md flex items-center justify-center shrink-0">
-      <span className="text-white text-xs font-bold">O</span>
+    <div
+      className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 rotate-[-3deg]"
+      style={{ background: '#2B2824', boxShadow: '0 2px 6px rgba(74, 58, 38, 0.18)' }}
+    >
+      <span
+        className="font-display text-[17px] text-[#FAF7F2] leading-none"
+        style={{ fontVariationSettings: "'opsz' 72" }}
+      >
+        O
+      </span>
     </div>
   );
 }
@@ -70,7 +81,7 @@ function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
       style={{ transitionTimingFunction: softSpringEasing }}
     >
       <div
-        className={`bg-[#F0F0F0] h-10 relative rounded-lg flex items-center transition-all duration-500 ${
+        className={`bg-[#EEE6D8] h-10 relative rounded-lg flex items-center transition-all duration-500 ${
           isCollapsed ? "w-10 min-w-10 justify-center" : "w-full"
         }`}
         style={{ transitionTimingFunction: softSpringEasing }}
@@ -82,7 +93,7 @@ function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
           style={{ transitionTimingFunction: softSpringEasing }}
         >
           <div className="size-8 flex items-center justify-center">
-            <Search size={16} className="text-[#6B7280]" />
+            <Search size={16} className="text-[#8B7F73]" />
           </div>
         </div>
         <div
@@ -98,7 +109,7 @@ function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
                 placeholder="Search..."
                 value={searchValue}
                 onChange={(e) => setSearchValue(e.target.value)}
-                className="w-full bg-transparent border-none outline-none text-sm text-[#111111] placeholder:text-[#9CA3AF] leading-5"
+                className="w-full bg-transparent border-none outline-none text-sm text-[#2B2824] placeholder:text-[#A89D91] leading-5"
                 tabIndex={isCollapsed ? -1 : 0}
               />
             </div>
@@ -106,7 +117,7 @@ function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
         </div>
         <div
           aria-hidden="true"
-          className="absolute border border-[#E6E6E6] border-solid inset-0 pointer-events-none rounded-lg"
+          className="absolute border border-[#E8E0D3] border-solid inset-0 pointer-events-none rounded-lg"
         />
       </div>
     </div>
@@ -168,7 +179,7 @@ function MenuItemRow({
     >
       <div
         className={`select-none rounded-lg cursor-pointer transition-all duration-500 flex items-center relative my-0.5 ${
-          item.isActive ? "bg-[#E6E6E6]" : "hover:bg-[#EBEBEB]"
+          item.isActive ? "bg-[#E8E0D3]" : "hover:bg-[#E8E0D3]"
         } ${
           isCollapsed
             ? "w-10 min-w-10 h-10 justify-center p-4"
@@ -187,7 +198,7 @@ function MenuItemRow({
           }`}
           style={{ transitionTimingFunction: softSpringEasing }}
         >
-          <div className="text-sm text-[#111111] truncate">{item.label}</div>
+          <div className="text-sm text-[#2B2824] truncate">{item.label}</div>
         </div>
         {item.hasDropdown && (
           <div
@@ -198,7 +209,7 @@ function MenuItemRow({
           >
             <ChevronDown
               size={16}
-              className="text-[#6B7280] transition-transform duration-500"
+              className="text-[#8B7F73] transition-transform duration-500"
               style={{
                 transitionTimingFunction: softSpringEasing,
                 transform: isExpanded ? "rotate(180deg)" : "rotate(0deg)",
@@ -221,11 +232,11 @@ function SubMenuItemRow({
   return (
     <div className="select-none w-full pl-9 pr-1 py-[1px]">
       <div
-        className="h-10 w-full rounded-lg cursor-pointer transition-colors hover:bg-[#EBEBEB] flex items-center px-3 py-1"
+        className="h-10 w-full rounded-lg cursor-pointer transition-colors hover:bg-[#E8E0D3] flex items-center px-3 py-1"
         onClick={onItemClick}
       >
         <div className="flex-1 min-w-0">
-          <div className="text-sm text-[#6B7280] truncate">{item.label}</div>
+          <div className="text-sm text-[#8B7F73] truncate">{item.label}</div>
         </div>
       </div>
     </div>
@@ -255,7 +266,7 @@ function MenuSectionRow({
       >
         <div className="flex flex-col justify-center h-full">
           <div className="flex flex-col h-10 items-start justify-center px-4 relative w-full">
-            <div className="text-xs text-[#9CA3AF] whitespace-nowrap uppercase tracking-wide">
+            <div className="text-xs text-[#A89D91] whitespace-nowrap uppercase tracking-wide">
               {section.title}
             </div>
           </div>
@@ -281,7 +292,7 @@ function MenuSectionRow({
                 {item.children.length === 0 ? (
                   <div className="select-none w-full pl-9 pr-1 py-[1px]">
                     <div className="h-10 w-full flex items-center px-3 py-1">
-                      <div className="text-sm text-[#C4C4C4] italic">No items yet</div>
+                      <div className="text-sm text-[#C4B8A8] italic">No items yet</div>
                     </div>
                   </div>
                 ) : (
@@ -307,9 +318,10 @@ function MenuSectionRow({
 function getSidebarContent(
   activeSection: string,
   projects?: Project[],
-  handlers?: { onNewProject?: () => void }
+  handlers?: { onNewProject?: () => void },
+  bomRuns?: BomResearchRun[],
 ): SidebarContent {
-  const ic = "text-[#6B7280]";
+  const ic = "text-[#8B7F73]";
 
   const contentMap: Record<string, SidebarContent> = {
     assistant: {
@@ -404,6 +416,68 @@ function getSidebarContent(
         },
       ],
     },
+    bom: (() => {
+      const projectName = (id: number) =>
+        projects?.find((p) => p.id === id)?.name ?? `Project #${id}`;
+      const isActive = (s: BomResearchRun["status"]) =>
+        s === "researching" || s === "generating_report" || s === "awaiting_team_input" || s === "gathering_inputs";
+      const statusIcon = (s: BomResearchRun["status"]): React.ReactNode => {
+        if (s === "researching" || s === "generating_report") {
+          return <Loader2 size={16} className="text-blue-500 animate-spin" />;
+        }
+        if (s === "awaiting_team_input") return <Clock size={16} className="text-amber-500" />;
+        if (s === "gathering_inputs") return <Clock size={16} className={ic} />;
+        if (s === "completed") return <CheckCircle size={16} className="text-emerald-600" />;
+        if (s === "failed") return <Archive size={16} className="text-red-500" />;
+        return <Clock size={16} className={ic} />;
+      };
+      const sorted = (bomRuns ?? [])
+        .slice()
+        .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      const active = sorted.filter((r) => isActive(r.status));
+      const recent = sorted.filter((r) => r.status === "completed").slice(0, 5);
+
+      return {
+        title: "BOM Agent",
+        sections: [
+          {
+            title: "Quick Actions",
+            items: [
+              {
+                icon: <Plus size={16} className={ic} />,
+                label: "New BOM Run",
+                path: "/vault",
+              },
+              {
+                icon: <Wrench size={16} className={ic} />,
+                label: "All runs",
+                path: "/bom",
+              },
+            ],
+          },
+          {
+            title: `Active${active.length ? ` (${active.length})` : ""}`,
+            items: active.length === 0
+              ? [{ icon: <Clock size={16} className={ic} />, label: "No active runs" }]
+              : active.map((r) => ({
+                  icon: statusIcon(r.status),
+                  label: `Run #${r.id} — ${projectName(r.project)}`,
+                  path: `/bom/${r.id}`,
+                })),
+          },
+          {
+            title: "Recent",
+            items: recent.length === 0
+              ? [{ icon: <CheckCircle size={16} className={ic} />, label: "No completed runs yet" }]
+              : recent.map((r) => ({
+                  icon: statusIcon(r.status),
+                  label: `Run #${r.id} — ${projectName(r.project)}`,
+                  path: `/bom/${r.id}`,
+                })),
+          },
+        ],
+      };
+    })(),
     workflows: {
       title: "Workflows",
       sections: [
@@ -540,8 +614,8 @@ function IconNavButton({
     <div
       className={`flex flex-row items-center justify-center rounded-lg shrink-0 size-10 min-w-10 cursor-pointer transition-colors duration-500 ${
         isActive
-          ? "bg-[#E6E6E6] text-[#111111]"
-          : "hover:bg-[#EBEBEB] text-[#6B7280] hover:text-[#111111]"
+          ? "bg-[#E8E0D3] text-[#2B2824]"
+          : "hover:bg-[#E8E0D3] text-[#8B7F73] hover:text-[#2B2824]"
       }`}
       style={{ transitionTimingFunction: softSpringEasing }}
       onClick={onClick}
@@ -556,6 +630,7 @@ const iconNavItems = [
   { id: "assistant", icon: <Bot size={16} />, label: "Assistant", path: "/assistant" },
   { id: "vault", icon: <FolderOpen size={16} />, label: "Projects", path: "/vault" },
   { id: "extraction-runs", icon: <PlayCircle size={16} />, label: "Extraction Runs", path: "/extraction-runs" },
+  { id: "bom", icon: <Wrench size={16} />, label: "BOM Agent", path: "/bom" },
   { id: "workflows", icon: <Workflow size={16} />, label: "Workflows", path: "/workflows" },
   { id: "history", icon: <History size={16} />, label: "History", path: "/history" },
   { id: "library", icon: <Library size={16} />, label: "Knowledge Base", path: "/library" },
@@ -573,7 +648,7 @@ function IconNavigation({ activeSection }: { activeSection: string }) {
   };
 
   return (
-    <div className="bg-[#F4F4F4] flex flex-col gap-2 h-full items-center justify-start overflow-visible p-3 relative shrink-0 w-16 border-r border-[#E6E6E6] z-50">
+    <div className="bg-[#F2EDE3] flex flex-col gap-2 h-full items-center justify-start overflow-visible p-3 relative shrink-0 w-16 border-r border-[#E8E0D3] z-50">
       {/* Logo */}
       <div className="mb-2 size-10 flex items-center justify-center">
         <OrbitLogo />
@@ -616,12 +691,12 @@ function IconNavigation({ activeSection }: { activeSection: string }) {
                 onClick={() => setShowSignOut(false)}
               />
               {/* Popover */}
-              <div className="absolute bottom-0 left-full ml-2 z-20 bg-white border border-[#E6E6E6] rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.10)] overflow-hidden w-36">
+              <div className="absolute bottom-0 left-full ml-2 z-20 bg-white border border-[#E8E0D3] rounded-lg shadow-[0_4px_16px_rgba(0,0,0,0.10)] overflow-hidden w-36">
                 <button
                   onClick={handleSignOut}
-                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[#111111] hover:bg-[#F7F7F7] transition-colors duration-100"
+                  className="w-full flex items-center gap-2.5 px-3 py-2.5 text-sm text-[#2B2824] hover:bg-[#FAF7F2] transition-colors duration-100"
                 >
-                  <LogOut size={14} className="text-[#6B7280] shrink-0" />
+                  <LogOut size={14} className="text-[#8B7F73] shrink-0" />
                   Sign out
                 </button>
               </div>
@@ -632,11 +707,11 @@ function IconNavigation({ activeSection }: { activeSection: string }) {
             title="Account"
             className={`size-8 rounded-full flex items-center justify-center border transition-all duration-150 ${
               showSignOut
-                ? 'bg-[#111111] border-[#111111]'
-                : 'bg-[#E6E6E6] border-[#D1D1D1] hover:bg-[#D9D9D9] hover:border-[#BEBEBE]'
+                ? 'bg-[#2B2824] border-[#2B2824]'
+                : 'bg-[#E8E0D3] border-[#D1D1D1] hover:bg-[#D9D9D9] hover:border-[#BEBEBE]'
             }`}
           >
-            <User size={14} className={showSignOut ? 'text-white' : 'text-[#6B7280]'} />
+            <User size={14} className={showSignOut ? 'text-white' : 'text-[#8B7F73]'} />
           </button>
         </div>
       </div>
@@ -661,7 +736,7 @@ function SectionTitle({
       >
         <button
           onClick={onToggleCollapse}
-          className="flex flex-row items-center justify-center rounded-lg cursor-pointer transition-all duration-500 hover:bg-[#EBEBEB] text-[#6B7280] hover:text-[#111111] size-10 min-w-10"
+          className="flex flex-row items-center justify-center rounded-lg cursor-pointer transition-all duration-500 hover:bg-[#E8E0D3] text-[#8B7F73] hover:text-[#2B2824] size-10 min-w-10"
           style={{ transitionTimingFunction: softSpringEasing }}
         >
           <ChevronLeft
@@ -682,16 +757,19 @@ function SectionTitle({
       className="relative shrink-0 w-full overflow-hidden transition-all duration-500"
       style={{ transitionTimingFunction: softSpringEasing }}
     >
-      <div className="flex flex-row items-center justify-between h-10">
-        <div className="flex items-center px-2">
-          <div className="font-semibold text-lg text-[#111111] whitespace-nowrap leading-7">
+      <div className="flex flex-row items-center justify-between h-11">
+        <div className="flex flex-col items-start px-2">
+          <div className="font-display text-[19px] text-[#2B2824] whitespace-nowrap leading-[1.1] tracking-tight font-medium">
             {title}
           </div>
+          <svg aria-hidden="true" viewBox="0 0 160 10" className="h-[7px] w-[70px] mt-0.5 -rotate-[1deg] block" fill="none" preserveAspectRatio="none">
+            <path d="M2 5 Q 20 1, 38 5 T 76 4 Q 100 8, 124 3 T 158 5" stroke="#C66A4E" strokeWidth="1.5" strokeLinecap="round" />
+          </svg>
         </div>
         <div className="flex items-center justify-center pr-1">
           <button
             onClick={onToggleCollapse}
-            className="flex flex-row items-center justify-center rounded-lg cursor-pointer transition-all duration-500 hover:bg-[#EBEBEB] text-[#6B7280] hover:text-[#111111] size-10 min-w-10"
+            className="flex flex-row items-center justify-center rounded-lg cursor-pointer transition-all duration-500 hover:bg-[#E8E0D3] text-[#8B7F73] hover:text-[#2B2824] size-10 min-w-10"
             style={{ transitionTimingFunction: softSpringEasing }}
           >
             <ChevronLeft
@@ -726,7 +804,24 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
       if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
       return res.json();
     },
-    enabled: activeSection === "vault",
+    enabled: activeSection === "vault" || activeSection === "bom",
+  });
+
+  const { data: bomRuns } = useQuery<BomResearchRun[]>({
+    queryKey: ["bom-runs", "all"],
+    queryFn: async () => {
+      const res = await apiFetch("/api/bom/runs/");
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      return res.json();
+    },
+    enabled: activeSection === "bom",
+    refetchInterval: (query) => {
+      const data = query.state.data as BomResearchRun[] | undefined;
+      const anyActive = data?.some(
+        (r) => r.status === "researching" || r.status === "generating_report" || r.status === "awaiting_team_input",
+      );
+      return anyActive ? 10_000 : false;
+    },
   });
 
   const handleCreateProject = async () => {
@@ -758,9 +853,12 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
     }
   };
 
-  const content = getSidebarContent(activeSection, projects, {
-    onNewProject: () => setDialogOpen(true),
-  });
+  const content = getSidebarContent(
+    activeSection,
+    projects,
+    { onNewProject: () => setDialogOpen(true) },
+    bomRuns,
+  );
 
   const toggleExpanded = (key: string) => {
     const next = new Set(expandedItems);
@@ -774,7 +872,7 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
 
   return (
     <div
-      className={`bg-white flex flex-col gap-4 h-full items-start justify-start overflow-visible relative shrink-0 transition-all duration-500 border-r border-[#E6E6E6] ${
+      className={`bg-[#FFFCF7] flex flex-col gap-4 h-full items-start justify-start overflow-visible relative shrink-0 transition-all duration-500 border-r border-[#E8E0D3] ${
         isCollapsed ? "w-16 min-w-16 px-3" : "w-72 p-4"
       }`}
       style={{ transitionTimingFunction: softSpringEasing }}
@@ -828,7 +926,7 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
               </p>
             )}
             <div className="space-y-1.5">
-              <label className="text-[#374151] text-xs font-medium">Project name</label>
+              <label className="text-[#4A4038] text-xs font-medium">Project name</label>
               <input
                 type="text"
                 value={projectName}
@@ -836,31 +934,31 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
                 onKeyDown={(e) => e.key === "Enter" && handleCreateProject()}
                 placeholder="e.g. Gearbox Assembly Rev B"
                 autoFocus
-                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all"
+                className="w-full px-3 py-2.5 bg-white border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] focus:ring-1 focus:ring-[#2B2824] transition-all"
               />
             </div>
             <div className="space-y-1.5">
-              <label className="text-[#374151] text-xs font-medium">Description <span className="text-[#9CA3AF] font-normal">(optional)</span></label>
+              <label className="text-[#4A4038] text-xs font-medium">Description <span className="text-[#A89D91] font-normal">(optional)</span></label>
               <textarea
                 value={projectDesc}
                 onChange={(e) => setProjectDesc(e.target.value)}
                 placeholder="What is this project about?"
                 rows={3}
-                className="w-full px-3 py-2.5 bg-white border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] focus:ring-1 focus:ring-[#111111] transition-all resize-none"
+                className="w-full px-3 py-2.5 bg-white border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] focus:ring-1 focus:ring-[#2B2824] transition-all resize-none"
               />
             </div>
           </div>
           <DialogFooter>
             <button
               onClick={() => setDialogOpen(false)}
-              className="px-4 py-2 text-sm text-[#6B7280] hover:text-[#111111] transition-colors"
+              className="px-4 py-2 text-sm text-[#8B7F73] hover:text-[#2B2824] transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={handleCreateProject}
               disabled={!projectName.trim() || submitting}
-              className="px-4 py-2 bg-[#111111] text-white text-sm font-medium rounded-lg hover:bg-[#1F1F1F] disabled:opacity-50 transition-colors"
+              className="px-4 py-2 bg-[#2B2824] text-white text-sm font-medium rounded-lg hover:bg-[#3D3530] disabled:opacity-50 transition-colors"
             >
               {submitting ? "Creating..." : "Create"}
             </button>
@@ -876,7 +974,9 @@ export function AppSidebar() {
 
   const currentSection =
     pathToSection[location.pathname] ||
-    (location.pathname.startsWith("/project/") ? "vault" : "assistant");
+    (location.pathname.startsWith("/project/") ? "vault"
+      : location.pathname.startsWith("/bom/") ? "bom"
+      : "assistant");
 
   return (
     <div className="flex flex-row h-full">

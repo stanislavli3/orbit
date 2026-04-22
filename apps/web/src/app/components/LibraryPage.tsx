@@ -41,11 +41,11 @@ function formatDate(iso: string): string {
 
 function TypeTag({ docType }: { docType: LibraryDocType | '' }) {
   if (!docType) {
-    return <span className="px-2 py-0.5 text-[11px] rounded-full border border-dashed border-[#D1D5DB] text-[#9CA3AF]">Untagged</span>;
+    return <span className="px-2 py-0.5 text-[11px] rounded-full border border-dashed border-[#D1D5DB] text-[#A89D91]">Untagged</span>;
   }
   const label = DOC_TYPES.find((t) => t.value === docType)?.label ?? docType;
   return (
-    <span className={`px-2 py-0.5 text-[11px] rounded-full border font-medium ${TYPE_COLORS[docType] ?? 'bg-[#F4F4F4] text-[#6B7280] border-[#E6E6E6]'}`}>
+    <span className={`px-2 py-0.5 text-[11px] rounded-full border font-medium ${TYPE_COLORS[docType] ?? 'bg-[#F2EDE3] text-[#8B7F73] border-[#E8E0D3]'}`}>
       {label}
     </span>
   );
@@ -71,9 +71,9 @@ function TagPickerModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-md mx-4">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F4F4F4]">
-          <h3 className="text-base font-semibold text-[#111111]">{title}</h3>
-          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#111111]"><X className="w-5 h-5" /></button>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F2EDE3]">
+          <h3 className="text-base font-semibold text-[#2B2824]">{title}</h3>
+          <button onClick={onClose} className="text-[#A89D91] hover:text-[#2B2824]"><X className="w-5 h-5" /></button>
         </div>
         <div className="px-4 py-3 space-y-1.5 max-h-96 overflow-y-auto">
           {DOC_TYPES.map((t) => (
@@ -82,28 +82,28 @@ function TagPickerModal({
               onClick={() => setSelected(t.value)}
               className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
                 selected === t.value
-                  ? 'border-[#111111] bg-[#FAFAFA]'
+                  ? 'border-[#2B2824] bg-[#FFFCF7]'
                   : 'border-transparent hover:bg-[#F9F9F9]'
               }`}
             >
               <div className="flex items-start gap-3">
-                <span className={`mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selected === t.value ? 'border-[#111111] bg-[#111111]' : 'border-[#D1D5DB]'}`}>
+                <span className={`mt-0.5 w-4 h-4 rounded-full border-2 flex-shrink-0 flex items-center justify-center ${selected === t.value ? 'border-[#2B2824] bg-[#2B2824]' : 'border-[#D1D5DB]'}`}>
                   {selected === t.value && <span className="w-1.5 h-1.5 rounded-full bg-white" />}
                 </span>
                 <div>
-                  <p className="text-sm font-medium text-[#111111]">{t.label}</p>
-                  <p className="text-xs text-[#6B7280] mt-0.5">{t.description}</p>
+                  <p className="text-sm font-medium text-[#2B2824]">{t.label}</p>
+                  <p className="text-xs text-[#8B7F73] mt-0.5">{t.description}</p>
                 </div>
               </div>
             </button>
           ))}
         </div>
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-[#F4F4F4]">
-          <button onClick={onClose} className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4]">Cancel</button>
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-[#F2EDE3]">
+          <button onClick={onClose} className="px-4 py-2 text-sm border border-[#E8E0D3] rounded-lg hover:bg-[#F2EDE3]">Cancel</button>
           <button
             onClick={() => selected && onSelect(selected as LibraryDocType)}
             disabled={!selected || uploading}
-            className="px-4 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 flex items-center gap-1.5"
+            className="px-4 py-2 text-sm bg-[#2B2824] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 flex items-center gap-1.5"
           >
             {uploading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             Confirm
@@ -120,10 +120,10 @@ function DeleteConfirm({ name, onConfirm, onCancel }: { name: string; onConfirm:
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-        <h3 className="text-base font-semibold text-[#111111] mb-1">Remove document</h3>
-        <p className="text-sm text-[#6B7280]">Remove <span className="font-medium text-[#111111]">{name}</span> from the Library? BOM runs that used it will not be affected.</p>
+        <h3 className="text-base font-semibold text-[#2B2824] mb-1">Remove document</h3>
+        <p className="text-sm text-[#8B7F73]">Remove <span className="font-medium text-[#2B2824]">{name}</span> from the Library? BOM runs that used it will not be affected.</p>
         <div className="flex justify-end gap-2 mt-5">
-          <button onClick={onCancel} className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4]">Cancel</button>
+          <button onClick={onCancel} className="px-4 py-2 text-sm border border-[#E8E0D3] rounded-lg hover:bg-[#F2EDE3]">Cancel</button>
           <button onClick={onConfirm} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Remove</button>
         </div>
       </div>
@@ -274,12 +274,12 @@ export function LibraryPage() {
           }}
           onClick={() => fileRef.current?.click()}
           className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-colors mb-8 ${
-            dragging ? 'border-[#111111] bg-[#F4F4F4]' : 'border-[#E6E6E6] hover:border-[#111111] bg-white'
+            dragging ? 'border-[#2B2824] bg-[#F2EDE3]' : 'border-[#E8E0D3] hover:border-[#2B2824] bg-white'
           }`}
         >
-          <Upload className="w-8 h-8 mx-auto text-[#9CA3AF] mb-2" />
-          <p className="text-sm font-medium text-[#111111]">Drop a reference document here, or click to browse</p>
-          <p className="text-xs text-[#9CA3AF] mt-1">Supported: .xlsx · .csv · .pdf · .docx</p>
+          <Upload className="w-8 h-8 mx-auto text-[#A89D91] mb-2" />
+          <p className="text-sm font-medium text-[#2B2824]">Drop a reference document here, or click to browse</p>
+          <p className="text-xs text-[#A89D91] mt-1">Supported: .xlsx · .csv · .pdf · .docx</p>
           <input
             ref={fileRef}
             type="file"
@@ -327,10 +327,10 @@ export function LibraryPage() {
         {/* Document list */}
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
-            <Loader2 className="w-6 h-6 animate-spin text-[#9CA3AF]" />
+            <Loader2 className="w-6 h-6 animate-spin text-[#A89D91]" />
           </div>
         ) : docs.length === 0 ? (
-          <div className="text-center py-16 border border-dashed border-[#E6E6E6] rounded-xl bg-white">
+          <div className="text-center py-16 border border-dashed border-[#E8E0D3] rounded-xl bg-white">
             <BookOpen className="w-10 h-10 mx-auto text-[#D1D5DB] mb-3" />
             <p className="text-sm font-medium text-[#111111]">Knowledge Base is empty</p>
             <p className="text-xs text-[#6B7280] mt-1 max-w-sm mx-auto">
@@ -348,15 +348,15 @@ export function LibraryPage() {
             </button>
           </div>
         ) : (
-          <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden">
+          <div className="bg-white border border-[#E8E0D3] rounded-xl overflow-hidden">
             <table className="w-full text-sm">
-              <thead className="bg-[#F9F9F9] border-b border-[#E6E6E6]">
+              <thead className="bg-[#F9F9F9] border-b border-[#E8E0D3]">
                 <tr>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#6B7280]">Document</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#6B7280]">Type</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#6B7280]">Uploaded</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#6B7280]">Size</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-[#6B7280]">BOM runs</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#8B7F73]">Document</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#8B7F73]">Type</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#8B7F73]">Uploaded</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#8B7F73]">Size</th>
+                  <th className="px-5 py-3 text-left text-xs font-medium text-[#8B7F73]">BOM runs</th>
                   <th className="px-5 py-3" />
                 </tr>
               </thead>
@@ -365,9 +365,9 @@ export function LibraryPage() {
                   <tr key={doc.id} className="border-t border-[#F4F4F4] hover:bg-[#FAFAFA] transition-colors group">
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-2.5">
-                        <FileText className="w-4 h-4 text-[#9CA3AF] flex-shrink-0" strokeWidth={1.5} />
-                        <span className="font-medium text-[#111111] truncate max-w-xs">{doc.original_name}</span>
-                        <span className="text-[11px] px-1.5 py-0.5 bg-[#F4F4F4] text-[#9CA3AF] rounded uppercase">
+                        <FileText className="w-4 h-4 text-[#A89D91] flex-shrink-0" strokeWidth={1.5} />
+                        <span className="font-medium text-[#2B2824] truncate max-w-xs">{doc.original_name}</span>
+                        <span className="text-[11px] px-1.5 py-0.5 bg-[#F2EDE3] text-[#A89D91] rounded uppercase">
                           {doc.file_type}
                         </span>
                       </div>
@@ -381,8 +381,8 @@ export function LibraryPage() {
                         <TypeTag docType={doc.doc_type} />
                       </button>
                     </td>
-                    <td className="px-5 py-3 text-[#6B7280] text-xs">{formatDate(doc.uploaded_at)}</td>
-                    <td className="px-5 py-3 text-[#6B7280] text-xs">{formatBytes(doc.file_size)}</td>
+                    <td className="px-5 py-3 text-[#8B7F73] text-xs">{formatDate(doc.uploaded_at)}</td>
+                    <td className="px-5 py-3 text-[#8B7F73] text-xs">{formatBytes(doc.file_size)}</td>
                     <td className="px-5 py-3">
                       {doc.bom_run_count > 0 ? (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[11px] font-medium border border-emerald-200">
@@ -390,21 +390,21 @@ export function LibraryPage() {
                           Used by {doc.bom_run_count} run{doc.bom_run_count !== 1 ? 's' : ''}
                         </span>
                       ) : (
-                        <span className="text-xs text-[#9CA3AF]">Not yet used</span>
+                        <span className="text-xs text-[#A89D91]">Not yet used</span>
                       )}
                     </td>
                     <td className="px-5 py-3">
                       <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
                           onClick={() => handleDownload(doc)}
-                          className="p-1.5 rounded hover:bg-[#F4F4F4] text-[#9CA3AF] hover:text-[#111111] transition-colors"
+                          className="p-1.5 rounded hover:bg-[#F2EDE3] text-[#A89D91] hover:text-[#2B2824] transition-colors"
                           title="Download"
                         >
                           <Download className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => setDeleting(doc)}
-                          className="p-1.5 rounded hover:bg-[#FEF2F2] text-[#9CA3AF] hover:text-red-600 transition-colors"
+                          className="p-1.5 rounded hover:bg-[#FEF2F2] text-[#A89D91] hover:text-red-600 transition-colors"
                           title="Remove"
                         >
                           <Trash2 className="w-3.5 h-3.5" />

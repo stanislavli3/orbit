@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
-import { ArrowLeft, Upload, FileText, Download, Folder, MoreVertical, File, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, Pencil, Check, X, Trash, Link as LinkIcon, ListChecks, BookOpen } from 'lucide-react';
+import { ArrowLeft, Upload, FileText, Download, Folder, MoreVertical, File, CheckCircle2, Loader2, AlertCircle, ChevronDown, ChevronUp, Pencil, Check, X, Trash, Link as LinkIcon, ListChecks, BookOpen, BarChart3, DollarSign, Shield, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useApiClient } from '../../api/client';
@@ -12,6 +12,24 @@ import { BomLivePanel } from './BomLivePanel';
 import { BomResultsPanel } from './BomResultsPanel';
 import { BomEmailPanel } from './BomEmailPanel';
 import { EngineeringProfileCard } from './EngineeringProfileCard';
+import { computeAnalyticsSummary, formatCurrency } from './BomAnalyticsDeck';
+
+function InlineStat({ icon: Icon, label, value, tone = 'neutral' }: {
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  label: string; value: React.ReactNode;
+  tone?: 'neutral' | 'positive' | 'caution' | 'risk';
+}) {
+  const accent = tone === 'positive' ? '#7FB069' : tone === 'caution' ? '#D4A047' : tone === 'risk' ? '#E88872' : '#FAF7F2';
+  return (
+    <div className="flex items-center gap-1.5">
+      <Icon className="w-3.5 h-3.5" style={{ color: accent }} strokeWidth={1.75} />
+      <div>
+        <p className="text-[9px] font-display uppercase tracking-[0.18em]" style={{ color: 'rgba(250, 247, 242, 0.55)' }}>{label}</p>
+        <p className="font-display text-[14px] leading-none tabular-nums" style={{ color: accent }}>{value}</p>
+      </div>
+    </div>
+  );
+}
 import type { BomEmailComposerTrigger } from './BomEmailPanel';
 import type { BomQuestion, LibraryDocType } from '../../api/types';
 
@@ -30,7 +48,7 @@ function formatDate(iso: string): string {
 function FileStatusBadge({ status, optimistic }: { status: UploadedFile['status']; optimistic?: boolean }) {
   if (optimistic) {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F4F4F4] text-[#6B7280]">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F2EDE3] text-[#8B7F73]">
         <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />
         Uploading…
       </span>
@@ -38,7 +56,7 @@ function FileStatusBadge({ status, optimistic }: { status: UploadedFile['status'
   }
   if (status === 'processed') {
     return (
-      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F4F4F4] text-[#6B7280]">
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F2EDE3] text-[#8B7F73]">
         <CheckCircle2 className="w-3 h-3" strokeWidth={2} />
         Extracted
       </span>
@@ -53,7 +71,7 @@ function FileStatusBadge({ status, optimistic }: { status: UploadedFile['status'
     );
   }
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F4F4F4] text-[#6B7280]">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-[#F2EDE3] text-[#8B7F73]">
       <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />
       {status === 'processing' ? 'Processing' : optimistic ? 'Uploading…' : 'Uploaded'}
     </span>
@@ -62,17 +80,17 @@ function FileStatusBadge({ status, optimistic }: { status: UploadedFile['status'
 
 function SkeletonRow() {
   return (
-    <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[#E6E6E6] animate-pulse">
+    <div className="grid grid-cols-12 gap-4 px-6 py-4 border-b border-[#E8E0D3] animate-pulse">
       <div className="col-span-5 flex items-center gap-3">
-        <div className="w-9 h-9 bg-[#F4F4F4] rounded-lg flex-shrink-0" />
+        <div className="w-9 h-9 bg-[#F2EDE3] rounded-lg flex-shrink-0" />
         <div className="flex-1">
-          <div className="h-3 bg-[#F4F4F4] rounded w-2/3 mb-1.5" />
-          <div className="h-2.5 bg-[#F4F4F4] rounded w-1/3" />
+          <div className="h-3 bg-[#F2EDE3] rounded w-2/3 mb-1.5" />
+          <div className="h-2.5 bg-[#F2EDE3] rounded w-1/3" />
         </div>
       </div>
-      <div className="col-span-2 flex items-center"><div className="h-5 bg-[#F4F4F4] rounded w-12" /></div>
-      <div className="col-span-2 flex items-center"><div className="h-3 bg-[#F4F4F4] rounded w-16" /></div>
-      <div className="col-span-2 flex items-center"><div className="h-5 bg-[#F4F4F4] rounded w-20" /></div>
+      <div className="col-span-2 flex items-center"><div className="h-5 bg-[#F2EDE3] rounded w-12" /></div>
+      <div className="col-span-2 flex items-center"><div className="h-3 bg-[#F2EDE3] rounded w-16" /></div>
+      <div className="col-span-2 flex items-center"><div className="h-5 bg-[#F2EDE3] rounded w-20" /></div>
       <div className="col-span-1" />
     </div>
   );
@@ -90,10 +108,10 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
 
   if (isLoading) {
     return (
-      <div className="px-6 pb-4 pt-2 bg-[#FAFAFA] border-t border-[#E6E6E6]">
+      <div className="px-6 pb-4 pt-2 bg-[#FFFCF7] border-t border-[#E8E0D3]">
         <div className="animate-pulse space-y-2">
-          <div className="h-3 bg-[#E6E6E6] rounded w-1/3" />
-          <div className="h-3 bg-[#E6E6E6] rounded w-1/2" />
+          <div className="h-3 bg-[#E8E0D3] rounded w-1/3" />
+          <div className="h-3 bg-[#E8E0D3] rounded w-1/2" />
         </div>
       </div>
     );
@@ -137,7 +155,7 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
   }
 
   return (
-    <div className="border-t border-[#E6E6E6] bg-[#FAFAFA]">
+    <div className="border-t border-[#E8E0D3] bg-[#FFFCF7]">
 
       {/* Engineering Profile card */}
       {data.profile && Object.keys(data.profile).length > 0 && (
@@ -239,18 +257,18 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
                               style={{ color: cfg.color, background: cfg.bg }}>
                           {cfg.text}
                         </span>
-                        <div className="flex-1 h-px bg-[#F0F0F0]" />
+                        <div className="flex-1 h-px bg-[#EEE6D8]" />
                       </div>
                     );
                   },
                   p: ({ children }) => (
-                    <p className="px-5 py-1.5 text-[13px] text-[#374151] leading-relaxed m-0">{children}</p>
+                    <p className="px-5 py-1.5 text-[13px] text-[#4A4038] leading-relaxed m-0">{children}</p>
                   ),
                   ul: ({ children }) => (
                     <ul className="px-5 pb-3 pt-1 m-0 list-none space-y-1.5">{children}</ul>
                   ),
                   li: ({ children }) => (
-                    <li className="flex items-start gap-2 text-[12px] text-[#374151]">
+                    <li className="flex items-start gap-2 text-[12px] text-[#4A4038]">
                       <span className="mt-[5px] w-1.5 h-1.5 rounded-full flex-shrink-0" style={{background: '#DDD6FE'}} />
                       <span className="leading-relaxed">{children}</span>
                     </li>
@@ -268,48 +286,48 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
 
       {/* Key Properties grid */}
       {(data.schema || data.authoring_system || data.confidence != null || unit || data.products?.product_count != null || data.geometry?.faces != null) && (
-        <div className="px-6 pt-5 pb-4 border-b border-[#F0F0F0]">
-          <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-3">Key Properties</p>
+        <div className="px-6 pt-5 pb-4 border-b border-[#EEE6D8]">
+          <p className="text-[10px] font-semibold text-[#A89D91] uppercase tracking-widest mb-3">Key Properties</p>
           <div className="grid grid-cols-3 gap-2">
             {data.schema && (
-              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Format</p>
-                <p className="text-[12px] font-semibold text-[#111111] leading-snug">{data.schema}</p>
+              <div className="bg-white border border-[#E8E0D3] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#A89D91] uppercase tracking-wider mb-1">Format</p>
+                <p className="text-[12px] font-semibold text-[#2B2824] leading-snug">{data.schema}</p>
               </div>
             )}
             {data.authoring_system && (
-              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Authoring Tool</p>
-                <p className="text-[12px] font-semibold text-[#111111] leading-snug">{data.authoring_system}</p>
+              <div className="bg-white border border-[#E8E0D3] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#A89D91] uppercase tracking-wider mb-1">Authoring Tool</p>
+                <p className="text-[12px] font-semibold text-[#2B2824] leading-snug">{data.authoring_system}</p>
               </div>
             )}
             {data.confidence != null && (
-              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Confidence</p>
+              <div className="bg-white border border-[#E8E0D3] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#A89D91] uppercase tracking-wider mb-1">Confidence</p>
                 <div className="flex items-baseline gap-1.5">
-                  <p className="text-[12px] font-semibold text-[#111111]">{Math.round(data.confidence * 100)}%</p>
-                  <div className="flex-1 h-1 bg-[#F0F0F0] rounded-full overflow-hidden">
+                  <p className="text-[12px] font-semibold text-[#2B2824]">{Math.round(data.confidence * 100)}%</p>
+                  <div className="flex-1 h-1 bg-[#EEE6D8] rounded-full overflow-hidden">
                     <div className="h-full bg-amber-400 rounded-full" style={{ width: `${Math.round(data.confidence * 100)}%` }} />
                   </div>
                 </div>
               </div>
             )}
             {unit && (
-              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Units</p>
-                <p className="text-[12px] font-semibold text-[#111111] leading-snug">{unit}</p>
+              <div className="bg-white border border-[#E8E0D3] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#A89D91] uppercase tracking-wider mb-1">Units</p>
+                <p className="text-[12px] font-semibold text-[#2B2824] leading-snug">{unit}</p>
               </div>
             )}
             {data.products?.product_count != null && (
-              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Products</p>
-                <p className="text-[12px] font-semibold text-[#111111] leading-snug">{data.products.product_count}</p>
+              <div className="bg-white border border-[#E8E0D3] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#A89D91] uppercase tracking-wider mb-1">Products</p>
+                <p className="text-[12px] font-semibold text-[#2B2824] leading-snug">{data.products.product_count}</p>
               </div>
             )}
             {data.geometry?.faces != null && (
-              <div className="bg-white border border-[#EBEBEB] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1">Faces</p>
-                <p className="text-[12px] font-semibold text-[#111111] leading-snug tabular-nums">{data.geometry.faces.toLocaleString()}</p>
+              <div className="bg-white border border-[#E8E0D3] rounded-xl px-3.5 py-3 hover:border-[#D5D5D5] transition-colors">
+                <p className="text-[10px] text-[#A89D91] uppercase tracking-wider mb-1">Faces</p>
+                <p className="text-[12px] font-semibold text-[#2B2824] leading-snug tabular-nums">{data.geometry.faces.toLocaleString()}</p>
               </div>
             )}
           </div>
@@ -318,18 +336,18 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
 
       {/* Bounding box */}
       {bb && (
-        <div className="px-6 pt-4 pb-3 border-b border-[#F0F0F0]">
-          <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2.5">Bounding Box</p>
+        <div className="px-6 pt-4 pb-3 border-b border-[#EEE6D8]">
+          <p className="text-[10px] font-semibold text-[#A89D91] uppercase tracking-widest mb-2.5">Bounding Box</p>
           <div className="flex items-stretch gap-2">
             {([['X', bb.x], ['Y', bb.y], ['Z', bb.z]] as [string, string | number][]).map(([axis, val]) => (
-              <div key={axis} className="flex-1 bg-white border border-[#EBEBEB] rounded-xl px-3 py-2.5 text-center">
-                <p className="text-[10px] text-[#9CA3AF] font-medium mb-0.5">{axis}</p>
-                <p className="text-[12px] font-semibold text-[#111111] tabular-nums">{val}</p>
+              <div key={axis} className="flex-1 bg-white border border-[#E8E0D3] rounded-xl px-3 py-2.5 text-center">
+                <p className="text-[10px] text-[#A89D91] font-medium mb-0.5">{axis}</p>
+                <p className="text-[12px] font-semibold text-[#2B2824] tabular-nums">{val}</p>
               </div>
             ))}
             {unit && (
               <div className="flex items-end pb-2.5 pl-1">
-                <span className="text-[11px] text-[#9CA3AF]">{unit}</span>
+                <span className="text-[11px] text-[#A89D91]">{unit}</span>
               </div>
             )}
           </div>
@@ -341,46 +359,46 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
         {/* Left col: provenance + products */}
         <div className="space-y-3">
           {(data.source_file || data.created_at || data.authors?.length) && (
-            <div className="bg-white border border-[#EBEBEB] rounded-xl px-4 py-3">
-              <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Provenance</p>
+            <div className="bg-white border border-[#E8E0D3] rounded-xl px-4 py-3">
+              <p className="text-[10px] font-semibold text-[#A89D91] uppercase tracking-widest mb-2">Provenance</p>
               <dl className="space-y-1.5">
                 {data.source_file && (
                   <div className="flex gap-2">
-                    <dt className="text-[#9CA3AF] min-w-[72px]">Source</dt>
-                    <dd className="text-[#374151] font-medium truncate">{data.source_file}</dd>
+                    <dt className="text-[#A89D91] min-w-[72px]">Source</dt>
+                    <dd className="text-[#4A4038] font-medium truncate">{data.source_file}</dd>
                   </div>
                 )}
                 {data.created_at && (
                   <div className="flex gap-2">
-                    <dt className="text-[#9CA3AF] min-w-[72px]">Created</dt>
-                    <dd className="text-[#374151]">{new Date(data.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</dd>
+                    <dt className="text-[#A89D91] min-w-[72px]">Created</dt>
+                    <dd className="text-[#4A4038]">{new Date(data.created_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</dd>
                   </div>
                 )}
                 {data.authors?.length && (
                   <div className="flex gap-2">
-                    <dt className="text-[#9CA3AF] min-w-[72px]">Tools</dt>
-                    <dd className="text-[#374151]">{data.authors.join(', ')}</dd>
+                    <dt className="text-[#A89D91] min-w-[72px]">Tools</dt>
+                    <dd className="text-[#4A4038]">{data.authors.join(', ')}</dd>
                   </div>
                 )}
               </dl>
             </div>
           )}
           {data.products?.product_names?.length && (
-            <div className="bg-white border border-[#EBEBEB] rounded-xl px-4 py-3">
-              <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Products</p>
+            <div className="bg-white border border-[#E8E0D3] rounded-xl px-4 py-3">
+              <p className="text-[10px] font-semibold text-[#A89D91] uppercase tracking-widest mb-2">Products</p>
               <ul className="space-y-1">
                 {data.products.product_names.slice(0, 6).map((name, i) => (
-                  <li key={i} className="flex items-center gap-2 text-[#374151]">
+                  <li key={i} className="flex items-center gap-2 text-[#4A4038]">
                     <span className="w-1 h-1 rounded-full bg-[#D1D5DB] flex-shrink-0" />
                     {name}
                   </li>
                 ))}
                 {data.products.product_names.length > 6 && (
-                  <li className="text-[#9CA3AF] pl-3">+{data.products.product_names.length - 6} more</li>
+                  <li className="text-[#A89D91] pl-3">+{data.products.product_names.length - 6} more</li>
                 )}
               </ul>
               {data.products.assembly_relationships != null && (
-                <p className="text-[#6B7280] mt-2 pt-2 border-t border-[#F0F0F0]">
+                <p className="text-[#8B7F73] mt-2 pt-2 border-t border-[#EEE6D8]">
                   {data.products.assembly_relationships} assembly {data.products.assembly_relationships === 1 ? 'relationship' : 'relationships'}
                 </p>
               )}
@@ -390,8 +408,8 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
 
         {/* Right col: geometry */}
         {data.geometry && Object.keys(data.geometry).length > 0 && (
-          <div className="bg-white border border-[#EBEBEB] rounded-xl px-4 py-3">
-            <p className="text-[10px] font-semibold text-[#9CA3AF] uppercase tracking-widest mb-2">Geometry</p>
+          <div className="bg-white border border-[#E8E0D3] rounded-xl px-4 py-3">
+            <p className="text-[10px] font-semibold text-[#A89D91] uppercase tracking-widest mb-2">Geometry</p>
             <dl className="space-y-1.5">
               {([
                 ['solid_bodies', 'Solid bodies'],
@@ -403,19 +421,19 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
               ] as [string, string][]).map(([key, label]) =>
                 data.geometry![key] != null ? (
                   <div key={key} className="flex justify-between gap-2">
-                    <dt className="text-[#9CA3AF]">{label}</dt>
-                    <dd className="text-[#374151] font-semibold tabular-nums">{(data.geometry![key] as number).toLocaleString()}</dd>
+                    <dt className="text-[#A89D91]">{label}</dt>
+                    <dd className="text-[#4A4038] font-semibold tabular-nums">{(data.geometry![key] as number).toLocaleString()}</dd>
                   </div>
                 ) : null
               )}
             </dl>
             {data.geometry.surface_type_breakdown && (
-              <div className="mt-3 pt-2 border-t border-[#F0F0F0]">
-                <p className="text-[10px] text-[#9CA3AF] uppercase tracking-wider mb-1.5">Surface types</p>
+              <div className="mt-3 pt-2 border-t border-[#EEE6D8]">
+                <p className="text-[10px] text-[#A89D91] uppercase tracking-wider mb-1.5">Surface types</p>
                 <div className="flex flex-wrap gap-1">
                   {Object.entries(data.geometry.surface_type_breakdown).map(([type, count]) => (
-                    <span key={type} className="px-2 py-0.5 bg-[#F7F7F7] border border-[#EBEBEB] rounded-md text-[10px] text-[#6B7280]">
-                      {type} <span className="font-medium text-[#374151]">{count}</span>
+                    <span key={type} className="px-2 py-0.5 bg-[#FAF7F2] border border-[#E8E0D3] rounded-md text-[10px] text-[#8B7F73]">
+                      {type} <span className="font-medium text-[#4A4038]">{count}</span>
                     </span>
                   ))}
                 </div>
@@ -542,24 +560,24 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
 
   return (
     <>
-      <div className="border-b border-[#E6E6E6] last:border-b-0 hover:bg-[#FAFAFA] transition-colors group">
+      <div className="border-b border-[#E8E0D3] last:border-b-0 hover:bg-[#FFFCF7] transition-colors group">
         <div className="grid grid-cols-12 gap-4 px-6 py-4">
           <div className="col-span-5 flex items-center gap-3">
-            <div className="w-9 h-9 bg-[#F4F4F4] rounded-lg flex items-center justify-center flex-shrink-0">
-              <File className="w-[18px] h-[18px] text-[#6B7280]" strokeWidth={1.5} />
+            <div className="w-9 h-9 bg-[#F2EDE3] rounded-lg flex items-center justify-center flex-shrink-0">
+              <File className="w-[18px] h-[18px] text-[#8B7F73]" strokeWidth={1.5} />
             </div>
             <div className="min-w-0">
-              <p className="text-[#111111] text-sm mb-0.5 truncate">{file.original_name}</p>
-              <p className="text-[#6B7280] text-[12px]">Uploaded {formatDate(file.created_at)}</p>
+              <p className="text-[#2B2824] text-sm mb-0.5 truncate">{file.original_name}</p>
+              <p className="text-[#8B7F73] text-[12px]">Uploaded {formatDate(file.created_at)}</p>
             </div>
           </div>
           <div className="col-span-2 flex items-center">
-            <span className="px-2 py-1 bg-[#F4F4F4] text-[#6B7280] rounded text-[11px] font-medium uppercase">
+            <span className="px-2 py-1 bg-[#F2EDE3] text-[#8B7F73] rounded text-[11px] font-medium uppercase">
               {file.file_type || '—'}
             </span>
           </div>
           <div className="col-span-2 flex items-center">
-            <span className="text-[#6B7280] text-sm">{formatBytes(file.file_size)}</span>
+            <span className="text-[#8B7F73] text-sm">{formatBytes(file.file_size)}</span>
           </div>
           <div className="col-span-2 flex items-center">
             {file.status === 'processed' ? (
@@ -586,35 +604,35 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
           <div className="col-span-1 flex items-center justify-end gap-1">
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="w-8 h-8 flex items-center justify-center hover:bg-[#E6E6E6] rounded-lg transition-colors"
+              className="w-8 h-8 flex items-center justify-center hover:bg-[#E8E0D3] rounded-lg transition-colors"
               title="Expand"
             >
               {expanded
-                ? <ChevronUp className="w-4 h-4 text-[#6B7280]" />
-                : <ChevronDown className="w-4 h-4 text-[#6B7280]" />}
+                ? <ChevronUp className="w-4 h-4 text-[#8B7F73]" />
+                : <ChevronDown className="w-4 h-4 text-[#8B7F73]" />}
             </button>
             <DropdownMenu.Root>
               <DropdownMenu.Trigger asChild>
-                <button className="w-8 h-8 flex items-center justify-center hover:bg-[#E6E6E6] rounded-lg transition-colors opacity-0 group-hover:opacity-100">
-                  <MoreVertical className="w-4 h-4 text-[#6B7280]" />
+                <button className="w-8 h-8 flex items-center justify-center hover:bg-[#E8E0D3] rounded-lg transition-colors opacity-0 group-hover:opacity-100">
+                  <MoreVertical className="w-4 h-4 text-[#8B7F73]" />
                 </button>
               </DropdownMenu.Trigger>
               <DropdownMenu.Content
-                className="min-w-[160px] bg-white border border-[#E6E6E6] rounded-lg shadow-lg p-1 text-sm text-[#111111]"
+                className="min-w-[160px] bg-white border border-[#E8E0D3] rounded-lg shadow-lg p-1 text-sm text-[#2B2824]"
                 align="end"
               >
                 <DropdownMenu.Item
-                  className="px-3 py-2 rounded hover:bg-[#F4F4F4] flex items-center gap-2 cursor-pointer"
+                  className="px-3 py-2 rounded hover:bg-[#F2EDE3] flex items-center gap-2 cursor-pointer"
                   onSelect={(e) => { e.preventDefault(); handleDownload(); }}
                 >
-                  <LinkIcon className="w-4 h-4 text-[#6B7280]" />
+                  <LinkIcon className="w-4 h-4 text-[#8B7F73]" />
                   Download
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
-                  className="px-3 py-2 rounded hover:bg-[#F4F4F4] flex items-center gap-2 cursor-pointer"
+                  className="px-3 py-2 rounded hover:bg-[#F2EDE3] flex items-center gap-2 cursor-pointer"
                   onSelect={(e) => { e.preventDefault(); setShowPromoteModal(true); }}
                 >
-                  <BookOpen className="w-4 h-4 text-[#6B7280]" />
+                  <BookOpen className="w-4 h-4 text-[#8B7F73]" />
                   Add to Library
                 </DropdownMenu.Item>
                 <DropdownMenu.Item
@@ -639,26 +657,26 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
                 value={descValue}
                 onChange={(e) => setDescValue(e.target.value)}
                 placeholder="Add a description: what is this file, its characteristics, any useful context…"
-                className="flex-1 text-[12px] text-[#111111] border border-[#E6E6E6] rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-[#111111] bg-white min-h-[72px]"
+                className="flex-1 text-[12px] text-[#2B2824] border border-[#E8E0D3] rounded-lg px-3 py-2 resize-none focus:outline-none focus:ring-1 focus:ring-[#2B2824] bg-white min-h-[72px]"
               />
               <div className="flex flex-col gap-1 pt-1">
                 <button
                   onClick={saveDescription}
                   disabled={savingDesc}
-                  className="w-7 h-7 flex items-center justify-center bg-[#111111] text-white rounded-lg hover:bg-[#2A2A2A] disabled:opacity-50 transition-colors"
+                  className="w-7 h-7 flex items-center justify-center bg-[#2B2824] text-white rounded-lg hover:bg-[#3D3530] disabled:opacity-50 transition-colors"
                 >
                   {savingDesc ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
                 </button>
                 <button
                   onClick={cancelEdit}
-                  className="w-7 h-7 flex items-center justify-center hover:bg-[#E6E6E6] rounded-lg transition-colors"
+                  className="w-7 h-7 flex items-center justify-center hover:bg-[#E8E0D3] rounded-lg transition-colors"
                 >
-                  <X className="w-3.5 h-3.5 text-[#6B7280]" />
+                  <X className="w-3.5 h-3.5 text-[#8B7F73]" />
                 </button>
               </div>
             </div>
           ) : (file.status === 'processing' || file.optimistic) || (file.status === 'uploaded' && !file.description) ? (
-            <span className="text-[12px] text-[#9CA3AF] italic flex items-center gap-1.5">
+            <span className="text-[12px] text-[#A89D91] italic flex items-center gap-1.5">
               <Loader2 className="w-3 h-3 animate-spin" strokeWidth={1.5} />
               Generating description…
             </span>
@@ -668,11 +686,11 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
               className="flex-1 text-left group/desc"
             >
               {descValue ? (
-                <div className="text-[12px] text-[#6B7280] group-hover/desc:text-[#374151] transition-colors prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-[#374151] [&_ul]:pl-4 [&_li]:text-[12px] [&_h2]:text-[12px] [&_h3]:text-[12px] [&_h2]:font-semibold [&_h3]:font-medium [&_h2]:text-[#374151] [&_h3]:text-[#6B7280]">
+                <div className="text-[12px] text-[#8B7F73] group-hover/desc:text-[#4A4038] transition-colors prose prose-sm max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_strong]:font-semibold [&_strong]:text-[#4A4038] [&_ul]:pl-4 [&_li]:text-[12px] [&_h2]:text-[12px] [&_h3]:text-[12px] [&_h2]:font-semibold [&_h3]:font-medium [&_h2]:text-[#4A4038] [&_h3]:text-[#8B7F73]">
                   <ReactMarkdown>{descValue}</ReactMarkdown>
                 </div>
               ) : (
-                <span className="text-[12px] text-[#D1D5DB] italic group-hover/desc:text-[#9CA3AF] transition-colors flex items-center gap-1.5">
+                <span className="text-[12px] text-[#D1D5DB] italic group-hover/desc:text-[#A89D91] transition-colors flex items-center gap-1.5">
                   <Pencil className="w-3 h-3" strokeWidth={1.5} />
                   Add description…
                 </span>
@@ -690,12 +708,12 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
       {showPromoteModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-            <h3 className="text-base font-semibold text-[#111111] mb-1">Add to Library</h3>
-            <p className="text-sm text-[#6B7280] mb-4">Select a document type for <span className="font-medium text-[#111111]">{file.original_name}</span></p>
+            <h3 className="text-base font-semibold text-[#2B2824] mb-1">Add to Library</h3>
+            <p className="text-sm text-[#8B7F73] mb-4">Select a document type for <span className="font-medium text-[#2B2824]">{file.original_name}</span></p>
             <select
               value={promoteDocType}
               onChange={(e) => setPromoteDocType(e.target.value as LibraryDocType)}
-              className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111] bg-white mb-4"
+              className="w-full px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824] bg-white mb-4"
             >
               <option value="">Select type…</option>
               {LIBRARY_DOC_TYPES.map((t) => (
@@ -703,9 +721,9 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
               ))}
             </select>
             <div className="flex justify-end gap-2">
-              <button onClick={() => { setShowPromoteModal(false); setPromoteDocType(''); }} className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4]">Cancel</button>
+              <button onClick={() => { setShowPromoteModal(false); setPromoteDocType(''); }} className="px-4 py-2 text-sm border border-[#E8E0D3] rounded-lg hover:bg-[#F2EDE3]">Cancel</button>
               <button onClick={handlePromote} disabled={!promoteDocType || promoting}
-                className="px-4 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 flex items-center gap-1.5">
+                className="px-4 py-2 text-sm bg-[#2B2824] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 flex items-center gap-1.5">
                 {promoting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                 Add to Library
               </button>
@@ -746,7 +764,7 @@ function ExtractionRunCard({ file, apiFetch, projectId }: { file: FileLike; apiF
     },
     processing: {
       label: 'Processing',
-      className: 'bg-[#F4F4F4] text-[#6B7280] border border-[#E6E6E6]',
+      className: 'bg-[#F2EDE3] text-[#8B7F73] border border-[#E8E0D3]',
       icon: <Loader2 className="w-3 h-3 animate-spin" strokeWidth={2} />,
     },
     failed: {
@@ -759,14 +777,14 @@ function ExtractionRunCard({ file, apiFetch, projectId }: { file: FileLike; apiF
   const cfg = statusConfig[file.status];
 
   return (
-    <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden">
+    <div className="bg-white border border-[#E8E0D3] rounded-xl overflow-hidden">
       <div className="flex items-center gap-4 px-5 py-4">
-        <div className="w-9 h-9 bg-[#F4F4F4] rounded-lg flex items-center justify-center flex-shrink-0">
-          <File className="w-[18px] h-[18px] text-[#6B7280]" strokeWidth={1.5} />
+        <div className="w-9 h-9 bg-[#F2EDE3] rounded-lg flex items-center justify-center flex-shrink-0">
+          <File className="w-[18px] h-[18px] text-[#8B7F73]" strokeWidth={1.5} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-[#111111] truncate">{file.original_name}</p>
-          <p className="text-[12px] text-[#9CA3AF]">
+          <p className="text-sm font-medium text-[#2B2824] truncate">{file.original_name}</p>
+          <p className="text-[12px] text-[#A89D91]">
             {formatDate(file.created_at)} · {formatBytes(file.file_size)} ·{' '}
             <span className="uppercase font-medium">{file.file_type || '—'}</span>
           </p>
@@ -791,12 +809,12 @@ function ExtractionRunCard({ file, apiFetch, projectId }: { file: FileLike; apiF
           {file.status === 'processed' && (
             <button
               onClick={() => setExpanded((v) => !v)}
-              className="w-8 h-8 flex items-center justify-center hover:bg-[#E6E6E6] rounded-lg transition-colors"
+              className="w-8 h-8 flex items-center justify-center hover:bg-[#E8E0D3] rounded-lg transition-colors"
               title={expanded ? 'Collapse' : 'View profile'}
             >
               {expanded
-                ? <ChevronUp className="w-4 h-4 text-[#6B7280]" />
-                : <ChevronDown className="w-4 h-4 text-[#6B7280]" />}
+                ? <ChevronUp className="w-4 h-4 text-[#8B7F73]" />
+                : <ChevronDown className="w-4 h-4 text-[#8B7F73]" />}
             </button>
           )}
           {file.status === 'failed' && (
@@ -819,6 +837,7 @@ function ExtractionRunCard({ file, apiFetch, projectId }: { file: FileLike; apiF
 
 export function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'vault' | 'library' | 'extraction'>('vault');
   const [extractionFilter, setExtractionFilter] = useState<'all' | 'uploaded' | 'processing' | 'processed' | 'failed'>('all');
   const [uploading, setUploading] = useState(false);
@@ -1000,7 +1019,7 @@ export function ProjectDetailPage() {
   if (projectError) {
     return (
       <div className="flex-1 flex items-center justify-center">
-        <p className="text-[#6B7280]">Project not found or access denied.</p>
+        <p className="text-[#8B7F73]">Project not found or access denied.</p>
       </div>
     );
   }
@@ -1029,24 +1048,27 @@ export function ProjectDetailPage() {
       />
 
       {/* Header */}
-      <div className="border-b border-[#E6E6E6] bg-white px-8 py-5">
+      <div className="border-b border-[#E8E0D3] bg-white px-8 py-5">
         <div className="flex items-center gap-3 mb-4">
           <Link
             to="/vault"
-            className="w-8 h-8 flex items-center justify-center hover:bg-[#F4F4F4] rounded-lg transition-colors"
+            className="w-8 h-8 flex items-center justify-center hover:bg-[#F2EDE3] rounded-lg transition-colors"
           >
-            <ArrowLeft className="w-[18px] h-[18px] text-[#6B7280]" />
+            <ArrowLeft className="w-[18px] h-[18px] text-[#8B7F73]" />
           </Link>
           <div className="flex-1">
             {projectLoading ? (
               <div className="animate-pulse">
-                <div className="h-5 bg-[#F4F4F4] rounded w-48 mb-1.5" />
-                <div className="h-3.5 bg-[#F4F4F4] rounded w-32" />
+                <div className="h-5 bg-[#F2EDE3] rounded w-48 mb-1.5" />
+                <div className="h-3.5 bg-[#F2EDE3] rounded w-32" />
               </div>
             ) : project ? (
               <>
-                <h1 className="text-[#111111] mb-1">{project.name}</h1>
-                <p className="text-[#6B7280] text-sm">
+                <h1 className="font-display text-[26px] leading-[1.15] text-[#2B2824] tracking-tight font-medium mb-0.5">{project.name}</h1>
+                <svg aria-hidden="true" viewBox="0 0 220 12" className="mb-1.5 -ml-[2px] h-[8px] w-[120px] -rotate-[0.5deg] block" fill="none" preserveAspectRatio="none">
+                  <path d="M2 7 Q 22 2, 44 6 T 88 5 Q 112 9, 136 4 T 180 6 Q 200 3, 218 7" stroke="#C66A4E" strokeWidth="1.75" strokeLinecap="round" />
+                </svg>
+                <p className="text-[#8B7F73] text-sm">
                   {project.file_count} files · Created {formatDate(project.created_at)}
                 </p>
               </>
@@ -1081,7 +1103,7 @@ export function ProjectDetailPage() {
                 }
               }}
               disabled={bomStarting}
-              className="px-4 py-2 bg-white border border-[#E6E6E6] rounded-lg hover:bg-[#FAFAFA] transition-colors text-sm text-[#111111] flex items-center gap-2 disabled:opacity-50"
+              className="px-4 py-2 bg-white border border-[#E8E0D3] rounded-lg hover:bg-[#FFFCF7] transition-colors text-sm text-[#2B2824] flex items-center gap-2 disabled:opacity-50"
             >
               {bomStarting
                 ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} />
@@ -1108,7 +1130,7 @@ export function ProjectDetailPage() {
                   toast.error(err instanceof Error ? err.message : 'Export failed');
                 }
               }}
-              className="px-4 py-2 bg-white border border-[#E6E6E6] rounded-lg hover:bg-[#FAFAFA] transition-colors text-sm text-[#111111]"
+              className="px-4 py-2 bg-white border border-[#E8E0D3] rounded-lg hover:bg-[#FFFCF7] transition-colors text-sm text-[#2B2824]"
             >
               <Download className="w-4 h-4 inline mr-2" strokeWidth={1.5} />
               Export
@@ -1117,7 +1139,7 @@ export function ProjectDetailPage() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="px-4 py-2 bg-[#111111] text-white rounded-lg hover:bg-[#2A2A2A] disabled:opacity-60 transition-colors text-sm flex items-center gap-2"
+                className="px-4 py-2 bg-[#2B2824] text-white rounded-lg hover:bg-[#3D3530] disabled:opacity-60 transition-colors text-sm flex items-center gap-2"
               >
                 {uploading
                   ? <><Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Uploading…</>
@@ -1127,7 +1149,7 @@ export function ProjectDetailPage() {
               <button
                 onClick={() => libraryInputRef.current?.click()}
                 disabled={libraryUploading}
-                className="px-4 py-2 bg-[#111111] text-white rounded-lg hover:bg-[#2A2A2A] disabled:opacity-60 transition-colors text-sm flex items-center gap-2"
+                className="px-4 py-2 bg-[#2B2824] text-white rounded-lg hover:bg-[#3D3530] disabled:opacity-60 transition-colors text-sm flex items-center gap-2"
               >
                 {libraryUploading
                   ? <><Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.5} /> Uploading…</>
@@ -1138,11 +1160,11 @@ export function ProjectDetailPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-6 border-b border-[#E6E6E6] -mb-5">
+        <div className="flex items-center gap-6 border-b border-[#E8E0D3] -mb-5">
           <button
             onClick={() => setActiveTab('vault')}
             className={`pb-4 border-b-2 transition-colors ${
-              activeTab === 'vault' ? 'border-[#111111] text-[#111111]' : 'border-transparent text-[#6B7280] hover:text-[#111111]'
+              activeTab === 'vault' ? 'border-[#2B2824] text-[#2B2824]' : 'border-transparent text-[#8B7F73] hover:text-[#2B2824]'
             }`}
           >
             <span className="text-sm flex items-center gap-2">
@@ -1153,7 +1175,7 @@ export function ProjectDetailPage() {
           <button
             onClick={() => setActiveTab('library')}
             className={`pb-4 border-b-2 transition-colors ${
-              activeTab === 'library' ? 'border-[#111111] text-[#111111]' : 'border-transparent text-[#6B7280] hover:text-[#111111]'
+              activeTab === 'library' ? 'border-[#2B2824] text-[#2B2824]' : 'border-transparent text-[#8B7F73] hover:text-[#2B2824]'
             }`}
           >
             <span className="text-sm flex items-center gap-2">
@@ -1164,7 +1186,7 @@ export function ProjectDetailPage() {
           <button
             onClick={() => setActiveTab('extraction')}
             className={`pb-4 border-b-2 transition-colors ${
-              activeTab === 'extraction' ? 'border-[#111111] text-[#111111]' : 'border-transparent text-[#6B7280] hover:text-[#111111]'
+              activeTab === 'extraction' ? 'border-[#2B2824] text-[#2B2824]' : 'border-transparent text-[#8B7F73] hover:text-[#2B2824]'
             }`}
           >
             <span className="text-sm flex items-center gap-2">
@@ -1211,8 +1233,94 @@ export function ProjectDetailPage() {
       )}
 
       {/* Content */}
-      <div className="flex-1 overflow-auto bg-[#F7F7F7]">
+      <div className="flex-1 overflow-auto bg-[#FAF7F2]">
         <div className="max-w-[1400px] mx-auto px-8 py-8">
+          {/* BOM Analytics CTA — prominent hero banner */}
+          {(() => {
+            const bannerRun = activeBomRun ?? selectedBomRun ?? bomRuns.find((r) => r.status === 'completed') ?? bomRuns[0] ?? null;
+            const summary = bannerRun ? computeAnalyticsSummary(bannerRun) : null;
+            const hasData = summary && summary.quoteCount > 0;
+            return (
+              <button
+                onClick={() => navigate(`/project/${id}/analytics`)}
+                className="w-full mb-6 text-left group transition-transform"
+                style={{ display: 'block' }}
+              >
+                <div
+                  className="relative overflow-hidden rounded-[14px] p-6 flex items-center gap-6 transition-all group-hover:shadow-[0_8px_24px_rgba(61,47,31,0.12)]"
+                  style={{
+                    background: 'linear-gradient(135deg, #2B2824 0%, #4A4038 55%, #3D3530 100%)',
+                    border: '1px solid #E8D6AC',
+                    boxShadow: '0 4px 18px rgba(61, 47, 31, 0.08)',
+                  }}
+                >
+                  {/* Paper grain */}
+                  <svg
+                    aria-hidden="true"
+                    style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.14, mixBlendMode: 'soft-light' }}
+                    width="100%" height="100%"
+                  >
+                    <filter id="projanal-noise">
+                      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
+                      <feColorMatrix values="0 0 0 0 1  0 0 0 0 0.93  0 0 0 0 0.82  0 0 0 0.6 0" />
+                    </filter>
+                    <rect width="100%" height="100%" filter="url(#projanal-noise)" />
+                  </svg>
+                  {/* Warm glow accent */}
+                  <div className="absolute top-0 right-0 w-80 h-80 pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(198,106,78,0.22), transparent 65%)', filter: 'blur(28px)' }} />
+
+                  {/* Left: icon tile */}
+                  <div
+                    className="relative w-14 h-14 rounded-[10px] flex items-center justify-center flex-shrink-0 rotate-[-3deg]"
+                    style={{ background: '#FAF7F2', boxShadow: '0 2px 10px rgba(0,0,0,0.25)' }}
+                  >
+                    <BarChart3 className="w-6 h-6" style={{ color: '#C66A4E' }} strokeWidth={1.75} />
+                  </div>
+
+                  {/* Middle: title + kpis */}
+                  <div className="flex-1 min-w-0 relative">
+                    <p className="text-[10px] font-display uppercase tracking-[0.22em] mb-1" style={{ color: '#D4A047' }}>
+                      BOM Analytics
+                    </p>
+                    <h2 className="font-display text-[22px] leading-[1.15] font-medium" style={{ color: '#FAF7F2' }}>
+                      Full consulting-style deck
+                    </h2>
+                    <p className="text-[12px] italic mt-1" style={{ color: '#C4B8A8' }}>
+                      {hasData
+                        ? `${formatCurrency(summary!.totalSpend)} projected · ${summary!.avlCoverage.toFixed(0)}% AVL · ${summary!.riskCount} risk${summary!.riskCount !== 1 ? 's' : ''}`
+                        : bomRuns.length > 0
+                          ? 'Generate or complete a BOM run to unlock the full deck'
+                          : 'Executive summary · 6 exhibits · automated findings'}
+                    </p>
+
+                    {hasData && summary && (
+                      <div className="flex items-center gap-5 mt-3">
+                        <InlineStat icon={DollarSign} label="Spend" value={formatCurrency(summary.totalSpend)} />
+                        <div className="w-px h-6" style={{ background: 'rgba(250, 247, 242, 0.15)' }} />
+                        <InlineStat icon={CheckCircle2} label="Parts" value={`${summary.itemCount}`} />
+                        <div className="w-px h-6" style={{ background: 'rgba(250, 247, 242, 0.15)' }} />
+                        <InlineStat icon={Shield} label="AVL" value={`${summary.avlCoverage.toFixed(0)}%`} tone={summary.avlCoverage >= 80 ? 'positive' : summary.avlCoverage >= 50 ? 'caution' : 'risk'} />
+                        <div className="w-px h-6" style={{ background: 'rgba(250, 247, 242, 0.15)' }} />
+                        <InlineStat icon={AlertTriangle} label="Risks" value={`${summary.riskCount}`} tone={summary.riskCount === 0 ? 'positive' : 'risk'} />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Right: action */}
+                  <div className="flex-shrink-0 flex items-center gap-2 relative">
+                    <span
+                      className="text-[11px] font-display uppercase tracking-[0.2em] px-4 py-2.5 rounded-[6px] flex items-center gap-2 transition-transform group-hover:translate-x-1"
+                      style={{ background: '#C66A4E', color: '#FAF7F2', boxShadow: '0 2px 8px rgba(198,106,78,0.4)' }}
+                    >
+                      Open the deck
+                      <ArrowRight className="w-3.5 h-3.5" strokeWidth={2} />
+                    </span>
+                  </div>
+                </div>
+              </button>
+            );
+          })()}
+
           <BomEmailPanel
             runId={activeBomRun?.id ?? selectedBomRunId}
             runStatus={(selectedBomRun ?? activeBomRun)?.status}
@@ -1252,12 +1360,12 @@ export function ProjectDetailPage() {
                         onClick={() => setExtractionFilter(f.value)}
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-medium border transition-colors ${
                           extractionFilter === f.value
-                            ? 'bg-[#111111] text-white border-[#111111]'
-                            : 'bg-white text-[#6B7280] border-[#E6E6E6] hover:border-[#9CA3AF]'
+                            ? 'bg-[#2B2824] text-white border-[#2B2824]'
+                            : 'bg-white text-[#8B7F73] border-[#E8E0D3] hover:border-[#A89D91]'
                         }`}
                       >
                         {f.label}
-                        <span className={`text-[10px] font-bold ${extractionFilter === f.value ? 'text-white/60' : 'text-[#9CA3AF]'}`}>
+                        <span className={`text-[10px] font-bold ${extractionFilter === f.value ? 'text-white/60' : 'text-[#A89D91]'}`}>
                           {count}
                         </span>
                       </button>
@@ -1267,10 +1375,10 @@ export function ProjectDetailPage() {
 
                 {/* Extraction run cards */}
                 {filtered.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-16 bg-white border border-[#E6E6E6] rounded-xl text-center">
+                  <div className="flex flex-col items-center justify-center py-16 bg-white border border-[#E8E0D3] rounded-xl text-center">
                     <CheckCircle2 className="w-8 h-8 text-[#D1D5DB] mb-3" strokeWidth={1.5} />
-                    <p className="text-[#111111] text-sm font-medium mb-1">No extraction runs</p>
-                    <p className="text-[#6B7280] text-[12px]">Upload CAD files to start an extraction run.</p>
+                    <p className="text-[#2B2824] text-sm font-medium mb-1">No extraction runs</p>
+                    <p className="text-[#8B7F73] text-[12px]">Upload CAD files to start an extraction run.</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -1284,30 +1392,30 @@ export function ProjectDetailPage() {
           })()}
 
           {activeTab === 'vault' ? (
-            <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden">
-              <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-[#E6E6E6] bg-[#FAFAFA]">
-                <div className="col-span-5"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Name</span></div>
-                <div className="col-span-2"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Type</span></div>
-                <div className="col-span-2"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Size</span></div>
-                <div className="col-span-2"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Status</span></div>
-                <div className="col-span-1 flex justify-end"><span className="text-[#6B7280] text-[12px] font-medium uppercase tracking-wide">Actions</span></div>
+            <div className="bg-white border border-[#E8E0D3] rounded-xl overflow-hidden">
+              <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-[#E8E0D3] bg-[#FFFCF7]">
+                <div className="col-span-5"><span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Name</span></div>
+                <div className="col-span-2"><span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Type</span></div>
+                <div className="col-span-2"><span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Size</span></div>
+                <div className="col-span-2"><span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Status</span></div>
+                <div className="col-span-1 flex justify-end"><span className="text-[#8B7F73] text-[12px] font-medium uppercase tracking-wide">Actions</span></div>
               </div>
 
               {filesLoading && Array.from({ length: 4 }).map((_, i) => <SkeletonRow key={i} />)}
 
               {filesError && (
                 <div className="px-6 py-8 text-center">
-                  <p className="text-[#6B7280] text-sm">Failed to load files.</p>
+                  <p className="text-[#8B7F73] text-sm">Failed to load files.</p>
                 </div>
               )}
 
               {combinedFiles.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-10 h-10 bg-[#F4F4F4] rounded-lg flex items-center justify-center mb-3">
-                    <File className="w-5 h-5 text-[#6B7280]" strokeWidth={1.5} />
+                  <div className="w-10 h-10 bg-[#F2EDE3] rounded-lg flex items-center justify-center mb-3">
+                    <File className="w-5 h-5 text-[#8B7F73]" strokeWidth={1.5} />
                   </div>
-                  <p className="text-[#111111] text-sm font-medium mb-1">No files uploaded yet</p>
-                  <p className="text-[#6B7280] text-[12px]">Click "Upload files" to add STEP, PDF, or CAD files.</p>
+                  <p className="text-[#2B2824] text-sm font-medium mb-1">No files uploaded yet</p>
+                  <p className="text-[#8B7F73] text-[12px]">Click "Upload files" to add STEP, PDF, or CAD files.</p>
                 </div>
               )}
 
@@ -1321,8 +1429,8 @@ export function ProjectDetailPage() {
             </div>
           ) : projectLibraryFiles.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-20 text-center">
-              <div className="w-12 h-12 bg-[#F4F4F4] rounded-xl flex items-center justify-center mb-4">
-                <BookOpen className="w-6 h-6 text-[#6B7280]" strokeWidth={1.5} />
+              <div className="w-12 h-12 bg-[#F2EDE3] rounded-xl flex items-center justify-center mb-4">
+                <BookOpen className="w-6 h-6 text-[#8B7F73]" strokeWidth={1.5} />
               </div>
               <p className="text-[#111111] font-medium mb-1">Library is empty</p>
               <p className="text-[#6B7280] text-sm">Click "Add to Library" to upload spreadsheets, specs, and other non-engineering docs for this project.</p>
@@ -1339,8 +1447,8 @@ export function ProjectDetailPage() {
               {projectLibraryFiles.map((doc) => (
                 <div key={doc.id} className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-[#F4F4F4] last:border-0 items-center group">
                   <div className="col-span-5 flex items-center gap-2 min-w-0">
-                    <FileText className="w-4 h-4 text-[#9CA3AF] flex-shrink-0" strokeWidth={1.5} />
-                    <span className="text-sm text-[#111111] truncate">{doc.original_name}</span>
+                    <FileText className="w-4 h-4 text-[#A89D91] flex-shrink-0" strokeWidth={1.5} />
+                    <span className="text-sm text-[#2B2824] truncate">{doc.original_name}</span>
                   </div>
                   <div className="col-span-2">
                     <span className="px-2 py-0.5 text-[11px] rounded-full border font-medium bg-[#F4F4F4] text-[#6B7280] border-[#E6E6E6] uppercase">

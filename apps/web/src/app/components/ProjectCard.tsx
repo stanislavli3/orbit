@@ -44,7 +44,7 @@ export function ProjectCard({ name, fileCount, description, fileTypes }: Project
   const uniqueTypes = [...new Set((fileTypes ?? []).map(t => t.toLowerCase()))].slice(0, 4);
 
   return (
-    <div className="bg-white border border-[#E6E6E6] rounded-xl overflow-hidden hover:border-[#C4C4C4] hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+    <div className="bg-white border border-[#E8E0D3] rounded-xl overflow-hidden hover:border-[#C4B8A8] hover:shadow-[0_8px_24px_rgba(0,0,0,0.07)] hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
       {/* Card art */}
       <div
         className="h-[96px] relative overflow-hidden flex items-center justify-center"
@@ -53,7 +53,7 @@ export function ProjectCard({ name, fileCount, description, fileTypes }: Project
         <div
           className="absolute inset-0 opacity-25"
           style={{
-            backgroundImage: 'radial-gradient(circle, #9CA3AF 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(circle, #A89D91 1px, transparent 1px)',
             backgroundSize: '14px 14px',
           }}
         />
@@ -65,7 +65,7 @@ export function ProjectCard({ name, fileCount, description, fileTypes }: Project
           {[...Array(Math.min(Math.max(fileCount, 1), 3))].map((_, i) => (
             <div
               key={i}
-              className="bg-white border border-[#E6E6E6] rounded-lg shadow-sm flex-shrink-0 p-1 pt-1.5"
+              className="bg-white border border-[#E8E0D3] rounded-lg shadow-sm flex-shrink-0 p-1 pt-1.5"
               style={{
                 width: 30 - i * 4,
                 height: 38 - i * 5,
@@ -85,16 +85,16 @@ export function ProjectCard({ name, fileCount, description, fileTypes }: Project
 
       {/* Card body */}
       <div className="px-4 pt-3.5 pb-4">
-        <h3 className="text-[#111111] text-[13px] font-semibold leading-tight truncate mb-1">
+        <h3 className="text-[#2B2824] text-[13px] font-semibold leading-tight truncate mb-1">
           {name}
         </h3>
         {description ? (
-          <p className="text-[#9CA3AF] text-[11px] leading-relaxed line-clamp-1 mb-3">{description}</p>
+          <p className="text-[#A89D91] text-[11px] leading-relaxed line-clamp-1 mb-3">{description}</p>
         ) : (
           <div className="mb-3" />
         )}
         <div className="flex items-center justify-between">
-          <span className="text-[11px] text-[#9CA3AF] tabular-nums">
+          <span className="text-[11px] text-[#A89D91] tabular-nums">
             {fileCount} {fileCount === 1 ? 'file' : 'files'}
           </span>
           {uniqueTypes.length > 0 ? (

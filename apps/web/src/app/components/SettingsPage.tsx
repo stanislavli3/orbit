@@ -16,7 +16,7 @@ function StatusBadge({ ok, label }: { ok: boolean; label: string }) {
   return (
     <div className="flex items-center gap-2">
       <span className={`inline-block w-2.5 h-2.5 rounded-full ${ok ? 'bg-green-500' : 'bg-red-500'}`} />
-      <span className="text-sm text-[#111111]">{label}</span>
+      <span className="text-sm text-[#2B2824]">{label}</span>
       <span className={`text-xs font-medium ${ok ? 'text-green-600' : 'text-red-600'}`}>
         {ok ? 'Configured' : 'Not configured'}
       </span>
@@ -29,17 +29,17 @@ function ReadOnlyInput({ value }: { value: string }) {
     <input
       value={value}
       readOnly
-      className="w-72 px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm text-[#6B7280] bg-[#F9F9F9] cursor-default focus:outline-none"
+      className="w-72 px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm text-[#8B7F73] bg-[#F9F9F9] cursor-default focus:outline-none"
     />
   );
 }
 
 function FieldRow({ label, description, children }: { label: string; description: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-8 py-5 border-b border-[#F4F4F4] last:border-0">
+    <div className="flex items-start justify-between gap-8 py-5 border-b border-[#F2EDE3] last:border-0">
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-[#111111]">{label}</p>
-        <p className="text-xs text-[#6B7280] mt-0.5">{description}</p>
+        <p className="text-sm font-medium text-[#2B2824]">{label}</p>
+        <p className="text-xs text-[#8B7F73] mt-0.5">{description}</p>
       </div>
       <div className="shrink-0 flex items-center">{children}</div>
     </div>
@@ -57,9 +57,9 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
   }
 
   return (
-    <div className="flex flex-wrap gap-1.5 items-center w-full min-h-[38px] px-2 py-1.5 border border-[#E6E6E6] rounded-lg focus-within:border-[#111111] transition-colors bg-white">
+    <div className="flex flex-wrap gap-1.5 items-center w-full min-h-[38px] px-2 py-1.5 border border-[#E8E0D3] rounded-lg focus-within:border-[#2B2824] transition-colors bg-white">
       {tags.map((t) => (
-        <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F4F4F4] text-xs text-[#111111]">
+        <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#F2EDE3] text-xs text-[#2B2824]">
           {t}
           <button type="button" onClick={() => onChange(tags.filter((x) => x !== t))} className="hover:text-red-500">
             <X className="w-3 h-3" />
@@ -72,7 +72,7 @@ function TagInput({ tags, onChange }: { tags: string[]; onChange: (tags: string[
         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); add(); } }}
         onBlur={add}
         placeholder={tags.length === 0 ? 'Type and press Enter…' : ''}
-        className="flex-1 min-w-[120px] text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none bg-transparent"
+        className="flex-1 min-w-[120px] text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none bg-transparent"
       />
     </div>
   );
@@ -117,9 +117,9 @@ function ContactModal({ contact, onClose, onSave }: ContactModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-lg mx-4 max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F4F4F4]">
-          <h3 className="text-base font-semibold text-[#111111]">{contact ? 'Edit contact' : 'Add contact'}</h3>
-          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#111111] transition-colors">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F2EDE3]">
+          <h3 className="text-base font-semibold text-[#2B2824]">{contact ? 'Edit contact' : 'Add contact'}</h3>
+          <button onClick={onClose} className="text-[#A89D91] hover:text-[#2B2824] transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -127,46 +127,46 @@ function ContactModal({ contact, onClose, onSave }: ContactModalProps) {
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">Full name *</label>
+              <label className="block text-xs font-medium text-[#8B7F73] mb-1">Full name *</label>
               <input required value={form.full_name} onChange={(e) => set('full_name', e.target.value)}
-                className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111]" />
+                className="w-full px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824]" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">Email *</label>
+              <label className="block text-xs font-medium text-[#8B7F73] mb-1">Email *</label>
               <input required type="email" value={form.email} onChange={(e) => set('email', e.target.value)}
-                className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111]" />
+                className="w-full px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824]" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">Role *</label>
+              <label className="block text-xs font-medium text-[#8B7F73] mb-1">Role *</label>
               <input required value={form.role} onChange={(e) => set('role', e.target.value)}
-                className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111]" />
+                className="w-full px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824]" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">Department</label>
+              <label className="block text-xs font-medium text-[#8B7F73] mb-1">Department</label>
               <input value={form.department} onChange={(e) => set('department', e.target.value)}
-                className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111]" />
+                className="w-full px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824]" />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">Expertise tags</label>
+            <label className="block text-xs font-medium text-[#8B7F73] mb-1">Expertise tags</label>
             <TagInput tags={form.expertise_tags} onChange={(t) => set('expertise_tags', t)} />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">Slack handle</label>
+              <label className="block text-xs font-medium text-[#8B7F73] mb-1">Slack handle</label>
               <input value={form.slack_handle} onChange={(e) => set('slack_handle', e.target.value)}
                 placeholder="@handle"
-                className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111]" />
+                className="w-full px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824]" />
             </div>
             <div>
-              <label className="block text-xs font-medium text-[#6B7280] mb-1">Preferred channel</label>
+              <label className="block text-xs font-medium text-[#8B7F73] mb-1">Preferred channel</label>
               <div className="flex gap-2 mt-1">
                 {(['email', 'slack'] as const).map((ch) => (
                   <button key={ch} type="button"
                     onClick={() => set('preferred_channel', ch)}
-                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border text-sm transition-colors ${form.preferred_channel === ch ? 'border-[#111111] bg-[#111111] text-white' : 'border-[#E6E6E6] text-[#6B7280] hover:border-[#111111]'}`}>
+                    className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg border text-sm transition-colors ${form.preferred_channel === ch ? 'border-[#2B2824] bg-[#2B2824] text-white' : 'border-[#E8E0D3] text-[#8B7F73] hover:border-[#2B2824]'}`}>
                     {ch === 'email' ? <Mail className="w-3.5 h-3.5" /> : <MessageSquare className="w-3.5 h-3.5" />}
                     {ch.charAt(0).toUpperCase() + ch.slice(1)}
                   </button>
@@ -176,29 +176,29 @@ function ContactModal({ contact, onClose, onSave }: ContactModalProps) {
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-[#6B7280] mb-1">Notes</label>
+            <label className="block text-xs font-medium text-[#8B7F73] mb-1">Notes</label>
             <textarea value={form.notes} onChange={(e) => set('notes', e.target.value)} rows={2}
-              className="w-full px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111] resize-none" />
+              className="w-full px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824] resize-none" />
           </div>
 
-          <div className="flex items-center justify-between py-2 border-t border-[#F4F4F4]">
+          <div className="flex items-center justify-between py-2 border-t border-[#F2EDE3]">
             <div>
-              <p className="text-sm font-medium text-[#111111]">Allow automated emails</p>
-              <p className="text-xs text-[#6B7280]">BOM agent may contact this person automatically.</p>
+              <p className="text-sm font-medium text-[#2B2824]">Allow automated emails</p>
+              <p className="text-xs text-[#8B7F73]">BOM agent may contact this person automatically.</p>
             </div>
             <button type="button" onClick={() => set('allow_automated', !form.allow_automated)}
-              className={`relative w-10 h-5 rounded-full transition-colors ${form.allow_automated ? 'bg-[#111111]' : 'bg-[#D1D5DB]'}`}>
+              className={`relative w-10 h-5 rounded-full transition-colors ${form.allow_automated ? 'bg-[#2B2824]' : 'bg-[#D1D5DB]'}`}>
               <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.allow_automated ? 'translate-x-5' : 'translate-x-0.5'}`} />
             </button>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
             <button type="button" onClick={onClose}
-              className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4] transition-colors">
+              className="px-4 py-2 text-sm border border-[#E8E0D3] rounded-lg hover:bg-[#F2EDE3] transition-colors">
               Cancel
             </button>
             <button type="submit" disabled={saving}
-              className="px-4 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors">
+              className="px-4 py-2 text-sm bg-[#2B2824] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors">
               {saving ? 'Saving…' : contact ? 'Save changes' : 'Add contact'}
             </button>
           </div>
@@ -251,9 +251,9 @@ function CsvImportModal({ onClose, onImported }: { onClose: () => void; onImport
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[90vh] flex flex-col">
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F4F4F4]">
-          <h3 className="text-base font-semibold text-[#111111]">Import contacts from CSV</h3>
-          <button onClick={onClose} className="text-[#9CA3AF] hover:text-[#111111]"><X className="w-5 h-5" /></button>
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#F2EDE3]">
+          <h3 className="text-base font-semibold text-[#2B2824]">Import contacts from CSV</h3>
+          <button onClick={onClose} className="text-[#A89D91] hover:text-[#2B2824]"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
@@ -262,17 +262,17 @@ function CsvImportModal({ onClose, onImported }: { onClose: () => void; onImport
               onClick={() => fileRef.current?.click()}
               onDragOver={(e) => e.preventDefault()}
               onDrop={(e) => { e.preventDefault(); const f = e.dataTransfer.files[0]; if (f) handleFile(f); }}
-              className="border-2 border-dashed border-[#E6E6E6] rounded-lg p-10 text-center cursor-pointer hover:border-[#111111] transition-colors">
-              <Upload className="w-8 h-8 mx-auto text-[#9CA3AF] mb-2" />
-              <p className="text-sm text-[#111111] font-medium">Drop a CSV file here, or click to browse</p>
-              <p className="text-xs text-[#9CA3AF] mt-1">Required columns: Name, Email, Role. Optional: Department, Tags</p>
+              className="border-2 border-dashed border-[#E8E0D3] rounded-lg p-10 text-center cursor-pointer hover:border-[#2B2824] transition-colors">
+              <Upload className="w-8 h-8 mx-auto text-[#A89D91] mb-2" />
+              <p className="text-sm text-[#2B2824] font-medium">Drop a CSV file here, or click to browse</p>
+              <p className="text-xs text-[#A89D91] mt-1">Required columns: Name, Email, Role. Optional: Department, Tags</p>
               <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) handleFile(f); }} />
             </div>
           ) : (
             <>
               <div className="flex items-center justify-between">
-                <p className="text-sm text-[#111111]"><span className="font-medium">{preview.length}</span> rows ready to import{csvErrors.length > 0 && <span className="text-red-600 ml-2">· {csvErrors.length} with errors (will be skipped)</span>}</p>
-                <button onClick={() => { setPreview(null); setCsvErrors([]); setFile(null); }} className="text-xs text-[#6B7280] hover:text-[#111111]">Change file</button>
+                <p className="text-sm text-[#2B2824]"><span className="font-medium">{preview.length}</span> rows ready to import{csvErrors.length > 0 && <span className="text-red-600 ml-2">· {csvErrors.length} with errors (will be skipped)</span>}</p>
+                <button onClick={() => { setPreview(null); setCsvErrors([]); setFile(null); }} className="text-xs text-[#8B7F73] hover:text-[#2B2824]">Change file</button>
               </div>
 
               {csvErrors.length > 0 && (
@@ -283,26 +283,26 @@ function CsvImportModal({ onClose, onImported }: { onClose: () => void; onImport
                 </div>
               )}
 
-              <div className="rounded-lg border border-[#E6E6E6] overflow-hidden">
+              <div className="rounded-lg border border-[#E8E0D3] overflow-hidden">
                 <table className="w-full text-xs">
                   <thead className="bg-[#F9F9F9]">
                     <tr>
                       {['Name', 'Email', 'Role', 'Dept', 'Tags'].map((h) => (
-                        <th key={h} className="px-3 py-2 text-left font-medium text-[#6B7280]">{h}</th>
+                        <th key={h} className="px-3 py-2 text-left font-medium text-[#8B7F73]">{h}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
                     {preview.map((r, i) => (
-                      <tr key={i} className="border-t border-[#F4F4F4]">
-                        <td className="px-3 py-2 text-[#111111]">{r.full_name}</td>
-                        <td className="px-3 py-2 text-[#6B7280]">{r.email}</td>
-                        <td className="px-3 py-2 text-[#6B7280]">{r.role}</td>
-                        <td className="px-3 py-2 text-[#6B7280]">{r.department}</td>
+                      <tr key={i} className="border-t border-[#F2EDE3]">
+                        <td className="px-3 py-2 text-[#2B2824]">{r.full_name}</td>
+                        <td className="px-3 py-2 text-[#8B7F73]">{r.email}</td>
+                        <td className="px-3 py-2 text-[#8B7F73]">{r.role}</td>
+                        <td className="px-3 py-2 text-[#8B7F73]">{r.department}</td>
                         <td className="px-3 py-2">
                           <div className="flex flex-wrap gap-1">
                             {r.expertise_tags.map((t) => (
-                              <span key={t} className="px-1.5 py-0.5 rounded-full bg-[#F4F4F4] text-[10px]">{t}</span>
+                              <span key={t} className="px-1.5 py-0.5 rounded-full bg-[#F2EDE3] text-[10px]">{t}</span>
                             ))}
                           </div>
                         </td>
@@ -316,10 +316,10 @@ function CsvImportModal({ onClose, onImported }: { onClose: () => void; onImport
         </div>
 
         {preview && (
-          <div className="flex justify-end gap-2 px-6 py-4 border-t border-[#F4F4F4]">
-            <button onClick={onClose} className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4]">Cancel</button>
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-[#F2EDE3]">
+            <button onClick={onClose} className="px-4 py-2 text-sm border border-[#E8E0D3] rounded-lg hover:bg-[#F2EDE3]">Cancel</button>
             <button onClick={handleConfirm} disabled={importing || preview.length === 0}
-              className="px-4 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50">
+              className="px-4 py-2 text-sm bg-[#2B2824] text-white rounded-lg hover:bg-[#333333] disabled:opacity-50">
               {importing ? 'Importing…' : `Import ${preview.length} contact${preview.length !== 1 ? 's' : ''}`}
             </button>
           </div>
@@ -334,10 +334,10 @@ function DeleteConfirmDialog({ name, onConfirm, onCancel }: { name: string; onCo
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="bg-white rounded-xl shadow-xl w-full max-w-sm mx-4 p-6">
-        <h3 className="text-base font-semibold text-[#111111] mb-1">Remove contact</h3>
-        <p className="text-sm text-[#6B7280]">Remove <span className="font-medium text-[#111111]">{name}</span> from your team directory? This cannot be undone.</p>
+        <h3 className="text-base font-semibold text-[#2B2824] mb-1">Remove contact</h3>
+        <p className="text-sm text-[#8B7F73]">Remove <span className="font-medium text-[#2B2824]">{name}</span> from your team directory? This cannot be undone.</p>
         <div className="flex justify-end gap-2 mt-5">
-          <button onClick={onCancel} className="px-4 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4]">Cancel</button>
+          <button onClick={onCancel} className="px-4 py-2 text-sm border border-[#E8E0D3] rounded-lg hover:bg-[#F2EDE3]">Cancel</button>
           <button onClick={onConfirm} className="px-4 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700">Remove</button>
         </div>
       </div>
@@ -405,17 +405,17 @@ function TeamContactsSection() {
     <section className="px-8 pt-6 pb-2">
       <div className="flex items-start justify-between mb-4">
         <div>
-          <h2 className="text-[#111111] font-semibold text-base">Team</h2>
-          <p className="text-[#6B7280] text-sm mt-0.5">Colleagues the BOM agent can contact for missing specs.</p>
+          <h2 className="text-[#2B2824] font-semibold text-base">Team</h2>
+          <p className="text-[#8B7F73] text-sm mt-0.5">Colleagues the BOM agent can contact for missing specs.</p>
         </div>
         <div className="flex items-center gap-2">
           <button onClick={() => setShowImport(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm border border-[#E6E6E6] rounded-lg hover:bg-[#F4F4F4] transition-colors">
+            className="flex items-center gap-1.5 px-3 py-2 text-sm border border-[#E8E0D3] rounded-lg hover:bg-[#F2EDE3] transition-colors">
             <Upload className="w-4 h-4" />
             Import CSV
           </button>
           <button onClick={() => setShowAdd(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[#111111] text-white rounded-lg hover:bg-[#333333] transition-colors">
+            className="flex items-center gap-1.5 px-3 py-2 text-sm bg-[#2B2824] text-white rounded-lg hover:bg-[#333333] transition-colors">
             <Plus className="w-4 h-4" />
             Add contact
           </button>
@@ -424,63 +424,63 @@ function TeamContactsSection() {
 
       {/* Search */}
       <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9CA3AF]" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#A89D91]" />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by name, role, or tag…"
-          className="w-full pl-9 pr-3 py-2 border border-[#E6E6E6] rounded-lg text-sm focus:outline-none focus:border-[#111111] transition-colors"
+          className="w-full pl-9 pr-3 py-2 border border-[#E8E0D3] rounded-lg text-sm focus:outline-none focus:border-[#2B2824] transition-colors"
         />
       </div>
 
       {/* Table */}
       {isLoading ? (
-        <p className="text-sm text-[#9CA3AF] py-4 text-center">Loading…</p>
+        <p className="text-sm text-[#A89D91] py-4 text-center">Loading…</p>
       ) : contacts.length === 0 ? (
-        <div className="text-center py-12 border border-dashed border-[#E6E6E6] rounded-xl">
-          <p className="text-sm font-medium text-[#111111]">
+        <div className="text-center py-12 border border-dashed border-[#E8E0D3] rounded-xl">
+          <p className="text-sm font-medium text-[#2B2824]">
             {search ? 'No contacts match your search.' : 'Add your first team member to unlock automated BOM research emails'}
           </p>
           {!search && (
             <button onClick={() => setShowAdd(true)}
-              className="mt-3 text-sm text-[#111111] underline underline-offset-2 hover:opacity-70 transition-opacity">
+              className="mt-3 text-sm text-[#2B2824] underline underline-offset-2 hover:opacity-70 transition-opacity">
               Add a contact
             </button>
           )}
         </div>
       ) : (
-        <div className="rounded-xl border border-[#E6E6E6] overflow-hidden">
+        <div className="rounded-xl border border-[#E8E0D3] overflow-hidden">
           <table className="w-full text-sm">
-            <thead className="bg-[#F9F9F9] border-b border-[#E6E6E6]">
+            <thead className="bg-[#F9F9F9] border-b border-[#E8E0D3]">
               <tr>
-                <th className="px-4 py-3 text-left font-medium text-[#6B7280] text-xs">Name</th>
-                <th className="px-4 py-3 text-left font-medium text-[#6B7280] text-xs">Role</th>
-                <th className="px-4 py-3 text-left font-medium text-[#6B7280] text-xs">Expertise</th>
-                <th className="px-4 py-3 text-left font-medium text-[#6B7280] text-xs">Channel</th>
-                <th className="px-4 py-3 text-left font-medium text-[#6B7280] text-xs">Auto</th>
+                <th className="px-4 py-3 text-left font-medium text-[#8B7F73] text-xs">Name</th>
+                <th className="px-4 py-3 text-left font-medium text-[#8B7F73] text-xs">Role</th>
+                <th className="px-4 py-3 text-left font-medium text-[#8B7F73] text-xs">Expertise</th>
+                <th className="px-4 py-3 text-left font-medium text-[#8B7F73] text-xs">Channel</th>
+                <th className="px-4 py-3 text-left font-medium text-[#8B7F73] text-xs">Auto</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
             <tbody>
               {contacts.map((c) => (
-                <tr key={c.id} className="border-t border-[#F4F4F4] hover:bg-[#FAFAFA] transition-colors">
+                <tr key={c.id} className="border-t border-[#F2EDE3] hover:bg-[#FFFCF7] transition-colors">
                   <td className="px-4 py-3">
-                    <p className="font-medium text-[#111111]">{c.full_name}</p>
-                    <p className="text-xs text-[#9CA3AF]">{c.email}</p>
+                    <p className="font-medium text-[#2B2824]">{c.full_name}</p>
+                    <p className="text-xs text-[#A89D91]">{c.email}</p>
                   </td>
-                  <td className="px-4 py-3 text-[#6B7280]">
+                  <td className="px-4 py-3 text-[#8B7F73]">
                     <p>{c.role}</p>
-                    {c.department && <p className="text-xs text-[#9CA3AF]">{c.department}</p>}
+                    {c.department && <p className="text-xs text-[#A89D91]">{c.department}</p>}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1">
                       {c.expertise_tags.map((t) => (
-                        <span key={t} className="px-2 py-0.5 rounded-full bg-[#F4F4F4] text-[#6B7280] text-[11px]">{t}</span>
+                        <span key={t} className="px-2 py-0.5 rounded-full bg-[#F2EDE3] text-[#8B7F73] text-[11px]">{t}</span>
                       ))}
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1 text-xs text-[#6B7280]">
+                    <span className="inline-flex items-center gap-1 text-xs text-[#8B7F73]">
                       {c.preferred_channel === 'slack'
                         ? <><MessageSquare className="w-3.5 h-3.5" /> Slack</>
                         : <><Mail className="w-3.5 h-3.5" /> Email</>}
@@ -492,11 +492,11 @@ function TeamContactsSection() {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1 justify-end">
                       <button onClick={() => setEditing(c)}
-                        className="p-1.5 rounded hover:bg-[#F4F4F4] text-[#9CA3AF] hover:text-[#111111] transition-colors">
+                        className="p-1.5 rounded hover:bg-[#F2EDE3] text-[#A89D91] hover:text-[#2B2824] transition-colors">
                         <Pencil className="w-3.5 h-3.5" />
                       </button>
                       <button onClick={() => setDeleting(c)}
-                        className="p-1.5 rounded hover:bg-[#FEF2F2] text-[#9CA3AF] hover:text-red-600 transition-colors">
+                        className="p-1.5 rounded hover:bg-[#FEF2F2] text-[#A89D91] hover:text-red-600 transition-colors">
                         <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     </div>
@@ -685,15 +685,15 @@ export function SettingsPage() {
           <section className="px-8 pt-6 pb-2">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h2 className="text-[#111111] font-semibold text-base">Profile</h2>
-                <p className="text-[#6B7280] text-sm mt-0.5">Manage your personal information and account details.</p>
+                <h2 className="text-[#2B2824] font-semibold text-base">Profile</h2>
+                <p className="text-[#8B7F73] text-sm mt-0.5">Manage your personal information and account details.</p>
               </div>
               <div className="flex items-center gap-2">
                 {profileError && <p className="text-xs text-red-600">{profileError}</p>}
                 <button
                   onClick={handleSaveProfile}
                   disabled={profileSaving}
-                  className="px-4 py-2 bg-[#111111] text-white text-sm rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
+                  className="px-4 py-2 bg-[#2B2824] text-white text-sm rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
                 >
                   {profileSaving ? 'Saving…' : profileSuccess ? 'Saved!' : 'Save'}
                 </button>
@@ -707,14 +707,14 @@ export function SettingsPage() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   placeholder="First"
-                  className="w-36 px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] transition-colors"
+                  className="w-36 px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] transition-colors"
                 />
                 <input
                   type="text"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   placeholder="Last"
-                  className="w-36 px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] transition-colors"
+                  className="w-36 px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] transition-colors"
                 />
               </div>
             </FieldRow>
@@ -729,7 +729,7 @@ export function SettingsPage() {
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
                 placeholder="e.g. Engineering Manager"
-                className="w-72 px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] transition-colors"
+                className="w-72 px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] transition-colors"
               />
             </FieldRow>
           </section>
@@ -738,15 +738,15 @@ export function SettingsPage() {
           <section className="px-8 pt-6 pb-2">
             <div className="flex items-start justify-between mb-2">
               <div>
-                <h2 className="text-[#111111] font-semibold text-base">Workspace</h2>
-                <p className="text-[#6B7280] text-sm mt-0.5">Configure workspace settings and permissions.</p>
+                <h2 className="text-[#2B2824] font-semibold text-base">Workspace</h2>
+                <p className="text-[#8B7F73] text-sm mt-0.5">Configure workspace settings and permissions.</p>
               </div>
               <div className="flex items-center gap-2">
                 {workspaceError && <p className="text-xs text-red-600">{workspaceError}</p>}
                 <button
                   onClick={handleSaveWorkspace}
                   disabled={workspaceSaving}
-                  className="px-4 py-2 bg-[#111111] text-white text-sm rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
+                  className="px-4 py-2 bg-[#2B2824] text-white text-sm rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
                 >
                   {workspaceSaving ? 'Saving…' : workspaceSuccess ? 'Saved!' : 'Save'}
                 </button>
@@ -759,13 +759,13 @@ export function SettingsPage() {
                 value={workspaceName}
                 onChange={(e) => setWorkspaceName(e.target.value)}
                 placeholder="e.g. Orbit"
-                className="w-72 px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none focus:border-[#111111] transition-colors"
+                className="w-72 px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none focus:border-[#2B2824] transition-colors"
               />
             </FieldRow>
 
             <FieldRow label="Workspace URL" description="Custom URL for your workspace.">
-              <div className="flex items-center border border-[#E6E6E6] rounded-lg overflow-hidden focus-within:border-[#111111] transition-colors">
-                <span className="px-3 py-2 text-sm text-[#9CA3AF] bg-[#F9F9F9] border-r border-[#E6E6E6] select-none">
+              <div className="flex items-center border border-[#E8E0D3] rounded-lg overflow-hidden focus-within:border-[#2B2824] transition-colors">
+                <span className="px-3 py-2 text-sm text-[#A89D91] bg-[#F9F9F9] border-r border-[#E8E0D3] select-none">
                   orbit.app/
                 </span>
                 <input
@@ -773,7 +773,7 @@ export function SettingsPage() {
                   value={workspaceSlug}
                   onChange={(e) => setWorkspaceSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
                   placeholder="your-workspace"
-                  className="w-48 px-3 py-2 text-sm text-[#111111] placeholder:text-[#9CA3AF] focus:outline-none bg-white"
+                  className="w-48 px-3 py-2 text-sm text-[#2B2824] placeholder:text-[#A89D91] focus:outline-none bg-white"
                 />
               </div>
             </FieldRow>
@@ -782,7 +782,7 @@ export function SettingsPage() {
               <select
                 value={defaultPermissions}
                 onChange={(e) => setDefaultPermissions(e.target.value)}
-                className="w-72 px-3 py-2 border border-[#E6E6E6] rounded-lg text-sm text-[#111111] focus:outline-none focus:border-[#111111] transition-colors bg-white appearance-none cursor-pointer"
+                className="w-72 px-3 py-2 border border-[#E8E0D3] rounded-lg text-sm text-[#2B2824] focus:outline-none focus:border-[#2B2824] transition-colors bg-white appearance-none cursor-pointer"
               >
                 <option value="private">Private — only you</option>
                 <option value="team">Team — all workspace members</option>
@@ -793,14 +793,14 @@ export function SettingsPage() {
 
           {/* ── API & Integrations ───────────────────────────────── */}
           <section className="px-8 pt-6 pb-2">
-            <h2 className="text-[#111111] font-semibold text-base mb-0.5">API & Integrations</h2>
-            <p className="text-[#6B7280] text-sm mb-2">Status of external services connected to Orbit.</p>
+            <h2 className="text-[#2B2824] font-semibold text-base mb-0.5">API & Integrations</h2>
+            <p className="text-[#8B7F73] text-sm mb-2">Status of external services connected to Orbit.</p>
 
             <FieldRow label="Anthropic AI" description="Powers metadata extraction and the assistant.">
               {health ? (
                 <StatusBadge ok={health.anthropic} label="Anthropic AI" />
               ) : (
-                <span className="text-xs text-[#9CA3AF]">Checking…</span>
+                <span className="text-xs text-[#A89D91]">Checking…</span>
               )}
             </FieldRow>
 
@@ -809,23 +809,23 @@ export function SettingsPage() {
             </FieldRow>
 
             <FieldRow label="Gmail BOM Sender" description="Authorize Orbit to send BOM follow-ups from your Gmail and detect replies.">
-              <div className="w-[420px] rounded-xl border border-[#E6E6E6] bg-white px-4 py-3">
+              <div className="w-[420px] rounded-xl border border-[#E8E0D3] bg-white px-4 py-3">
                 <div className="flex items-start justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <Link2 className="w-4 h-4 text-[#111111]" />
-                      <p className="text-sm font-medium text-[#111111]">
+                      <Link2 className="w-4 h-4 text-[#2B2824]" />
+                      <p className="text-sm font-medium text-[#2B2824]">
                         {gmailStatus?.connected ? gmailStatus.credential?.gmail_address ?? 'Connected' : 'Not connected'}
                       </p>
                     </div>
-                    <p className="text-xs text-[#6B7280]">
+                    <p className="text-xs text-[#8B7F73]">
                       {gmailStatus?.connected
                         ? 'Refresh token stored securely. Orbit can send BOM emails and poll for replies.'
                         : 'Required before approved BOM drafts can actually send from your Gmail account.'}
                     </p>
                     {gmailStatus?.connected && gmailStatus.credential && (
-                      <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-[#6B7280]">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F4F4F4] px-2 py-1">
+                      <div className="flex flex-wrap items-center gap-2 pt-1 text-xs text-[#8B7F73]">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-[#F2EDE3] px-2 py-1">
                           <ShieldCheck className="w-3 h-3" />
                           {gmailStatus.credential.has_refresh_token ? 'Offline access granted' : 'No refresh token'}
                         </span>
@@ -840,7 +840,7 @@ export function SettingsPage() {
                       <button
                         onClick={handleDisconnectGmail}
                         disabled={gmailActionLoading}
-                        className="px-3 py-2 border border-[#E6E6E6] text-[#111111] text-sm rounded-lg hover:bg-[#F4F4F4] disabled:opacity-50 transition-colors"
+                        className="px-3 py-2 border border-[#E8E0D3] text-[#2B2824] text-sm rounded-lg hover:bg-[#F2EDE3] disabled:opacity-50 transition-colors"
                       >
                         Disconnect
                       </button>
@@ -848,7 +848,7 @@ export function SettingsPage() {
                     <button
                       onClick={handleConnectGmail}
                       disabled={gmailActionLoading}
-                      className="px-3 py-2 bg-[#111111] text-white text-sm rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
+                      className="px-3 py-2 bg-[#2B2824] text-white text-sm rounded-lg hover:bg-[#333333] disabled:opacity-50 transition-colors"
                     >
                       {gmailActionLoading ? 'Opening…' : gmailStatus?.connected ? 'Reconnect Gmail' : 'Connect Gmail'}
                     </button>
@@ -864,12 +864,12 @@ export function SettingsPage() {
           {/* ── Danger Zone ──────────────────────────────────────── */}
           <section className="px-8 pt-6 pb-2">
             <h2 className="text-red-600 font-semibold text-base mb-0.5">Danger Zone</h2>
-            <p className="text-[#6B7280] text-sm mb-2">Irreversible actions for your account.</p>
+            <p className="text-[#8B7F73] text-sm mb-2">Irreversible actions for your account.</p>
 
             <FieldRow label="Sign out" description="End your current session on this device.">
               <button
                 onClick={() => signOut({ redirectUrl: '/signin' })}
-                className="flex items-center gap-2 px-4 py-2 border border-[#E6E6E6] text-[#111111] text-sm rounded-lg hover:bg-[#F4F4F4] transition-colors"
+                className="flex items-center gap-2 px-4 py-2 border border-[#E8E0D3] text-[#2B2824] text-sm rounded-lg hover:bg-[#F2EDE3] transition-colors"
               >
                 <LogOut className="w-4 h-4" />
                 Sign out
@@ -880,7 +880,7 @@ export function SettingsPage() {
               <div title="Contact support to delete your account">
                 <button
                   disabled
-                  className="flex items-center gap-2 px-4 py-2 border border-[#E6E6E6] text-[#9CA3AF] text-sm rounded-lg cursor-not-allowed"
+                  className="flex items-center gap-2 px-4 py-2 border border-[#E8E0D3] text-[#A89D91] text-sm rounded-lg cursor-not-allowed"
                 >
                   <Ban className="w-4 h-4" />
                   Delete account
