@@ -286,3 +286,21 @@ export interface AssistantResponse {
   source_files?: AssistantSourceFile[];
   error?: string;
 }
+
+export interface ChatSessionSummary {
+  session_id: string;
+  title: string;
+  is_starred: boolean;
+  created_at: string;
+}
+
+export interface SessionMessage {
+  role: 'user' | 'assistant';
+  content: string;
+  created_at: string;
+}
+
+export interface SessionMessagesResponse {
+  session_id: string;
+  messages: SessionMessage[];
+}

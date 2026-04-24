@@ -1,9 +1,9 @@
 import { Send, Sparkles, FileText, Search, Code, Lightbulb } from 'lucide-react';
-import { useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { TopBar } from './TopBar';
 import { useApiClient } from '../../api/client';
-import { AssistantResponse, AssistantSourceFile } from '../../api/types';
+import type { AssistantResponse, AssistantSourceFile, SessionMessagesResponse } from '../../api/types';
 
 const suggestedPrompts = [
   {
@@ -39,17 +39,37 @@ interface Message {
 const newId = (prefix: string) =>
   `${prefix}-${typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Date.now()}`;
 
-export function AssistantPage() {
+interface AssistantPageProps {
+  initialSessionId?: string | null;
+}
+
+export function AssistantPage({ initialSessionId }: AssistantPageProps) {
   const apiFetch = useApiClient();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isSending, setIsSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(initialSessionId ?? null);
+  const [isLoadingMessages, setIsLoadingMessages] = useState(!!initialSessionId);
 
-  const sessionId = useMemo(
-    () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`),
-    []
-  );
+  useEffect(() => {
+    if (!initialSessionId) return;
+    setIsLoadingMessages(true);
+    apiFetch(`/api/assistant/sessions/${initialSessionId}/messages/`)
+      .then((r) => r.json())
+      .then((data: SessionMessagesResponse) => {
+        setMessages(
+          data.messages.map((msg) => ({
+            id: newId(msg.role === 'user' ? 'u' : 'a'),
+            role: msg.role,
+            content: msg.content,
+            sources: [],
+          }))
+        );
+      })
+      .catch(() => {})
+      .finally(() => setIsLoadingMessages(false));
+  }, [initialSessionId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const buildSources = (payload: AssistantResponse): AssistantSourceFile[] => {
     if (payload.source_files?.length) return payload.source_files;
@@ -96,7 +116,7 @@ export function AssistantPage() {
         method: 'POST',
         body: JSON.stringify({
           message: text,
-          session_id: sessionId,
+          ...(sessionId ? { session_id: sessionId } : {}),
         }),
       });
 
@@ -108,6 +128,10 @@ export function AssistantPage() {
         return;
       }
 
+      if (!sessionId && data.session_id) {
+        setSessionId(data.session_id);
+      }
+
       replacePending(pendingId, data.response, sources);
     } catch {
       replacePending(pendingId, 'AI assistant is not configured.', [], true);
@@ -116,19 +140,35 @@ export function AssistantPage() {
     }
   };
 
+  if (isLoadingMessages) {
+    return (
+      <div className="flex-1 flex flex-col h-full overflow-hidden">
+        <TopBar
+          title="Assistant"
+          subtitle="Ask questions about your engineering files, extract metadata, and generate insights."
+        />
+        <div className="flex-1 flex items-center justify-center">
+          <div className="flex gap-1 text-[#8B7F73]">
+            <span className="animate-pulse">•</span>
+            <span className="animate-pulse" style={{ animationDelay: '0.1s' }}>•</span>
+            <span className="animate-pulse" style={{ animationDelay: '0.2s' }}>•</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden">
-      <TopBar 
-        title="Assistant" 
+      <TopBar
+        title="Assistant"
         subtitle="Ask questions about your engineering files, extract metadata, and generate insights."
       />
-      
+
       <div className="flex-1 overflow-auto flex flex-col">
         {messages.length === 0 ? (
-          /* Empty State */
           <div className="flex-1 flex items-center justify-center px-8">
             <div className="max-w-3xl w-full">
-              {/* Header */}
               <div className="text-center mb-12">
                 <div className="inline-flex items-center justify-center w-14 h-14 bg-[#F2EDE3] rounded-xl mb-4">
                   <Sparkles className="w-7 h-7 text-[#2B2824]" strokeWidth={1.5} />
@@ -139,7 +179,6 @@ export function AssistantPage() {
                 </p>
               </div>
 
-              {/* Suggested Prompts */}
               <div className="grid grid-cols-2 gap-3">
                 {suggestedPrompts.map((prompt) => (
                   <button
@@ -160,7 +199,6 @@ export function AssistantPage() {
             </div>
           </div>
         ) : (
-          /* Conversation */
           <div className="flex-1 px-8 py-6">
             <div className="max-w-3xl mx-auto space-y-6">
               {error && (
@@ -220,7 +258,6 @@ export function AssistantPage() {
           </div>
         )}
 
-        {/* Input Area */}
         <div className="border-t border-[#E8E0D3] bg-white px-8 py-4">
           <div className="max-w-3xl mx-auto">
             <div className="flex items-end gap-3">

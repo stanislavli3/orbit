@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useClerk } from "@clerk/clerk-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApiClient } from "../../api/client";
-import type { Project, BomResearchRun } from "../../api/types";
+import type { Project, BomResearchRun, ChatSessionSummary } from "../../api/types";
 import {
   Dialog,
   DialogContent,
@@ -37,6 +37,7 @@ import {
   Zap,
   Wrench,
   Loader2,
+  MessageSquare,
 } from "lucide-react";
 import { useLocation, useNavigate } from "react-router";
 
@@ -70,8 +71,21 @@ function OrbitLogo() {
   );
 }
 
-function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
-  const [searchValue, setSearchValue] = useState("");
+function SearchContainer({
+  isCollapsed = false,
+  value,
+  onChange,
+}: {
+  isCollapsed?: boolean;
+  value?: string;
+  onChange?: (v: string) => void;
+}) {
+  const [internalValue, setInternalValue] = useState("");
+  const searchValue = value !== undefined ? value : internalValue;
+  const handleChange = (v: string) => {
+    if (onChange) onChange(v);
+    else setInternalValue(v);
+  };
 
   return (
     <div
@@ -108,7 +122,7 @@ function SearchContainer({ isCollapsed = false }: { isCollapsed?: boolean }) {
                 type="text"
                 placeholder="Search..."
                 value={searchValue}
-                onChange={(e) => setSearchValue(e.target.value)}
+                onChange={(e) => handleChange(e.target.value)}
                 className="w-full bg-transparent border-none outline-none text-sm text-[#2B2824] placeholder:text-[#A89D91] leading-5"
                 tabIndex={isCollapsed ? -1 : 0}
               />
@@ -318,40 +332,74 @@ function MenuSectionRow({
 function getSidebarContent(
   activeSection: string,
   projects?: Project[],
-  handlers?: { onNewProject?: () => void },
+  handlers?: { onNewProject?: () => void; onNewConversation?: () => void },
   bomRuns?: BomResearchRun[],
+  chatSessions?: ChatSessionSummary[],
+  searchQuery?: string,
 ): SidebarContent {
   const ic = "text-[#8B7F73]";
 
   const contentMap: Record<string, SidebarContent> = {
-    assistant: {
-      title: "Assistant",
-      sections: [
-        {
-          title: "Start",
-          items: [
-            {
-              icon: <Plus size={16} className={ic} />,
-              label: "New conversation",
-              path: "/assistant",
-            },
-          ],
-        },
-        {
-          title: "Recent",
-          items: [
-            {
-              icon: <Clock size={16} className={ic} />,
-              label: "Today's chats",
-            },
-            {
-              icon: <Star size={16} className={ic} />,
-              label: "Starred conversations",
-            },
-          ],
-        },
-      ],
-    },
+    assistant: (() => {
+      const today = new Date().toDateString();
+      const query = (searchQuery ?? "").toLowerCase();
+      const filtered = (chatSessions ?? []).filter(
+        (s) => !query || s.title.toLowerCase().includes(query)
+      );
+      const todaySessions = filtered.filter(
+        (s) => new Date(s.created_at).toDateString() === today
+      );
+      const starredSessions = filtered.filter((s) => s.is_starred);
+      const toSubItem = (s: ChatSessionSummary): SubItem => ({
+        label: s.title,
+        path: `/assistant?session=${s.session_id}`,
+      });
+
+      const allSection = filtered.length > 0
+        ? {
+            title: "All Conversations",
+            items: filtered.map((s) => ({
+              icon: <MessageSquare size={16} className={ic} />,
+              label: s.title,
+              path: `/assistant?session=${s.session_id}`,
+            })),
+          }
+        : null;
+
+      return {
+        title: "Assistant",
+        sections: [
+          {
+            title: "Start",
+            items: [
+              {
+                icon: <Plus size={16} className={ic} />,
+                label: "New conversation",
+                onClick: handlers?.onNewConversation,
+              },
+            ],
+          },
+          {
+            title: "Recent",
+            items: [
+              {
+                icon: <Clock size={16} className={ic} />,
+                label: "Today's chats",
+                hasDropdown: true,
+                children: todaySessions.map(toSubItem),
+              },
+              {
+                icon: <Star size={16} className={ic} />,
+                label: "Starred conversations",
+                hasDropdown: true,
+                children: starredSessions.map(toSubItem),
+              },
+            ],
+          },
+          ...(allSection ? [allSection] : []),
+        ],
+      };
+    })(),
     vault: {
       title: "Projects",
       sections: [
@@ -787,6 +835,7 @@ function SectionTitle({
 function DetailSidebar({ activeSection }: { activeSection: string }) {
   const [expandedItems, setExpandedItems] = useState<Set<string>>(new Set());
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   const apiFetch = useApiClient();
   const queryClient = useQueryClient();
@@ -824,6 +873,17 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
     },
   });
 
+  const { data: chatSessions } = useQuery<ChatSessionSummary[]>({
+    queryKey: ["chat-sessions"],
+    queryFn: async () => {
+      const res = await apiFetch("/api/assistant/sessions/");
+      if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+      return res.json();
+    },
+    enabled: activeSection === "assistant",
+    refetchOnWindowFocus: true,
+  });
+
   const handleCreateProject = async () => {
     if (!projectName.trim()) return;
     setSubmitting(true);
@@ -856,8 +916,13 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
   const content = getSidebarContent(
     activeSection,
     projects,
-    { onNewProject: () => setDialogOpen(true) },
+    {
+      onNewProject: () => setDialogOpen(true),
+      onNewConversation: () => navigate(`/assistant?t=${Date.now()}`),
+    },
     bomRuns,
+    chatSessions,
+    searchQuery,
   );
 
   const toggleExpanded = (key: string) => {
@@ -882,7 +947,11 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
         onToggleCollapse={() => setIsCollapsed(!isCollapsed)}
         isCollapsed={isCollapsed}
       />
-      <SearchContainer isCollapsed={isCollapsed} />
+      <SearchContainer
+        isCollapsed={isCollapsed}
+        value={searchQuery}
+        onChange={setSearchQuery}
+      />
 
       <div
         className={`flex flex-col grow min-h-px min-w-10 p-0 relative shrink-0 w-full overflow-y-auto transition-all duration-500 ${

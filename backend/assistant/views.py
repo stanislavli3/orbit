@@ -2,7 +2,9 @@ import os
 from typing import List
 
 import anthropic
+from django.db.models import Subquery, OuterRef
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -117,4 +119,69 @@ class ChatView(APIView):
                 "error": error,
             },
             status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
+
+
+class SessionListView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        sessions = ChatSession.objects.filter(user=request.user).order_by("-created_at")
+
+        filter_type = request.query_params.get("filter", "all")
+        if filter_type == "today":
+            today = timezone.now().date()
+            sessions = sessions.filter(created_at__date=today)
+        elif filter_type == "starred":
+            sessions = sessions.filter(is_starred=True)
+
+        first_msg_subq = (
+            ChatMessage.objects.filter(session=OuterRef("pk"), role="user")
+            .order_by("created_at")
+            .values("content")[:1]
+        )
+        sessions = sessions.annotate(first_message=Subquery(first_msg_subq))
+
+        data = []
+        for session in sessions:
+            raw = session.first_message or ""
+            title = (raw[:60] + "…" if len(raw) > 60 else raw) if raw else "New conversation"
+            data.append(
+                {
+                    "session_id": str(session.session_id),
+                    "title": title,
+                    "is_starred": session.is_starred,
+                    "created_at": session.created_at.isoformat(),
+                }
+            )
+
+        return Response(data)
+
+
+class SessionMessagesView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, session_id):
+        session = get_object_or_404(ChatSession, session_id=session_id, user=request.user)
+        messages = session.messages.all()
+        data = [
+            {
+                "role": msg.role,
+                "content": msg.content,
+                "created_at": msg.created_at.isoformat(),
+            }
+            for msg in messages
+        ]
+        return Response({"session_id": str(session.session_id), "messages": data})
+
+
+class SessionStarView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, session_id):
+        session = get_object_or_404(ChatSession, session_id=session_id, user=request.user)
+        session.is_starred = not session.is_starred
+        session.save(update_fields=["is_starred"])
+        return Response(
+            {"session_id": str(session.session_id), "is_starred": session.is_starred}
         )

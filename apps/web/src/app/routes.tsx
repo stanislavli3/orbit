@@ -1,4 +1,4 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, useSearchParams } from 'react-router';
 import Root from './Root';
 import { AssistantPage } from './components/AssistantPage';
 import { VaultPage } from './components/VaultPage';
@@ -15,6 +15,15 @@ import { FileResultPage } from './components/FileResultPage';
 import { SignInPage } from './components/SignInPage';
 import { SsoCallbackPage } from './components/SsoCallbackPage';
 
+function AssistantWrapper() {
+  const [searchParams] = useSearchParams();
+  const session = searchParams.get('session');
+  const t = searchParams.get('t');
+  // session param loads an existing chat; t param (timestamp) forces a fresh mount
+  const mountKey = session ?? t ?? 'new';
+  return <AssistantPage key={mountKey} initialSessionId={session} />;
+}
+
 export const router = createBrowserRouter([
   {
     path: '/signin',
@@ -28,8 +37,8 @@ export const router = createBrowserRouter([
     path: '/',
     Component: Root,
     children: [
-      { index: true, Component: AssistantPage },
-      { path: 'assistant', Component: AssistantPage },
+      { index: true, Component: AssistantWrapper },
+      { path: 'assistant', Component: AssistantWrapper },
       { path: 'vault', Component: VaultPage },
       { path: 'project/:id', Component: ProjectDetailPage },
       { path: 'project/:id/analytics', Component: ProjectAnalyticsPage },
