@@ -11,6 +11,8 @@
 # Prefer the project venv; otherwise fall back to python then python3 on PATH (handles spaces).
 VENV        := backend/.venv
 ifeq ($(OS),Windows_NT)
+SHELL       := cmd.exe
+.SHELLFLAGS := /C
 PYTHON      := $(if $(wildcard $(VENV)/Scripts/python.exe),$(abspath $(VENV)/Scripts/python.exe),python)
 PIP         := $(if $(wildcard $(VENV)/Scripts/pip.exe),$(abspath $(VENV)/Scripts/pip.exe),pip)
 POWERSHELL  := powershell -NoProfile -ExecutionPolicy Bypass -Command
