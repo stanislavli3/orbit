@@ -5,14 +5,10 @@
 Drop in a CAD file. Claude reads it, agents source the parts, you get an Excel workbook.
 
 <p align="center">
+  <a href="https://drive.google.com/file/d/1D1ydU3BGLnS3GhlJLaoC5w--PERf39uv/view?usp=sharing">
   <img src="Accelerate%20Expertise.svg" alt="Orbit — Accelerate Expertise" width="100%">
 </p>
 
-<p align="center">
-  <a href="https://drive.google.com/file/d/1D1ydU3BGLnS3GhlJLaoC5w--PERf39uv/view?usp=sharing">
-    <img src="https://drive.google.com/thumbnail?id=1D1ydU3BGLnS3GhlJLaoC5w--PERf39uv&sz=w1600" alt="Watch the Orbit demo" width="100%">
-  </a>
-</p>
 
 <p align="center">
   <a href="https://drive.google.com/file/d/1D1ydU3BGLnS3GhlJLaoC5w--PERf39uv/view?usp=sharing"><b>▶ Watch the demo</b></a> — opens in Google Drive preview.
