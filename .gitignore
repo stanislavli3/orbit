@@ -16,6 +16,9 @@
 storage/*
 !storage/.gitkeep
 
+# LocalStack runtime cache — TLS keys, license, machine id; never commit
+localstack-data/
+
 # Python
 __pycache__/
 *.py[cod]
