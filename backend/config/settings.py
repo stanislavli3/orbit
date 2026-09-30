@@ -87,8 +87,27 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
         "NAME": BASE_DIR / "db.sqlite3",
+        # The Celery worker is a second writer; wait for locks instead of erroring.
+        "OPTIONS": {"timeout": 20},
     }
 }
+
+
+# Celery — background jobs (file extraction, BOM research, library ingestion)
+# Acks-late + reject-on-lost: a job is only removed from the broker after it
+# finishes, so a worker crash re-delivers it instead of silently dropping it.
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://localhost:6379/0")
+CELERY_TASK_ACKS_LATE = True
+CELERY_TASK_REJECT_ON_WORKER_LOST = True
+CELERY_WORKER_PREFETCH_MULTIPLIER = 1
+CELERY_TASK_TRACK_STARTED = True
+# Must exceed the longest job (BOM research can run for many minutes), or Redis
+# re-delivers a job that's still running.
+CELERY_BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 4 * 60 * 60}
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
+# `make dev-local` (no Redis) sets this so jobs run inline in the request.
+CELERY_TASK_ALWAYS_EAGER = os.getenv("CELERY_TASK_ALWAYS_EAGER", "False") == "True"
 
 
 # Password validation

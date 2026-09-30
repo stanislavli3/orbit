@@ -24,8 +24,11 @@ class LibraryDocumentSerializer(serializers.ModelSerializer):
             "file_size",
             "uploaded_at",
             "bom_run_count",
+            "ingest_status",
         ]
-        read_only_fields = ["id", "original_name", "file_type", "file_size", "uploaded_at", "bom_run_count"]
+        read_only_fields = [
+            "id", "original_name", "file_type", "file_size", "uploaded_at", "bom_run_count", "ingest_status",
+        ]
 
     def get_bom_run_count(self, obj):
         return obj.bom_runs.count()
