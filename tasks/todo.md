@@ -242,3 +242,66 @@
 - `cd backend && ./.venv/bin/python manage.py check`
 - `cd apps/web && npm run lint`
 - `cd apps/web && npm run build`
+
+---
+
+# Story 2 — Durable Task Queue (replace daemon threads)
+
+**Branch:** `feat/story-2-durable-task-queue`
+
+## Current state
+Six `threading.Thread(daemon=True)` launch sites, all lost on process restart:
+- `bom_agent/bom_views.py:327` — BOM research (after inputs submitted)
+- `bom_agent/team_requests.py:278` — BOM research (resume after team replies)
+- `files_api/views.py:127` — AI description on upload
+- `files_api/views.py:149` — on-demand extraction
+- `bom_agent/library_views.py:180,198,258` — library text extraction + embedding
+
+Other facts that shape the design:
+- `run_bom_research` re-researches *every* line item and only ever `create`s quotes → re-running it (crash recovery, or today's team-reply resume) duplicates `SupplierQuote` rows.
+- DB is SQLite; a separate worker process means two writers → needs a lock timeout.
+- Frontend already polls domain status (`BomResearchRun.status`, `UploadedFile.status`); `LibraryDocument` has no status at all, so ingestion failures are invisible.
+
+## Design
+- **Celery 5 + Redis** (RQ is out: it requires `fork`, so it doesn't run on Windows). Redis added to `docker-compose.yml`. Worker runs `--pool=solo` on Windows.
+- **Durability:** `task_acks_late=True`, `task_reject_on_worker_lost=True`, `worker_prefetch_multiplier=1` → a message is only removed from Redis once the task finishes.
+- **Recovery on restart:** a `worker_ready` signal re-enqueues DB rows left in-flight (`BomResearchRun` in `researching`/`generating_report`, `UploadedFile` in `processing`). This gives the DoD's "kill → restart → resumes" immediately instead of waiting for Redis's visibility timeout. Assumes one worker process (the only deployment shape today); noted as a follow-up for multi-worker.
+- **Resumable BOM research:** skip line items already `sourced`; for any other item, delete its partial quotes before re-researching. Also fixes the existing duplicate-quote bug on team-reply resume.
+- **Visible failure:** tasks retry with backoff (max 3), then set the domain status to `failed` and write an error log entry.
+- **Enqueue after commit:** all `.delay()` calls wrapped in `transaction.on_commit` so the worker never races the row insert.
+- **Status backend:** existing domain status fields stay the source of truth the UI polls; no frontend change required.
+
+## Checklist
+- [x] Add `celery[redis]` + `redis` to `requirements.txt`; Redis service to `docker-compose.yml` (drop obsolete `version:` key while there)
+- [x] Celery app + settings (broker URL from env, durability flags, SQLite `timeout`)
+- [x] Task modules: `files_api/tasks.py` (describe, extract), `bom_agent/tasks.py` (research, library ingest) — bodies moved out of views
+- [x] Replace all 6 thread launch sites with `on_commit(lambda: task.delay(...))`
+- [x] Make `run_bom_research` resumable (skip sourced, clear partial quotes)
+- [x] `worker_ready` recovery sweep
+- [x] Makefile: `make dev` starts Redis + worker; `make stop` stops worker; `make worker` target
+- [x] `.env.example` + README: `CELERY_BROKER_URL`
+- [x] Tests: enqueue-on-commit at each call site, resume skips sourced items without duplicating quotes, recovery sweep re-enqueues orphaned jobs, failures → `failed`
+- [x] Verify: pytest, ruff, `manage.py check`, then live DoD — start a BOM run, kill the worker mid-run, restart, confirm it completes with no duplicate quotes
+
+## Review — Story 2
+Decisions made with the user: Celery code lives in `backend/` (standard Django layout), with `apps/worker/README.md` pointing to it; `LibraryDocument` gets an `ingest_status` field so ingestion failures are visible.
+
+Changes beyond the original plan:
+- **`job_token` on `BomResearchRun`.** Every enqueue issues a new token; the task no-ops unless its token is current and the run is still in flight, and the pipeline re-checks before each line item. Without it, the startup sweep plus a late acks-late redelivery could run the same job twice.
+- **No automatic retries.** Failures in extraction and ingestion are mostly deterministic (bad file, parse error), and the Anthropic client already retries rate limits, so a failure goes straight to `failed`. Crash redelivery is still covered by acks-late and the sweep.
+- `maybe_resume_research` now always sets `researching` before enqueueing (it used to leave `awaiting_team_input`), so a restart can find the job.
+- `FileExtractView` sets `processing` before enqueueing, so the 409 guard and the sweep both see queued-but-not-started jobs.
+- Migration `0009` backfills `ingest_status`: docs that already have an embedding become `ready`, the rest `failed`.
+
+Verification:
+- `pytest`: 63 passed, 1 failed. The failure (`test_bom_run_list_filters_by_project_and_user`) also fails on `main` before this change: an ordering tie on `created_at`.
+- 17 new tests in `bom_agent/test_tasks.py` and `files_api/test_tasks.py`.
+- `ruff check`, `manage.py check`, and `makemigrations --check` are clean.
+- **Live DoD:** real Redis and a real Celery worker, with only the per-item Claude call stubbed. Four-item run; worker hard-killed (`Stop-Process -Force`) after item A finished and mid-way through B. After a restart the run completed: A was skipped, B's partial quote was cleared and redone, and all four items ended with exactly 1 quote each.
+
+Follow-ups:
+- On the first real worker start, the sweep will resume **run 3** ("Guiderail", from April 2026), which has been stuck in `researching` since its thread died. This runs real Claude research. To skip it, mark the run `failed` first.
+- The frontend doesn't show `LibraryDocument.ingest_status` yet.
+- `make dev-local` has no Redis, so jobs run eagerly inside the request and a BOM run blocks that request until research finishes.
+- A job that crashes the worker every time (for example out of memory) will be redelivered on every restart. Consider a delivery-count cap if it happens.
+- `make help` is broken on Windows. This predates the branch.

@@ -1,6 +1,5 @@
 import json
 import os
-import threading
 from datetime import timedelta
 
 import anthropic
@@ -266,14 +265,16 @@ def maybe_resume_research(run, message: str | None = None) -> bool:
     if run.team_requests.filter(status__in=open_statuses).exists():
         return False
 
-    if run.status not in {"awaiting_team_input", "researching"}:
+    # Set before enqueueing so a worker restart can find the job.
+    if run.status != "researching":
         run.status = "researching"
         run.save(update_fields=["status"])
 
-    from .research_pipeline import _log, run_bom_research
+    from .research_pipeline import _log
+    from .tasks import enqueue_bom_research
 
     if message:
         _log(run, "email", f"✅ {message}")
 
-    threading.Thread(target=run_bom_research, args=(run.pk,), daemon=True).start()
+    enqueue_bom_research(run)
     return True

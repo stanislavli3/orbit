@@ -35,6 +35,7 @@ Hours of manual sourcing, done in minutes.
 | Backend  | Django 5, Django REST Framework, Python 3.11               |
 | Auth     | Clerk (Google OAuth, magic link)                           |
 | Storage  | AWS S3 (LocalStack v3 in dev)                              |
+| Jobs     | Celery + Redis — extraction, BOM research, library ingest  |
 | AI       | Anthropic Claude — Haiku for descriptions, Sonnet for agents |
 | Database | SQLite in dev, PostgreSQL in prod                          |
 
@@ -47,7 +48,7 @@ git clone https://github.com/stanislavli3/orbit.git
 cd orbit
 make setup        # venv, pip, npm, env scaffolding
 # fill in backend/.env and apps/web/.env (see below)
-make dev          # LocalStack + backend + frontend, one command
+make dev          # LocalStack + Redis + backend + worker + frontend, one command
 ```
 
 Open **http://localhost:5173**.
@@ -85,6 +86,8 @@ AWS_S3_REGION_NAME=us-east-1
 AWS_STORAGE_BUCKET_NAME=orbit-local
 
 ANTHROPIC_API_KEY=sk-ant-...
+
+CELERY_BROKER_URL=redis://localhost:6379/0
 ```
 
 > Clerk: Dashboard → API Keys → JWT public key. Paste the full PEM on one line, escape newlines as `\n`.
@@ -103,12 +106,13 @@ VITE_API_URL=http://localhost:8000
 | Command         | What it does                                              |
 | --------------- | --------------------------------------------------------- |
 | `make setup`    | First-time install — venv, pip, npm, env scaffolding      |
-| `make dev`      | LocalStack + backend + frontend                           |
-| `make dev-local`| Backend + frontend only (skip Docker / S3)                |
-| `make stop`     | Kill ports 8000 / 5173 / 5174 + `docker compose down`     |
+| `make dev`      | LocalStack + Redis + backend + Celery worker + frontend   |
+| `make dev-local`| Backend + frontend only (no Docker / S3; jobs run inline) |
+| `make worker`   | Celery worker in the foreground (needs Redis running)     |
+| `make stop`     | Stop backend, worker, frontend + `docker compose down`    |
 | `make restart`  | Stop, then start                                          |
 | `make migrate`  | Run Django migrations                                     |
-| `make logs`     | Tail backend + frontend                                   |
+| `make logs`     | Tail backend + worker + frontend                          |
 
 ---
 
@@ -127,7 +131,7 @@ VITE_API_URL=http://localhost:8000
 ```
 orbit/
 ├── Makefile                    # one-command dev automation
-├── docker-compose.yml          # LocalStack — pinned to localstack/localstack:3
+├── docker-compose.yml          # LocalStack (pinned to v3) + Redis (Celery broker)
 ├── apps/web/                   # Vite + React frontend
 ├── backend/                    # Django backend
 │   ├── config/                 # settings, root URLs, ASGI
