@@ -1,26 +1,33 @@
-# Orbit — CI/CD
+# Orbit — CI
 
 ## CI (GitHub Actions)
 
 Workflow: [`.github/workflows/ci.yml`](../.github/workflows/ci.yml)
 
-**Triggers:** Push and pull requests to `main`.
+**Triggers:** every push (any branch) and every pull request.
 
-**Jobs:**
+**Job: `Backend tests`** — Python 3.12, `pip install -r backend/requirements-dev.txt`, then `pytest -q` from `backend/`. This runs every suite (`accounts`, `bom_agent`, `core`, `files_api`, `projects`, ...), found via `backend/pytest.ini`. Tests use SQLite and need no external services or secrets.
 
-| Job       | When it runs | What it does |
-|-----------|--------------|--------------|
-| `validate`| Always       | Checks repo structure (AGENTS.md, README, apps/, packages/) |
-| `TypeScript` | When `apps/web/package.json` exists | Node 20, `npm ci`, lint, typecheck, test, build (scripts run if present) |
-| `Python`  | When `apps/api` or `apps/worker` has `requirements.txt` or `pyproject.toml` | Python 3.10, pip install, ruff, pyright, pytest (tools run if present) |
+Run the same thing locally:
 
-- Jobs **skip** when the relevant manifests are missing, so CI stays green before apps are scaffolded.
-- Python lint/typecheck/test use `ruff`, `pyright`, `pytest` when available; add them to your app’s dev dependencies when you add code.
+```bash
+cd backend && pip install -r requirements-dev.txt && pytest -q
+```
+
+## Blocking merges (branch protection)
+
+CI only *reports* failures; GitHub blocks the merge once the check is required. One-time setup (repo admin):
+
+1. GitHub → **Settings → Branches → Add branch ruleset** (or classic branch protection rule) for `main`.
+2. Enable **Require status checks to pass before merging** and add **`Backend tests`**
+   (the check only appears in the picker after the workflow has run once).
+3. Enable **Require branches to be up to date before merging** (recommended).
+
+## Known gaps
+
+- `ruff check` / `ruff format --check` currently fail on existing code, so lint is **not** part of CI yet. Fix the backlog, then add a lint step.
+- Frontend (`apps/web`) has no CI job yet.
 
 ## CD (deploy)
 
-Not configured yet. To add CD (e.g. deploy API + web on push to `main` or on tag):
-
-1. Add a workflow under `.github/workflows/` (e.g. `deploy.yml`).
-2. Use secrets for deploy credentials; never commit them.
-3. Document deploy steps and rollback in this file or in `docs/`.
+Not configured yet.
