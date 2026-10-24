@@ -305,3 +305,18 @@ Follow-ups:
 - `make dev-local` has no Redis, so jobs run eagerly inside the request and a BOM run blocks that request until research finishes.
 - A job that crashes the worker every time (for example out of memory) will be redelivered on every restart. Consider a delivery-count cap if it happens.
 - `make help` is broken on Windows. This predates the branch.
+
+---
+
+# Story 1 — CI: run tests on every push
+
+**Branch:** `feat/story-1-ci`
+
+- [x] Baseline: `pytest -q` in a clean venv with no `.env` → 64 passed (SQLite, no services needed)
+- [x] Add `.github/workflows/ci.yml` (push + pull_request, Python 3.12, `pytest -q` in `backend/`)
+- [x] Rewrite stale `docs/ci.md` (described a workflow/layout that never existed)
+- [ ] Push branch, open PR, confirm `Backend tests` check runs and passes
+- [ ] Repo admin: require `Backend tests` on `main` (steps in `docs/ci.md`)
+- [ ] DoD: push a deliberately broken test on a throwaway branch/PR → CI red, merge blocked; then discard it
+
+**Out of scope / found along the way:** `ruff check` (6 errors) and `ruff format --check` (33 files) fail on existing code, so lint is not gated yet.
