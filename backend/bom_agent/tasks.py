@@ -12,9 +12,9 @@ import io
 import os
 import uuid
 
-from celery import shared_task
 from django.db import transaction
 
+from core.jobs import monitored_task
 from files_api.embeddings import generate_embedding
 from files_api.s3_service import get_s3_client
 from .models import BomResearchRun, LibraryDocument, LibraryEmbedding
@@ -41,7 +41,16 @@ def enqueue_bom_research(run) -> None:
     transaction.on_commit(lambda: research_bom_run.delay(run.pk, token))
 
 
-@shared_task
+def _mark_research_failed(args, exc) -> None:
+    from .research_pipeline import _log, _set_status
+
+    run = BomResearchRun.objects.filter(pk=args[0]).first()
+    if run is not None:
+        _log(run, "error", f"Job failed: {type(exc).__name__}: {str(exc)[:300]}")
+        _set_status(run, "failed")
+
+
+@monitored_task("bom_research", on_dead=_mark_research_failed)
 def research_bom_run(run_id: int, job_token: str) -> None:
     from .research_pipeline import run_bom_research
 
@@ -116,7 +125,11 @@ def enqueue_library_ingest(doc) -> None:
     transaction.on_commit(lambda: ingest_library_document.delay(doc.pk))
 
 
-@shared_task
+def _mark_ingest_failed(args, exc) -> None:
+    LibraryDocument.objects.filter(pk=args[0]).update(ingest_status="failed")
+
+
+@monitored_task("library_ingest", on_dead=_mark_ingest_failed)
 def ingest_library_document(doc_id: int) -> None:
     """Download a doc from S3, extract its text, embed it, and store both."""
     try:
@@ -125,30 +138,26 @@ def ingest_library_document(doc_id: int) -> None:
         return  # deleted while queued
 
     LibraryDocument.objects.filter(pk=doc.pk).update(ingest_status="processing")
-    try:
-        s3 = get_s3_client()
-        bucket = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
-        buf = io.BytesIO()
-        s3.download_fileobj(bucket, doc.s3_key, buf)
-        extracted = _extract_text(buf.getvalue(), doc.file_type)
+    s3 = get_s3_client()
+    bucket = os.getenv("AWS_STORAGE_BUCKET_NAME", "")
+    buf = io.BytesIO()
+    s3.download_fileobj(bucket, doc.s3_key, buf)
+    extracted = _extract_text(buf.getvalue(), doc.file_type)
 
-        # Persist extracted text so the BOM agent can include it in context
-        if extracted:
-            LibraryDocument.objects.filter(pk=doc.pk).update(extracted_text=extracted)
-            doc.extracted_text = extracted
+    # Persist extracted text so the BOM agent can include it in context
+    if extracted:
+        LibraryDocument.objects.filter(pk=doc.pk).update(extracted_text=extracted)
+        doc.extracted_text = extracted
 
-        # Embed extracted content; fall back to name+type if extraction produced nothing
-        embed_source = extracted if extracted else f"{doc.original_name} {doc.doc_type}"
-        vector = generate_embedding(embed_source)
+    # Embed extracted content; fall back to name+type if extraction produced nothing
+    embed_source = extracted if extracted else f"{doc.original_name} {doc.doc_type}"
+    vector = generate_embedding(embed_source)
 
-        LibraryEmbedding.objects.update_or_create(
-            document=doc,
-            defaults={"embedding_json": vector, "doc_type": doc.doc_type},
-        )
-        LibraryDocument.objects.filter(pk=doc.pk).update(ingest_status="ready")
-    except Exception:
-        LibraryDocument.objects.filter(pk=doc.pk).update(ingest_status="failed")
-        raise
+    LibraryEmbedding.objects.update_or_create(
+        document=doc,
+        defaults={"embedding_json": vector, "doc_type": doc.doc_type},
+    )
+    LibraryDocument.objects.filter(pk=doc.pk).update(ingest_status="ready")
 
 
 # ── Worker-start recovery ────────────────────────────────────────────────────

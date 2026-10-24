@@ -23,6 +23,8 @@ from datetime import datetime, timezone
 
 import anthropic
 
+from core.jobs import is_transient, record_failure
+
 
 # ── Lazy client ───────────────────────────────────────────────────────────────
 
@@ -843,7 +845,9 @@ def run_bom_research(run_id: int, job_token: str | None = None) -> None:
         except BomResearchRun.DoesNotExist:
             return
 
-    except Exception:
+    except Exception as exc:
+        if is_transient(exc):
+            raise  # the task retries; the pipeline is resumable
         err = traceback.format_exc()
         if run is not None:
             try:
@@ -851,6 +855,7 @@ def run_bom_research(run_id: int, job_token: str | None = None) -> None:
                 _set_status(run, "failed")
             except Exception:
                 pass
+        record_failure("bom_research", run_id, exc)
         return
 
     try:
@@ -972,10 +977,13 @@ def run_bom_research(run_id: int, job_token: str | None = None) -> None:
             _log(run, "info", "Excel workbook generated and uploaded", source_url=excel_key)
         _log(run, "info", "✅ BOM run completed")
 
-    except Exception:
+    except Exception as exc:
+        if is_transient(exc):
+            raise  # the task retries; the pipeline is resumable
         err = traceback.format_exc()
         try:
             _log(run, "error", f"Pipeline failed: {err[:400]}")
             _set_status(run, "failed")
         except Exception:
             pass
+        record_failure("bom_research", run_id, exc)

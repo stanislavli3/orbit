@@ -305,3 +305,26 @@ Follow-ups:
 - `make dev-local` has no Redis, so jobs run eagerly inside the request and a BOM run blocks that request until research finishes.
 - A job that crashes the worker every time (for example out of memory) will be redelivered on every restart. Consider a delivery-count cap if it happens.
 - `make help` is broken on Windows. This predates the branch.
+
+---
+
+# Story 4 — Background job error logging & alerting
+
+**Branch:** `feat/story-4-job-failure-alerting` (based on `main`, which has Story 2)
+
+**Starting point:** an earlier attempt was found in a dropped stash (`36afd9d`, Oct 4) and restored. It adds `core/jobs.py` (`@monitored_task`: retry transient errors with backoff, dead-letter the rest), `core/alerts.py` (Slack-style webhook), `JobFailure` / `JobAttempt` models + migration, admin view, and tests. Baseline after restore: 108 passed, no missing migrations.
+
+## Acceptance criteria → where it lives
+- [x] Every job type logs a structured failure event: `bom_research`, `library_ingest`, `file_extraction`, `file_description` (tasks); `email_send`, `email_poll` (views + `poll_bom_email_replies` command)
+- [x] One place a human checks: Django admin → Job failures; plus optional webhook push (`ALERT_WEBHOOK_URL`)
+- [x] No silent infinite retry / silent drop: `MAX_RETRIES=3` with backoff, then dead-letter; crash-loop guard after 3 unfinished starts
+
+## Remaining
+- [x] Review the restored code (retry only on transient errors; `on_dead` hooks mark rows failed; email_send skips alerts for `ValueError`)
+- [x] Document `ALERT_WEBHOOK_URL` in `backend/.env.example` and `apps/worker/README.md`
+- [x] DoD demo: library ingest with a missing S3 object -> task FAILURE, doc `failed`, JobFailure row, structured log, webhook alert 0.02s after start (throwaway DB, local receiver)
+- [x] Commit and push
+- [ ] **Open gap:** malformed files do not fail jobs. `_extract_pdf` / `_extract_csv` / `_extract_xlsx` (bom_agent/tasks.py) swallow every exception and return "", and the STEP parser returns confidence 0.0 + a warning, so a corrupt document ends `ready` with no alert. Needs a decision (see PR).
+
+## Open question
+- Alert channel: webhook is built. Needs a real Slack incoming-webhook URL from the team to alert a human; until then failures are in the admin + logs only.

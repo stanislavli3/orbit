@@ -36,3 +36,34 @@ Django models:
   older delivery sees the mismatch and stops before its next line item.
 - **Visible failure.** A job that errors sets its row to `failed` instead of
   disappearing.
+
+## Failure handling and alerts
+
+Every task is declared with `@monitored_task(job_type)` (`backend/core/jobs.py`)
+instead of `@shared_task`. When a job raises:
+
+- **Transient errors** (rate limits, 5xx, dropped connections, a locked SQLite
+  file) retry with exponential backoff (30s, 60s, 120s), at most 3 times.
+- **Anything else, or the last failed retry,** is dead-lettered: it stops
+  retrying, the task's row is marked `failed`, and the failure is recorded and
+  alerted (below).
+- **A job that keeps killing the worker** is counted at each start; after 3
+  unfinished starts it is dead-lettered instead of redelivered forever.
+
+Job types: `file_extraction`, `file_description`, `bom_research`,
+`library_ingest`, plus `email_send` and `email_poll` (the Gmail calls in
+`bom_agent`, which run in web requests and the `poll_bom_email_replies`
+command rather than Celery).
+
+Where a failure shows up:
+
+1. **Logs.** One `job_failed {json}` line (`orbit.jobs` logger) with job type,
+   target id, error class and message. Retries log `job_retry {json}`.
+2. **Django admin → Job failures.** The one place to check. Each row has the
+   traceback; repeats of the same unresolved failure within an hour fold into
+   one row (`occurrences`). Use "Mark selected failures resolved" when handled.
+3. **Webhook.** Set `ALERT_WEBHOOK_URL` in `backend/.env` to a Slack incoming
+   webhook (or any service accepting `{"text": ...}`) and each new failure is
+   posted there. `file_description` failures are admin-only (non-fatal).
+
+Alert delivery never raises, so a down webhook can't break the job.

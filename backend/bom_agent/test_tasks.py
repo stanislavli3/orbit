@@ -21,6 +21,8 @@ from bom_agent.tasks import (
     research_bom_run,
 )
 from bom_agent.team_requests import maybe_resume_research
+from core.jobs import MAX_RETRIES
+from core.models import JobFailure
 from projects.models import Project
 
 
@@ -213,3 +215,55 @@ class LibraryIngestTests(BomTaskTestCase):
         doc_id = self.doc.pk
         self.doc.delete()
         ingest_library_document(doc_id)  # must not raise
+
+
+class FailureHandlingTests(BomTaskTestCase):
+    """Story 4 — failed jobs are recorded, bounded, and leave their row `failed`."""
+
+    def test_library_ingest_failure_is_recorded(self):
+        doc = LibraryDocument.objects.create(
+            workspace_owner=self.user, original_name="avl.csv", s3_key="lib/avl.csv",
+            file_size=10, file_type="csv",
+        )
+        with patch("bom_agent.tasks.get_s3_client", side_effect=RuntimeError("s3 down")):
+            result = ingest_library_document.apply(args=[doc.pk])
+
+        self.assertTrue(result.failed())
+        doc.refresh_from_db()
+        self.assertEqual(doc.ingest_status, "failed")
+        failure = JobFailure.objects.get()
+        self.assertEqual((failure.job_type, failure.target_id), ("library_ingest", str(doc.pk)))
+
+    def test_transient_pipeline_error_retries_then_fails_the_run(self):
+        BomResearchRun.objects.filter(pk=self.run.pk).update(job_token="t")
+
+        with patch(
+            "bom_agent.research_pipeline.run_bom_research", side_effect=ConnectionError("net")
+        ) as pipeline:
+            result = research_bom_run.apply(args=[self.run.id, "t"])
+
+        self.assertTrue(result.failed())
+        self.assertEqual(pipeline.call_count, MAX_RETRIES + 1)
+        self.run.refresh_from_db()
+        self.assertEqual(self.run.status, "failed")
+        self.assertEqual(self.run.research_log[-1]["type"], "error")
+        self.assertEqual(JobFailure.objects.get().job_type, "bom_research")
+
+    def test_permanent_pipeline_error_fails_the_run_once_and_is_recorded(self):
+        with patch("assistant.rag.find_library_docs", side_effect=ValueError("bad library")):
+            run_bom_research(self.run.id)
+
+        self.run.refresh_from_db()
+        self.assertEqual(self.run.status, "failed")
+        failure = JobFailure.objects.get()
+        self.assertEqual(failure.job_type, "bom_research")
+        self.assertEqual(failure.error_class, "ValueError")
+
+    def test_transient_pipeline_error_is_left_for_the_task_to_retry(self):
+        with patch("assistant.rag.find_library_docs", side_effect=ConnectionError("net")):
+            with self.assertRaises(ConnectionError):
+                run_bom_research(self.run.id)
+
+        self.run.refresh_from_db()
+        self.assertEqual(self.run.status, "researching")  # not failed yet
+        self.assertFalse(JobFailure.objects.exists())

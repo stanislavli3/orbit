@@ -15,6 +15,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import get_object_or_404
 
+from core.jobs import record_failure
 from projects.models import Project
 from files_api.models import UploadedFile, ExtractionResult
 from .models import BomResearchRun, BomLineItem, TeamContact, TeamRequest
@@ -562,6 +563,7 @@ class BomRunEmailSendView(APIView):
         except ValueError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as exc:
+            record_failure("email_send", team_request.pk, exc)
             return Response({"detail": str(exc)}, status=status.HTTP_502_BAD_GATEWAY)
         return Response(TeamRequestSerializer(team_request).data)
 
@@ -578,6 +580,8 @@ class BomRunEmailSendAllView(APIView):
                 _send_request(team_request)
                 sent.append(team_request.id)
             except Exception as exc:
+                if not isinstance(exc, ValueError):
+                    record_failure("email_send", team_request.pk, exc)
                 errors.append({"id": team_request.id, "detail": str(exc)})
 
         return Response({"sent_ids": sent, "error_count": len(errors), "errors": errors})
@@ -633,5 +637,9 @@ class BomRunEmailPollView(APIView):
 
     def post(self, request, pk):
         run = _get_run_for_user(request.user, pk)
-        answered_ids = poll_run_replies(run)
+        try:
+            answered_ids = poll_run_replies(run)
+        except Exception as exc:
+            record_failure("email_poll", run.pk, exc)
+            raise
         return Response({"answered_ids": answered_ids, "count": len(answered_ids)})

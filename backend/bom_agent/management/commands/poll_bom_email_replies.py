@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 
 from bom_agent.gmail_integration import poll_run_replies
 from bom_agent.models import BomResearchRun
+from core.jobs import record_failure
 
 
 class Command(BaseCommand):
@@ -18,7 +19,14 @@ class Command(BaseCommand):
 
         total = 0
         for run in runs:
-            answered_ids = poll_run_replies(run)
+            # One run failing (revoked Gmail token, rate limit) is recorded and
+            # alerted, but must not stop the other runs from being polled.
+            try:
+                answered_ids = poll_run_replies(run)
+            except Exception as exc:
+                record_failure("email_poll", run.pk, exc)
+                self.stderr.write(self.style.ERROR(f"Run {run.id}: poll failed — {exc}"))
+                continue
             if answered_ids:
                 total += len(answered_ids)
                 self.stdout.write(
