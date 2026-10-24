@@ -78,9 +78,11 @@ def _extract_csv(file_bytes: bytes) -> str:
 
 
 def _extract_xlsx(file_bytes: bytes) -> str:
+    # A corrupt workbook raises (BadZipFile, InvalidFileException...) so the
+    # ingest job is dead-lettered and alerted instead of looking "ready".
+    import openpyxl
+    wb = openpyxl.load_workbook(io.BytesIO(file_bytes), read_only=True, data_only=True)
     try:
-        import openpyxl
-        wb = openpyxl.load_workbook(io.BytesIO(file_bytes), read_only=True, data_only=True)
         lines = []
         for sheet in wb.worksheets:
             for row in sheet.iter_rows(values_only=True):
@@ -89,22 +91,22 @@ def _extract_xlsx(file_bytes: bytes) -> str:
                     lines.append(", ".join(cells))
             if len(lines) >= _EXTRACT_ROW_LIMIT:
                 break
+    finally:
         wb.close()
-        return "\n".join(lines[:_EXTRACT_ROW_LIMIT])[:_EXTRACT_CHAR_LIMIT]
-    except Exception:
-        return ""
+    return "\n".join(lines[:_EXTRACT_ROW_LIMIT])[:_EXTRACT_CHAR_LIMIT]
 
 
 def _extract_pdf(file_bytes: bytes) -> str:
-    try:
-        import pypdf
-        reader = pypdf.PdfReader(io.BytesIO(file_bytes))
-        pages = []
-        for page in reader.pages[:20]:
-            pages.append(page.extract_text() or "")
-        return "\n".join(pages)[:_EXTRACT_CHAR_LIMIT]
-    except Exception:
-        return ""
+    # A corrupt PDF raises (PdfReadError...). An image-only PDF is valid and just
+    # has no text layer, so it returns "" and falls back to name+type embedding.
+    import pypdf
+    reader = pypdf.PdfReader(io.BytesIO(file_bytes))
+    if reader.is_encrypted and not reader.decrypt(""):
+        raise ValueError("PDF is password-protected and cannot be read")
+    pages = []
+    for page in reader.pages[:20]:
+        pages.append(page.extract_text() or "")
+    return "\n".join(pages)[:_EXTRACT_CHAR_LIMIT]
 
 
 def _extract_text(file_bytes: bytes, file_type: str) -> str:

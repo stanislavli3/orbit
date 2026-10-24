@@ -267,3 +267,63 @@ class FailureHandlingTests(BomTaskTestCase):
         self.run.refresh_from_db()
         self.assertEqual(self.run.status, "researching")  # not failed yet
         self.assertFalse(JobFailure.objects.exists())
+
+
+class CorruptDocumentTests(BomTaskTestCase):
+    """Story 4 — a corrupt library document fails the job loudly; it never looks `ready`."""
+
+    def _ingest(self, file_type, content):
+        doc = LibraryDocument.objects.create(
+            workspace_owner=self.user, original_name=f"doc.{file_type}",
+            s3_key=f"lib/doc.{file_type}", file_size=len(content), file_type=file_type,
+        )
+
+        def fake_download(bucket, key, buf):
+            buf.write(content)
+
+        with patch("bom_agent.tasks.get_s3_client") as s3, \
+                patch("bom_agent.tasks.generate_embedding", return_value=[0.1]), \
+                patch("core.jobs.send_alert") as alert, \
+                self.captureOnCommitCallbacks(execute=True):
+            s3.return_value.download_fileobj.side_effect = fake_download
+            result = ingest_library_document.apply(args=[doc.pk])
+        doc.refresh_from_db()
+        return doc, result, alert
+
+    def test_corrupt_pdf_is_dead_lettered_and_alerted(self):
+        doc, result, alert = self._ingest("pdf", b"%PDF-1.4 not really a pdf \x00\x01")
+
+        self.assertTrue(result.failed())
+        self.assertEqual(doc.ingest_status, "failed")
+        failure = JobFailure.objects.get()
+        self.assertEqual((failure.job_type, failure.target_id), ("library_ingest", str(doc.pk)))
+        alert.assert_called_once()
+
+    def test_corrupt_xlsx_is_dead_lettered_and_alerted(self):
+        doc, result, alert = self._ingest("xlsx", b"PK this is not a workbook")
+
+        self.assertTrue(result.failed())
+        self.assertEqual(doc.ingest_status, "failed")
+        self.assertEqual(JobFailure.objects.get().job_type, "library_ingest")
+        alert.assert_called_once()
+
+    def test_image_only_pdf_still_ingests(self):
+        # Valid PDF with no text layer (e.g. a scan): not an error, falls back
+        # to name+type for the embedding.
+        import io
+
+        import pypdf
+
+        writer = pypdf.PdfWriter()
+        writer.add_blank_page(width=72, height=72)
+        buf = io.BytesIO()
+        writer.write(buf)
+
+        doc, result, alert = self._ingest("pdf", buf.getvalue())
+
+        self.assertFalse(result.failed())
+        self.assertEqual(doc.ingest_status, "ready")
+        self.assertEqual(doc.extracted_text, "")
+        self.assertTrue(LibraryEmbedding.objects.filter(document=doc).exists())
+        self.assertFalse(JobFailure.objects.exists())
+        alert.assert_not_called()

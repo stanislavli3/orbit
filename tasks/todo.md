@@ -324,7 +324,7 @@ Follow-ups:
 - [x] Document `ALERT_WEBHOOK_URL` in `backend/.env.example` and `apps/worker/README.md`
 - [x] DoD demo: library ingest with a missing S3 object -> task FAILURE, doc `failed`, JobFailure row, structured log, webhook alert 0.02s after start (throwaway DB, local receiver)
 - [x] Commit and push
-- [ ] **Open gap:** malformed files do not fail jobs. `_extract_pdf` / `_extract_csv` / `_extract_xlsx` (bom_agent/tasks.py) swallow every exception and return "", and the STEP parser returns confidence 0.0 + a warning, so a corrupt document ends `ready` with no alert. Needs a decision (see PR).
+- [x] Closed the malformed-file gap: `_extract_pdf` / `_extract_xlsx` no longer swallow errors (corrupt file -> job dead-lettered, doc `failed`, alert). Image-only PDFs (valid, no text layer) still ingest as `ready`. `_extract_csv` never swallowed; it only raises on a real `csv.Error`. Password-protected PDFs: tries an empty password, else fails with a clear error. Tests: `CorruptDocumentTests` (verified they fail on the old code). Demo with a corrupt PDF: alert 0.07s after task start. STEP files are unchanged (parser returns confidence 0.0 + warning, not an error).
 
 ## Open question
 - Alert channel: webhook is built. Needs a real Slack incoming-webhook URL from the team to alert a human; until then failures are in the admin + logs only.
