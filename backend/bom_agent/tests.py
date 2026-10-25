@@ -604,6 +604,7 @@ class GmailIntegrationTests(TestCase):
         {
             "GOOGLE_OAUTH_CLIENT_ID": "test-client-id",
             "GOOGLE_OAUTH_CLIENT_SECRET": "test-client-secret",
+            "GMAIL_OAUTH_REDIRECT_URI": "",
         },
         clear=False,
     )
@@ -624,6 +625,25 @@ class GmailIntegrationTests(TestCase):
         state = signing.loads(query["state"][0], salt="bom-agent-gmail-oauth", max_age=600)
         self.assertEqual(state["user_id"], self.user.id)
         self.assertEqual(state["next_url"], "http://localhost:5173/settings")
+
+    @patch.dict(
+        os.environ,
+        {
+            "GOOGLE_OAUTH_CLIENT_ID": "test-client-id",
+            "GOOGLE_OAUTH_CLIENT_SECRET": "test-client-secret",
+            "GMAIL_OAUTH_REDIRECT_URI": "https://api.example.com/api/team/gmail/oauth/callback/",
+        },
+        clear=False,
+    )
+    def test_gmail_oauth_start_uses_configured_redirect_uri(self):
+        response = self.client.post("/api/team/gmail/oauth/start/", {}, format="json")
+
+        self.assertEqual(response.status_code, 200)
+        query = parse_qs(urlparse(response.json()["auth_url"]).query)
+        self.assertEqual(
+            query["redirect_uri"][0],
+            "https://api.example.com/api/team/gmail/oauth/callback/",
+        )
 
     @patch("bom_agent.views.fetch_gmail_profile", return_value={"emailAddress": "owner@gmail.com"})
     @patch(
@@ -729,3 +749,33 @@ class GmailIntegrationTests(TestCase):
         self.assertEqual(self.item.material_spec, "6061-T6 Aluminum")
         self.assertEqual(self.run.inputs_json[f"material_file_{self.item.id}"], "6061-T6 Aluminum")
         resume_mock.assert_called_once()
+
+
+class GmailOAuthDeployCheckTests(TestCase):
+    PRODUCTION_ENV = {
+        "GOOGLE_OAUTH_CLIENT_ID": "1234-abc.apps.googleusercontent.com",
+        "GOOGLE_OAUTH_CLIENT_SECRET": "real-secret",
+        "GMAIL_TOKEN_ENCRYPTION_KEY": "stable-key",
+        "GMAIL_OAUTH_REDIRECT_URI": "https://api.example.com/api/team/gmail/oauth/callback/",
+    }
+
+    def _error_ids(self, env):
+        from bom_agent.checks import gmail_oauth_deploy_check
+
+        with patch.dict(os.environ, env, clear=False):
+            return {error.id for error in gmail_oauth_deploy_check(None)}
+
+    def test_production_config_passes(self):
+        self.assertEqual(self._error_ids(self.PRODUCTION_ENV), set())
+
+    def test_missing_or_placeholder_config_fails(self):
+        env = {
+            "GOOGLE_OAUTH_CLIENT_ID": "your-client-id",
+            "GOOGLE_OAUTH_CLIENT_SECRET": "",
+            "GMAIL_TOKEN_ENCRYPTION_KEY": "",
+            "GMAIL_OAUTH_REDIRECT_URI": "http://api.example.com/api/team/gmail/oauth/callback/",
+        }
+        self.assertEqual(
+            self._error_ids(env),
+            {"bom_agent.E001", "bom_agent.E002", "bom_agent.E003", "bom_agent.E004"},
+        )
