@@ -238,7 +238,22 @@
 - `cd backend && ./.venv/bin/python -m ruff check bom_agent/views.py bom_agent/gmail_integration.py bom_agent/urls.py bom_agent/tests.py`
 - `cd apps/web && npm run lint`
 - `cd apps/web && npm run build`
-- Follow-up: to use the connect flow outside local development, set real `GOOGLE_OAUTH_CLIENT_ID` and `GOOGLE_OAUTH_CLIENT_SECRET`, and register the backend callback URL `/api/team/gmail/oauth/callback/` in the Google OAuth client configuration.
+- Follow-up: ~~set real Google OAuth credentials and register the callback URL~~ — handled in Story 3 below.
 - `cd backend && ./.venv/bin/python manage.py check`
 - `cd apps/web && npm run lint`
 - `cd apps/web && npm run build`
+
+# Story 3 — Production Gmail OAuth credentials
+
+- [x] Register Google Cloud project `orbit-510220`: Gmail API enabled, External consent screen in Testing mode, `gmail.send` + `gmail.readonly` scopes, test user added
+- [x] Create web OAuth client "Orbit backend (prod)" with the localhost callback registered
+- [x] Real client ID/secret + `GMAIL_TOKEN_ENCRYPTION_KEY` in local `backend/.env` (gitignored); variables documented in `.env.example`
+- [x] `GMAIL_OAUTH_REDIRECT_URI` override so production uses the exact registered https callback, even behind a TLS-terminating proxy
+- [x] `manage.py check --deploy` fails on missing/placeholder credentials, missing encryption key, or non-https redirect (`bom_agent/checks.py`)
+- [ ] Local end-to-end: Settings → Connect Gmail with the real client stores encrypted tokens
+- [ ] **Blocked on deployment:** add `https://<backend-domain>/api/team/gmail/oauth/callback/` to the Google client, set the four env vars on the host, pass `check --deploy`, and have a test account complete the flow (Definition of Done)
+
+## Review — Story 3
+- The consent screen stays in Testing mode on purpose: `gmail.readonly` is a restricted scope, so publishing needs Google verification plus a paid security assessment. Testing mode allows up to 100 test users, but their refresh tokens expire after 7 days, so they reconnect weekly. Anyone new must be added under Audience → Test users.
+- In production, list the production frontend origin first in `CORS_ALLOWED_ORIGINS`. The OAuth callback falls back to that first origin's `/settings` page.
+- Verification: new tests `test_gmail_oauth_start_uses_configured_redirect_uri` and `GmailOAuthDeployCheckTests` pass. The full suite has one failure, `BomRunListViewTests.test_bom_run_list_filters_by_project_and_user`, which also fails on `main` because two runs are created with the same timestamp and come back in an unpredictable order.
