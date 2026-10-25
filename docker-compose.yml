@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   localstack:
     image: localstack/localstack:3
@@ -13,3 +11,16 @@ services:
     volumes:
       - ./localstack-data:/var/lib/localstack
       - /var/run/docker.sock:/var/run/docker.sock
+
+  # Celery broker. AOF persistence so queued jobs survive a Redis restart too.
+  redis:
+    image: redis:7-alpine
+    container_name: orbit-redis
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+volumes:
+  redis-data:

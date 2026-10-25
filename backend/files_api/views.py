@@ -1,64 +1,19 @@
 import json
 import os
-import threading
 
+from django.db import transaction
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, permissions
-from .models import UploadedFile, ExtractionResult, FileEmbedding
+from .models import UploadedFile, ExtractionResult
 from .serializers import UploadedFileSerializer
 from .s3_service import upload_file_to_s3, delete_file_from_s3, generate_presigned_url
+from .tasks import describe_file, extract_file
 from projects.models import Project
-from .embeddings import generate_embedding
 
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_BYTES", 100_000_000))  # 100 MB default
-
-
-def _run_description(file_id: int, s3_key: str, file_name: str, file_type: str):
-    """Generate AI description on upload only. Status stays 'uploaded'."""
-    from .s3_service import download_file_from_s3
-    from .extractor import extract_step_header
-    from .ai_description import generate_file_description
-
-    try:
-        file_bytes = download_file_from_s3(s3_key)
-        result = extract_step_header(file_bytes)
-        description = generate_file_description(file_name, file_type, result)
-        if description:
-            UploadedFile.objects.filter(id=file_id).update(description=description)
-    except Exception:
-        pass  # Non-fatal: description stays empty, file is still usable
-
-
-def _run_extraction(file_id: int, s3_key: str, file_name: str, file_type: str):
-    """Full extraction: STEP parse + profile + embedding. Triggered on demand."""
-    from .s3_service import download_file_from_s3
-    from .extractor import extract_step_header
-    from .ai_description import generate_file_description, generate_engineering_profile
-
-    try:
-        UploadedFile.objects.filter(id=file_id).update(status="processing")
-        file_bytes = download_file_from_s3(s3_key)
-        result = extract_step_header(file_bytes)
-        description = generate_file_description(file_name, file_type, result)
-        profile = generate_engineering_profile(file_name, file_type, result)
-        result["profile"] = profile
-        ExtractionResult.objects.update_or_create(
-            file_id=file_id, defaults={"result_json": result}
-        )
-        UploadedFile.objects.filter(id=file_id).update(
-            status="processed", description=description
-        )
-        embedding_payload = f"{file_name}\n{description}\n{json.dumps(result)}"
-        embedding_vector = generate_embedding(embedding_payload)
-        if embedding_vector:
-            FileEmbedding.objects.update_or_create(
-                file_id=file_id, defaults={"embedding_json": embedding_vector}
-            )
-    except Exception:
-        UploadedFile.objects.filter(id=file_id).update(status="failed")
 
 
 VAULT_EXTENSIONS = {"step", "stp", "pdf", "dwg", "dxf", "iges", "igs"}
@@ -124,11 +79,7 @@ class FileUploadView(APIView):
         )
 
         if category == "vault":
-            threading.Thread(
-                target=_run_description,
-                args=(file_record.id, s3_key, uploaded_file.name, ext),
-                daemon=True,
-            ).start()
+            transaction.on_commit(lambda: describe_file.delay(file_record.id))
 
         serializer = UploadedFileSerializer(file_record)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -146,11 +97,11 @@ class FileExtractView(APIView):
                 {"error": "Extraction already in progress"},
                 status=status.HTTP_409_CONFLICT,
             )
-        threading.Thread(
-            target=_run_extraction,
-            args=(file_record.id, file_record.s3_key, file_record.original_name, file_record.file_type),
-            daemon=True,
-        ).start()
+        # Marked before enqueueing so the 409 guard holds and a worker restart
+        # can find the job even if it was never picked up.
+        file_record.status = "processing"
+        file_record.save(update_fields=["status"])
+        transaction.on_commit(lambda: extract_file.delay(file_record.id))
         return Response({"status": "processing"}, status=status.HTTP_202_ACCEPTED)
 
 

@@ -12,6 +12,12 @@ class LibraryDocument(models.Model):
         ("standard", "Design Standard"),
         ("preferred-materials", "Preferred Materials"),
     ]
+    INGEST_STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("processing", "Processing"),
+        ("ready", "Ready"),
+        ("failed", "Failed"),
+    ]
 
     workspace_owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="library_documents"
@@ -29,6 +35,9 @@ class LibraryDocument(models.Model):
         related_name="library_versions",
     )
     extracted_text = models.TextField(blank=True)
+    ingest_status = models.CharField(
+        max_length=20, choices=INGEST_STATUS_CHOICES, default="pending"
+    )
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -70,6 +79,9 @@ class BomResearchRun(models.Model):
     research_log = models.JSONField(default=list)
     results_json = models.JSONField(default=dict)
     excel_s3_key = models.CharField(max_length=500, blank=True)
+    # Identifies the latest queued research job; older deliveries see a
+    # mismatch and stop, so a re-delivered message can't run twice.
+    job_token = models.CharField(max_length=32, blank=True)
     library_documents = models.ManyToManyField(
         LibraryDocument, blank=True, related_name="bom_runs"
     )

@@ -803,9 +803,23 @@ helps us debug and improve the pipeline.
 
 # ── Main entry point ──────────────────────────────────────────────────────────
 
-def run_bom_research(run_id: int) -> None:
+def _superseded(run, job_token: str | None) -> bool:
+    """True once a newer job for this run has been queued (see tasks.enqueue_bom_research)."""
+    from .models import BomResearchRun
+
+    if job_token is None:
+        return False
+    current = BomResearchRun.objects.values_list("job_token", flat=True).get(pk=run.pk)
+    return current != job_token
+
+
+def run_bom_research(run_id: int, job_token: str | None = None) -> None:
     """
-    Full BOM research pipeline. Must be called in a background thread.
+    Full BOM research pipeline. Runs in a Celery worker (bom_agent.tasks).
+
+    Resumable: items already `sourced` are skipped, and any other item's
+    partial quotes are cleared before it is re-researched, so running this
+    again after a crash or a team reply never duplicates quotes.
 
     Status transitions:
       gathering_inputs / awaiting_team_input
@@ -891,15 +905,25 @@ def run_bom_research(run_id: int) -> None:
         if not items:
             items = list(run.line_items.all())
 
+        already_sourced = [i for i in items if i.status == "sourced"]
+        items = [i for i in items if i.status != "sourced"]
+        if already_sourced:
+            _log(run, "info", f"Resuming — {len(already_sourced)} item(s) already sourced, skipping")
         _log(run, "info", f"Researching {len(items)} line item(s)")
 
         for item in items:
+            if _superseded(run, job_token):
+                return
+            item.quotes.all().delete()  # partial quotes from an interrupted attempt
             _research_item(
                 item, run,
                 avl_names, avl_content,
                 compliance_types,
                 material_doc_names, material_doc_content,
             )
+
+        if _superseded(run, job_token):
+            return
 
         # ── Generating report ─────────────────────────────────────────────────
         _set_status(run, "generating_report")

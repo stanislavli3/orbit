@@ -322,9 +322,8 @@ class BomRunInputsView(APIView):
         run.save(update_fields=["inputs_json", "status", "research_log"])
 
         # Start research pipeline in background (#60)
-        import threading
-        from .research_pipeline import run_bom_research
-        threading.Thread(target=run_bom_research, args=(run.pk,), daemon=True).start()
+        from .tasks import enqueue_bom_research
+        enqueue_bom_research(run)
 
         return Response(BomResearchRunSerializer(run).data)
 
