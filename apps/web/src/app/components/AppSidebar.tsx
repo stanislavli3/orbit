@@ -13,7 +13,6 @@ import {
 import {
   Bot,
   PlayCircle,
-  Workflow,
   History,
   Library,
   Settings,
@@ -33,7 +32,6 @@ import {
   CheckCircle,
   Database,
   BookOpen,
-  Layers,
   Zap,
   Wrench,
   Loader2,
@@ -49,7 +47,6 @@ const pathToSection: Record<string, string> = {
   "/vault": "vault",
   "/extraction-runs": "extraction-runs",
   "/bom": "bom",
-  "/workflows": "workflows",
   "/history": "history",
   "/library": "library",
   "/settings": "settings",
@@ -526,34 +523,6 @@ function getSidebarContent(
         ],
       };
     })(),
-    workflows: {
-      title: "Workflows",
-      sections: [
-        {
-          title: "Quick Actions",
-          items: [
-            {
-              icon: <Plus size={16} className={ic} />,
-              label: "New workflow",
-              path: "/workflows",
-            },
-          ],
-        },
-        {
-          title: "My Workflows",
-          items: [
-            {
-              icon: <Workflow size={16} className={ic} />,
-              label: "Active",
-            },
-            {
-              icon: <Layers size={16} className={ic} />,
-              label: "Templates",
-            },
-          ],
-        },
-      ],
-    },
     history: {
       title: "History",
       sections: [
@@ -679,7 +648,6 @@ const iconNavItems = [
   { id: "vault", icon: <FolderOpen size={16} />, label: "Projects", path: "/vault" },
   { id: "extraction-runs", icon: <PlayCircle size={16} />, label: "Extraction Runs", path: "/extraction-runs" },
   { id: "bom", icon: <Wrench size={16} />, label: "BOM Agent", path: "/bom" },
-  { id: "workflows", icon: <Workflow size={16} />, label: "Workflows", path: "/workflows" },
   { id: "history", icon: <History size={16} />, label: "History", path: "/history" },
   { id: "library", icon: <Library size={16} />, label: "Knowledge Base", path: "/library" },
 ];

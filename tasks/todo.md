@@ -257,6 +257,15 @@
 - The consent screen stays in Testing mode on purpose: `gmail.readonly` is a restricted scope, so publishing needs Google verification plus a paid security assessment. Testing mode allows up to 100 test users, but their refresh tokens expire after 7 days, so they reconnect weekly. Anyone new must be added under Audience → Test users.
 - In production, list the production frontend origin first in `CORS_ALLOWED_ORIGINS`. The OAuth callback falls back to that first origin's `/settings` page.
 - Verification: new tests `test_gmail_oauth_start_uses_configured_redirect_uri` and `GmailOAuthDeployCheckTests` pass. The full suite has one failure, `BomRunListViewTests.test_bom_run_list_filters_by_project_and_user`, which also fails on `main` because two runs are created with the same timestamp and come back in an unpredictable order.
+# Story 6 — Remove the /workflows placeholder route
+
+- [x] Remove `workflows` route (it rendered `VaultPage` as a `// Placeholder`) from `apps/web/src/app/routes.tsx`
+- [x] Remove the Workflows icon-nav item, its detail-sidebar content, its `pathToSection` entry, and the now-unused `Workflow`/`Layers` icon imports from `AppSidebar.tsx`
+
+## Review — Story 6
+- Decision per the Oct 20 reorg: remove the route now. A real workflow page may come back later as the E3 approval workflow (SCRUM-57 / N09).
+- No other code linked to `/workflows`. The app has no catch-all route, so an old bookmark to `/workflows` now gets React Router's default "not found" error page.
+- Verification: `npm run typecheck` and `npm run build` pass. `npm run lint` reports one existing error in `BomAnalyticsDeck.tsx:209` (`react-hooks/immutability`); this change doesn't touch that file.
 ---
 
 # Story 2 — Durable Task Queue (replace daemon threads)
