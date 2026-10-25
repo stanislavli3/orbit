@@ -5,7 +5,7 @@
 # Every day:   make dev
 # Shut down:   make stop
 
-.PHONY: dev dev-local setup stop restart logs migrate help
+.PHONY: dev dev-local worker setup stop restart logs migrate help
 
 # ── Python resolution ──────────────────────────────────────────────────────────
 # Prefer the project venv; otherwise fall back to python then python3 on PATH (handles spaces).
@@ -30,20 +30,27 @@ BACKEND_ERR   := .orbit-backend.err.log
 FRONTEND_ERR  := .orbit-frontend.err.log
 BACKEND_PID   := .orbit-backend.pid
 FRONTEND_PID  := .orbit-frontend.pid
+WORKER_LOG    := .orbit-worker.log
+WORKER_ERR    := .orbit-worker.err.log
+WORKER_PID    := .orbit-worker.pid
+
+# Celery worker (background jobs). --pool=solo: prefork isn't supported on Windows.
+WORKER_ARGS   := -m celery -A config worker --pool=solo --loglevel=info
 
 # ══════════════════════════════════════════════════════════════════════════════
 # PUBLIC TARGETS
 # ══════════════════════════════════════════════════════════════════════════════
 
-## dev: Start the full stack — LocalStack, backend, and frontend
+## dev: Start the full stack — LocalStack, Redis, backend, worker, and frontend
 ifeq ($(OS),Windows_NT)
 dev: _docker-up _bucket _migrate
 	@echo ""
 	@echo "  Backend  → http://localhost:$(BACKEND_PORT)"
 	@echo "  Frontend → http://localhost:$(FRONTEND_PORT)"
+	@echo "  Worker   → $(WORKER_LOG)"
 	@echo "  Run 'make stop' to stop background services"
 	@echo ""
-	@$(POWERSHELL) "Remove-Item '$(BACKEND_LOG)','$(FRONTEND_LOG)','$(BACKEND_ERR)','$(FRONTEND_ERR)','$(BACKEND_PID)','$(FRONTEND_PID)' -ErrorAction SilentlyContinue; $$backend = Start-Process -FilePath '$(PYTHON)' -ArgumentList 'manage.py','runserver','$(BACKEND_PORT)' -WorkingDirectory 'backend' -RedirectStandardOutput '$(BACKEND_LOG)' -RedirectStandardError '$(BACKEND_ERR)' -PassThru; Set-Content -Path '$(BACKEND_PID)' -Value $$backend.Id; $$frontend = Start-Process -FilePath 'npm.cmd' -ArgumentList 'run','dev','--','--host','127.0.0.1','--port','$(FRONTEND_PORT)' -WorkingDirectory 'apps/web' -RedirectStandardOutput '$(FRONTEND_LOG)' -RedirectStandardError '$(FRONTEND_ERR)' -PassThru; Set-Content -Path '$(FRONTEND_PID)' -Value $$frontend.Id; Write-Host 'Background services started.'"
+	@$(POWERSHELL) "Remove-Item '$(BACKEND_LOG)','$(FRONTEND_LOG)','$(BACKEND_ERR)','$(FRONTEND_ERR)','$(BACKEND_PID)','$(FRONTEND_PID)','$(WORKER_LOG)','$(WORKER_ERR)','$(WORKER_PID)' -ErrorAction SilentlyContinue; $$worker = Start-Process -FilePath '$(PYTHON)' -ArgumentList '$(WORKER_ARGS)' -WorkingDirectory 'backend' -RedirectStandardOutput '$(WORKER_LOG)' -RedirectStandardError '$(WORKER_ERR)' -PassThru; Set-Content -Path '$(WORKER_PID)' -Value $$worker.Id; $$backend = Start-Process -FilePath '$(PYTHON)' -ArgumentList 'manage.py','runserver','$(BACKEND_PORT)' -WorkingDirectory 'backend' -RedirectStandardOutput '$(BACKEND_LOG)' -RedirectStandardError '$(BACKEND_ERR)' -PassThru; Set-Content -Path '$(BACKEND_PID)' -Value $$backend.Id; $$frontend = Start-Process -FilePath 'npm.cmd' -ArgumentList 'run','dev','--','--host','127.0.0.1','--port','$(FRONTEND_PORT)' -WorkingDirectory 'apps/web' -RedirectStandardOutput '$(FRONTEND_LOG)' -RedirectStandardError '$(FRONTEND_ERR)' -PassThru; Set-Content -Path '$(FRONTEND_PID)' -Value $$frontend.Id; Write-Host 'Background services started.'"
 else
 dev: _docker-up _bucket _migrate
 	@echo ""
@@ -51,34 +58,41 @@ dev: _docker-up _bucket _migrate
 	@echo "  Frontend → http://localhost:$(FRONTEND_PORT)"
 	@echo "  Press Ctrl+C to stop everything"
 	@echo ""
-	@trap 'echo "\nStopping..."; kill %1 %2 2>/dev/null; exit 0' INT; \
+	@trap 'echo "\nStopping..."; kill %1 %2 %3 2>/dev/null; exit 0' INT; \
 	  (cd backend && "$(PYTHON)" manage.py runserver $(BACKEND_PORT) 2>&1 | sed 's/^/\033[34m[backend] \033[0m/') & \
+	  (cd backend && "$(PYTHON)" $(WORKER_ARGS) 2>&1 | sed 's/^/\033[35m[worker]  \033[0m/') & \
 	  (cd apps/web && npm run dev 2>&1 | sed 's/^/\033[32m[frontend]\033[0m /') & \
 	  wait
 endif
 
-## dev-local: Start backend + frontend only — skips Docker/LocalStack (no S3)
+## dev-local: Start backend + frontend only — skips Docker (no S3, no Redis; jobs run inline)
 ifeq ($(OS),Windows_NT)
 dev-local: _migrate
 	@echo ""
 	@echo "  Backend  → http://localhost:$(BACKEND_PORT)"
 	@echo "  Frontend → http://localhost:$(FRONTEND_PORT)"
 	@echo "  (S3/LocalStack skipped — file uploads unavailable)"
+	@echo "  (No Redis — background jobs run inline and block the request)"
 	@echo ""
-	@$(POWERSHELL) "Remove-Item '$(BACKEND_LOG)','$(FRONTEND_LOG)','$(BACKEND_ERR)','$(FRONTEND_ERR)','$(BACKEND_PID)','$(FRONTEND_PID)' -ErrorAction SilentlyContinue; $$backend = Start-Process -FilePath '$(PYTHON)' -ArgumentList 'manage.py','runserver','$(BACKEND_PORT)' -WorkingDirectory 'backend' -RedirectStandardOutput '$(BACKEND_LOG)' -RedirectStandardError '$(BACKEND_ERR)' -PassThru; Set-Content -Path '$(BACKEND_PID)' -Value $$backend.Id; $$frontend = Start-Process -FilePath 'npm.cmd' -ArgumentList 'run','dev','--','--host','127.0.0.1','--port','$(FRONTEND_PORT)' -WorkingDirectory 'apps/web' -RedirectStandardOutput '$(FRONTEND_LOG)' -RedirectStandardError '$(FRONTEND_ERR)' -PassThru; Set-Content -Path '$(FRONTEND_PID)' -Value $$frontend.Id; Write-Host 'Background services started.'"
+	@$(POWERSHELL) "Remove-Item '$(BACKEND_LOG)','$(FRONTEND_LOG)','$(BACKEND_ERR)','$(FRONTEND_ERR)','$(BACKEND_PID)','$(FRONTEND_PID)' -ErrorAction SilentlyContinue; $$env:CELERY_TASK_ALWAYS_EAGER = 'True'; $$backend = Start-Process -FilePath '$(PYTHON)' -ArgumentList 'manage.py','runserver','$(BACKEND_PORT)' -WorkingDirectory 'backend' -RedirectStandardOutput '$(BACKEND_LOG)' -RedirectStandardError '$(BACKEND_ERR)' -PassThru; Set-Content -Path '$(BACKEND_PID)' -Value $$backend.Id; $$frontend = Start-Process -FilePath 'npm.cmd' -ArgumentList 'run','dev','--','--host','127.0.0.1','--port','$(FRONTEND_PORT)' -WorkingDirectory 'apps/web' -RedirectStandardOutput '$(FRONTEND_LOG)' -RedirectStandardError '$(FRONTEND_ERR)' -PassThru; Set-Content -Path '$(FRONTEND_PID)' -Value $$frontend.Id; Write-Host 'Background services started.'"
 else
 dev-local: _migrate
 	@echo ""
 	@echo "  Backend  → http://localhost:$(BACKEND_PORT)"
 	@echo "  Frontend → http://localhost:$(FRONTEND_PORT)"
 	@echo "  (S3/LocalStack skipped — file uploads unavailable)"
+	@echo "  (No Redis — background jobs run inline and block the request)"
 	@echo "  Press Ctrl+C to stop everything"
 	@echo ""
 	@trap 'echo "\nStopping..."; kill %1 %2 2>/dev/null; exit 0' INT; \
-	  (cd backend && "$(PYTHON)" manage.py runserver $(BACKEND_PORT) 2>&1 | sed 's/^/\033[34m[backend] \033[0m/') & \
+	  (cd backend && CELERY_TASK_ALWAYS_EAGER=True "$(PYTHON)" manage.py runserver $(BACKEND_PORT) 2>&1 | sed 's/^/\033[34m[backend] \033[0m/') & \
 	  (cd apps/web && npm run dev 2>&1 | sed 's/^/\033[32m[frontend]\033[0m /') & \
 	  wait
 endif
+
+## worker: Run the Celery worker in the foreground (needs Redis: docker compose up -d redis)
+worker:
+	cd backend && "$(PYTHON)" $(WORKER_ARGS)
 
 ## setup: First-time install — create venv, install Python + Node deps, copy env files
 setup:
@@ -96,16 +110,17 @@ setup:
 	@echo "  2. Edit apps/web/.env — add VITE_CLERK_PUBLISHABLE_KEY"
 	@echo "  3. Run: make dev"
 
-## stop: Stop backend, frontend, and LocalStack
+## stop: Stop backend, worker, frontend, LocalStack, and Redis
 
 ifeq ($(OS),Windows_NT)
 stop:
-	@$(POWERSHELL) "foreach ($$service in @(@{Name='Backend';PidFile='$(BACKEND_PID)'}, @{Name='Frontend';PidFile='$(FRONTEND_PID)'})) { if (Test-Path $$service.PidFile) { $$processId = Get-Content $$service.PidFile | Select-Object -First 1; if ($$processId) { Stop-Process -Id ([int]$$processId) -Force -ErrorAction SilentlyContinue }; Remove-Item $$service.PidFile -ErrorAction SilentlyContinue; Write-Host ($$service.Name + ' stopped') } }; docker compose down | Out-Null; if ($$LASTEXITCODE -eq 0) { Write-Host 'LocalStack stopped' }"
+	@$(POWERSHELL) "foreach ($$service in @(@{Name='Backend';PidFile='$(BACKEND_PID)'}, @{Name='Worker';PidFile='$(WORKER_PID)'}, @{Name='Frontend';PidFile='$(FRONTEND_PID)'})) { if (Test-Path $$service.PidFile) { $$processId = Get-Content $$service.PidFile | Select-Object -First 1; if ($$processId) { Stop-Process -Id ([int]$$processId) -Force -ErrorAction SilentlyContinue }; Remove-Item $$service.PidFile -ErrorAction SilentlyContinue; Write-Host ($$service.Name + ' stopped') } }; docker compose down | Out-Null; if ($$LASTEXITCODE -eq 0) { Write-Host 'LocalStack stopped' }"
 else
 stop:
 	@kill $$(lsof -ti:$(BACKEND_PORT))  2>/dev/null && echo "Backend stopped"  || true
 	@kill $$(lsof -ti:$(FRONTEND_PORT)) 2>/dev/null && echo "Frontend stopped" || true
 	@kill $$(lsof -ti:5174)             2>/dev/null || true
+	@pkill -f "celery -A config worker" 2>/dev/null && echo "Worker stopped" || true
 	@docker compose down && echo "LocalStack stopped" || true
 endif
 
@@ -119,7 +134,7 @@ migrate: _migrate
 
 ifeq ($(OS),Windows_NT)
 logs:
-	@$(POWERSHELL) "$$logs = @(); foreach ($$path in @('$(BACKEND_LOG)','$(BACKEND_ERR)','$(FRONTEND_LOG)','$(FRONTEND_ERR)')) { if (Test-Path $$path) { $$logs += $$path } }; if ($$logs.Count -eq 0) { Write-Host 'No log files found. Use make dev to start background services.'; exit 0 }; Get-Content -Path $$logs -Wait"
+	@$(POWERSHELL) "$$logs = @(); foreach ($$path in @('$(BACKEND_LOG)','$(BACKEND_ERR)','$(WORKER_LOG)','$(WORKER_ERR)','$(FRONTEND_LOG)','$(FRONTEND_ERR)')) { if (Test-Path $$path) { $$logs += $$path } }; if ($$logs.Count -eq 0) { Write-Host 'No log files found. Use make dev to start background services.'; exit 0 }; Get-Content -Path $$logs -Wait"
 else
 logs:
 	@tail -f /tmp/django.log /tmp/vite.log 2>/dev/null || echo "No log files found. Use 'make dev' to start with inline logs."
