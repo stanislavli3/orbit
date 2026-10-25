@@ -47,7 +47,6 @@ export const router = createBrowserRouter([
       { path: 'bom', Component: BomAgentPage },
       { path: 'bom/:id', Component: BomRunPage },
       { path: 'bom/:id/analytics', Component: BomAnalyticsPage },
-      { path: 'workflows', Component: VaultPage }, // Placeholder
       { path: 'history', Component: HistoryPage },
       { path: 'library', Component: LibraryPage },
       { path: 'settings', Component: SettingsPage },
