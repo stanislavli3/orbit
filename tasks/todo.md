@@ -329,3 +329,26 @@ Follow-ups:
 - [ ] DoD: push a deliberately broken test on a throwaway branch/PR → CI red, merge blocked; then discard it
 
 **Out of scope / found along the way:** `ruff check` (6 errors) and `ruff format --check` (33 files) fail on existing code, so lint is not gated yet.
+
+---
+
+# Story 4 — Background job error logging & alerting
+
+**Branch:** `feat/story-4-job-failure-alerting` (based on `main`, which has Story 2)
+
+**Starting point:** an earlier attempt was found in a dropped stash (`36afd9d`, Oct 4) and restored. It adds `core/jobs.py` (`@monitored_task`: retry transient errors with backoff, dead-letter the rest), `core/alerts.py` (Slack-style webhook), `JobFailure` / `JobAttempt` models + migration, admin view, and tests. Baseline after restore: 108 passed, no missing migrations.
+
+## Acceptance criteria → where it lives
+- [x] Every job type logs a structured failure event: `bom_research`, `library_ingest`, `file_extraction`, `file_description` (tasks); `email_send`, `email_poll` (views + `poll_bom_email_replies` command)
+- [x] One place a human checks: Django admin → Job failures; plus optional webhook push (`ALERT_WEBHOOK_URL`)
+- [x] No silent infinite retry / silent drop: `MAX_RETRIES=3` with backoff, then dead-letter; crash-loop guard after 3 unfinished starts
+
+## Remaining
+- [x] Review the restored code (retry only on transient errors; `on_dead` hooks mark rows failed; email_send skips alerts for `ValueError`)
+- [x] Document `ALERT_WEBHOOK_URL` in `backend/.env.example` and `apps/worker/README.md`
+- [x] DoD demo: library ingest with a missing S3 object -> task FAILURE, doc `failed`, JobFailure row, structured log, webhook alert 0.02s after start (throwaway DB, local receiver)
+- [x] Commit and push
+- [x] Closed the malformed-file gap: `_extract_pdf` / `_extract_xlsx` no longer swallow errors (corrupt file -> job dead-lettered, doc `failed`, alert). Image-only PDFs (valid, no text layer) still ingest as `ready`. `_extract_csv` never swallowed; it only raises on a real `csv.Error`. Password-protected PDFs: tries an empty password, else fails with a clear error. Tests: `CorruptDocumentTests` (verified they fail on the old code). Demo with a corrupt PDF: alert 0.07s after task start. STEP files are unchanged (parser returns confidence 0.0 + warning, not an error).
+
+## Open question
+- Alert channel: webhook is built. Needs a real Slack incoming-webhook URL from the team to alert a human; until then failures are in the admin + logs only.

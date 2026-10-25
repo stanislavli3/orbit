@@ -109,6 +109,18 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 # `make dev-local` (no Redis) sets this so jobs run inline in the request.
 CELERY_TASK_ALWAYS_EAGER = os.getenv("CELERY_TASK_ALWAYS_EAGER", "False") == "True"
 
+# Failed background jobs: always recorded in the admin (core.JobFailure); also
+# POSTed to this Slack-compatible webhook when set. Empty disables the push.
+ALERT_WEBHOOK_URL = os.getenv("ALERT_WEBHOOK_URL", "")
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    # Structured job events: `job_failed {json}` and `job_retry {json}`.
+    "loggers": {"orbit.jobs": {"handlers": ["console"], "level": "INFO"}},
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
