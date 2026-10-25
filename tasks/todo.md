@@ -242,3 +242,13 @@
 - `cd backend && ./.venv/bin/python manage.py check`
 - `cd apps/web && npm run lint`
 - `cd apps/web && npm run build`
+
+# Story 6 — Remove the /workflows placeholder route
+
+- [x] Remove `workflows` route (it rendered `VaultPage` as a `// Placeholder`) from `apps/web/src/app/routes.tsx`
+- [x] Remove the Workflows icon-nav item, its detail-sidebar content, its `pathToSection` entry, and the now-unused `Workflow`/`Layers` icon imports from `AppSidebar.tsx`
+
+## Review — Story 6
+- Decision per the Oct 20 reorg: remove the route now. A real workflow page may come back later as the E3 approval workflow (SCRUM-57 / N09).
+- No other code linked to `/workflows`. The app has no catch-all route, so an old bookmark to `/workflows` now gets React Router's default "not found" error page.
+- Verification: `npm run typecheck` and `npm run build` pass. `npm run lint` reports one existing error in `BomAnalyticsDeck.tsx:209` (`react-hooks/immutability`); this change doesn't touch that file.
