@@ -4,6 +4,8 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from bom_agent.models import Bom
+from .estimator import DEFAULT_INFLATION, estimate_bom
 from .history import suppliers_who_quoted
 from .importer import ImportFileError, import_costs
 from .models import ImportBatch, Part
@@ -73,3 +75,20 @@ class CostImportView(APIView):
         except ImportFileError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(report, status=status.HTTP_200_OK if dry_run else status.HTTP_201_CREATED)
+
+
+class BomEstimateView(APIView):
+    """GET ?k=3&inflation=0.03 — an early cost estimate for each line of a BOM."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, bom_id):
+        bom = get_object_or_404(Bom.objects.prefetch_related("rows"), pk=bom_id, project__owner=request.user)
+        try:
+            k = int(request.query_params.get("k", 3))
+            inflation = float(request.query_params.get("inflation", DEFAULT_INFLATION))
+        except ValueError:
+            return Response({"detail": "k must be a whole number and inflation a decimal like 0.03."}, status=400)
+        if not (1 <= k <= 10 and 0 <= inflation <= 0.5):
+            return Response({"detail": "k must be 1-10 and inflation between 0 and 0.5."}, status=400)
+        return Response(estimate_bom(bom, request.user, k=k, inflation=inflation))
