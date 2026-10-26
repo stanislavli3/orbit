@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import HistoricalCost, Part, Quote, Supplier
+from .models import HistoricalCost, ImportBatch, Part, Quote, Supplier
 
 
 @admin.register(Part)
@@ -28,3 +28,9 @@ class HistoricalCostAdmin(admin.ModelAdmin):
     list_display = ["part", "unit_cost", "program", "model_year", "source", "is_sample"]
     list_filter = ["is_sample", "model_year"]
     search_fields = ["part__part_number", "program", "source"]
+
+
+@admin.register(ImportBatch)
+class ImportBatchAdmin(admin.ModelAdmin):
+    list_display = ["filename", "imported_rows", "rejected_rows", "is_sample", "workspace_owner", "created_at"]
+    list_filter = ["is_sample"]

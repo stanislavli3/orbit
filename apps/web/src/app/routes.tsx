@@ -10,6 +10,7 @@ import { ExtractionRunsPage } from './components/ExtractionRunsPage';
 import { BomAgentPage } from './components/BomAgentPage';
 import { BomRunPage } from './components/BomRunPage';
 import { BomReviewPage } from './components/BomReviewPage';
+import { EstimatePage } from './components/EstimatePage';
 import { BomAnalyticsPage } from './components/BomAnalyticsPage';
 import { ProjectAnalyticsPage } from './components/ProjectAnalyticsPage';
 import { FileResultPage } from './components/FileResultPage';
@@ -49,6 +50,7 @@ export const router = createBrowserRouter([
       { path: 'bom/:id', Component: BomRunPage },
       { path: 'bom/:id/analytics', Component: BomAnalyticsPage },
       { path: 'boms/:id', Component: BomReviewPage },
+      { path: 'estimate', Component: EstimatePage },
       { path: 'history', Component: HistoryPage },
       { path: 'library', Component: LibraryPage },
       { path: 'settings', Component: SettingsPage },

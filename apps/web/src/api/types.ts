@@ -338,3 +338,31 @@ export interface Bom {
   review_count: number;
   rows: BomRow[];
 }
+
+// ── Part cost history (SCRUM-28 / SCRUM-58) ─────────────────────────────────
+
+export interface RejectedRow {
+  row: number;
+  errors: string[];
+  values: Record<string, string>;
+}
+
+export interface CostImportReport {
+  filename: string;
+  dry_run: boolean;
+  total_rows: number;
+  valid_rows: number;
+  imported_rows: number;
+  rejected: RejectedRow[];
+  batch_id: number | null;
+}
+
+export interface CostImportBatch {
+  id: number;
+  filename: string;
+  total_rows: number;
+  imported_rows: number;
+  rejected_rows: number;
+  is_sample: boolean;
+  created_at: string;
+}

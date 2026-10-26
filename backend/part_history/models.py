@@ -80,6 +80,26 @@ class Quote(models.Model):
         return f"{self.supplier} — {self.unit_price} {self.currency}"
 
 
+class ImportBatch(models.Model):
+    """One uploaded cost spreadsheet. Deleting it removes the costs it added."""
+
+    workspace_owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cost_imports")
+    uploaded_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    filename = models.CharField(max_length=255)
+    total_rows = models.PositiveIntegerField(default=0)
+    imported_rows = models.PositiveIntegerField(default=0)
+    rejected_rows = models.PositiveIntegerField(default=0)
+    rejected_json = models.JSONField(default=list, help_text="Validation report: row number, errors, values")
+    is_sample = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.filename} ({self.imported_rows} imported, {self.rejected_rows} rejected)"
+
+
 class HistoricalCost(models.Model):
     """What a part cost on a past program, e.g. from a cost spreadsheet."""
 
@@ -94,6 +114,9 @@ class HistoricalCost(models.Model):
     )
     source = models.CharField(max_length=300, help_text='e.g. "costs_2022.xlsx row 14"')
     is_sample = models.BooleanField(default=False, help_text="Seeded demo data, not real costs")
+    import_batch = models.ForeignKey(
+        ImportBatch, null=True, blank=True, on_delete=models.CASCADE, related_name="costs"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

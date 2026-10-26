@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import HistoricalCost, Part, Quote
+from .models import HistoricalCost, ImportBatch, Part, Quote
 
 
 class HistoricalCostSerializer(serializers.ModelSerializer):
@@ -41,3 +41,9 @@ class PartDetailSerializer(PartSerializer):
 
     class Meta(PartSerializer.Meta):
         fields = PartSerializer.Meta.fields + ["costs", "quotes"]
+
+
+class ImportBatchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImportBatch
+        fields = ["id", "filename", "total_rows", "imported_rows", "rejected_rows", "rejected_json", "is_sample", "created_at"]
