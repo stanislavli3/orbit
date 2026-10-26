@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "core",
     "assistant",
     "bom_agent",
+    "part_history",
 ]
 
 MIDDLEWARE = [

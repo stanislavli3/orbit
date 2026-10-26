@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from files_api.models import UploadedFile
+from part_history.history import record_bom_parts
 from .bom_extraction import BOM_FILE_TYPES
 from .models import Bom, BomRow
 from .serializers import BomRowSerializer, BomSerializer
@@ -77,6 +78,7 @@ class BomApproveView(APIView):
         bom.approved_by = request.user
         bom.approved_at = timezone.now()
         bom.save(update_fields=["status", "approved_by", "approved_at"])
+        record_bom_parts(bom, request.user)  # approved part numbers join part history (SCRUM-28)
         return Response(BomSerializer(bom).data)
 
 
