@@ -1,0 +1,13 @@
+Part Number,Description,Material,Unit Cost (USD),Model Year,Program,Supplier
+ORB-1042,"Bracket, Mounting",6061-T6,4.10,2022,SAMPLE Program Atlas,SAMPLE Acme Machining
+ORB-1042,"Bracket, Mounting",6061-T6,4.35,2024,SAMPLE Program Borealis,SAMPLE Acme Machining
+ORB-0981,"Bracket, Mounting, Short",6061-T6,3.60,2021,SAMPLE Program Atlas,SAMPLE Acme Machining
+ORB-0982,"Bracket, L, Heavy",7075-T6,7.80,2023,SAMPLE Program Borealis,SAMPLE Precision Works
+ORB-1130,"Cover Plate 16 GA",CRS,2.10,2023,SAMPLE Program Borealis,SAMPLE Sheetline Fab
+ORB-1131,"Cover Plate 14 GA",CRS,2.40,2022,SAMPLE Program Atlas,SAMPLE Sheetline Fab
+SHCS-M6X16,Screw SHCS M6x16 ISO 4762,SS 304,0.18,2022,SAMPLE Program Atlas,SAMPLE Fastenal Demo
+SHCS-M6X20,Screw SHCS M6x20 ISO 4762,SS 304,0.21,2023,SAMPLE Program Borealis,SAMPLE Fastenal Demo
+ORB-0770,"Spacer, 10 mm",6061-T6,0.95,2021,SAMPLE Program Atlas,SAMPLE Acme Machining
+ORB-0771,"Spacer, 12 mm",6061-T6,1.05,2023,SAMPLE Program Borealis,SAMPLE Acme Machining
+ORB-2001,"Housing, Pump",A380 CAST,18.50,2022,SAMPLE Program Atlas,SAMPLE Castworks
+ORB-2002,Shaft,4140,12.20,2023,SAMPLE Program Borealis,SAMPLE Precision Works

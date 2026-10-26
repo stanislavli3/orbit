@@ -33,6 +33,7 @@ def test_upload_enqueues_description_after_commit(
     upload = SimpleUploadedFile("part.step", b"ISO-10303-21;")
     with patch("files_api.views.upload_file_to_s3", return_value="projects/x/part.step"), \
             patch("files_api.views.describe_file.delay") as delay, \
+            patch("bom_agent.tasks.extract_bom.delay"), \
             django_capture_on_commit_callbacks(execute=True):
         response = auth_client.post(
             "/api/files/upload/", {"file": upload, "project_id": project.id}, format="multipart"
