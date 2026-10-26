@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from datetime import timedelta
+from .bom_extraction import REVIEW_THRESHOLD
 from .models import (
+    Bom,
+    BomRow,
     TeamContact,
     GmailCredential,
     BomResearchRun,
@@ -243,3 +246,34 @@ class TeamRequestUpdateSerializer(serializers.ModelSerializer):
             instance.contact = matched_contact
 
         return super().update(instance, validated_data)
+
+
+class BomRowSerializer(serializers.ModelSerializer):
+    needs_review = serializers.SerializerMethodField()
+
+    class Meta:
+        model = BomRow
+        fields = [
+            "id", "line_no", "part_number", "description", "material", "process",
+            "quantity", "spec", "confidence", "flags", "sources", "edited", "needs_review",
+        ]
+        read_only_fields = ["id", "line_no", "confidence", "flags", "sources", "edited", "needs_review"]
+
+    def get_needs_review(self, row) -> bool:
+        return not row.edited and row.confidence < REVIEW_THRESHOLD
+
+
+class BomSerializer(serializers.ModelSerializer):
+    reference = serializers.CharField(read_only=True)
+    rows = BomRowSerializer(many=True, read_only=True)
+    review_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Bom
+        fields = [
+            "id", "reference", "project", "source_file", "source_name", "status",
+            "error", "approved_at", "created_at", "review_count", "rows",
+        ]
+
+    def get_review_count(self, bom) -> int:
+        return sum(1 for r in bom.rows.all() if not r.edited and r.confidence < REVIEW_THRESHOLD)

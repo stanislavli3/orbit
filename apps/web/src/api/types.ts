@@ -304,3 +304,37 @@ export interface SessionMessagesResponse {
   session_id: string;
   messages: SessionMessage[];
 }
+
+// ── Structured BOM (SCRUM-22) ────────────────────────────────────────────────
+
+export type BomStatus = 'extracting' | 'needs_review' | 'approved' | 'failed';
+
+export interface BomRow {
+  id: number;
+  line_no: number;
+  part_number: string;
+  description: string;
+  material: string;
+  process: string;
+  quantity: number;
+  spec: string;
+  confidence: number;
+  flags: string[];
+  sources: Record<string, string>;
+  edited: boolean;
+  needs_review: boolean;
+}
+
+export interface Bom {
+  id: number;
+  reference: string;
+  project: number;
+  source_file: number | null;
+  source_name: string;
+  status: BomStatus;
+  error: string;
+  approved_at: string | null;
+  created_at: string;
+  review_count: number;
+  rows: BomRow[];
+}

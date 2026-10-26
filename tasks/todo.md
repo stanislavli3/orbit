@@ -1,3 +1,18 @@
+# Task — Structured BOM → historical estimate → supplier shortlist (SCRUM-22, 28, 58, 59 + thin slice)
+
+Kept deliberately simple (user asked): one branch / one PR, one commit per story, deterministic parsing (no LLM), two UI pages.
+
+- [x] SCRUM-22: `bom_extraction.py` (STEP: PRODUCT + assembly quantities + MATERIAL_DESIGNATION; PDF: BOM table or title block), `Bom`/`BomRow` models with confidence + flags, Celery task on upload, review API (list/detail/edit row/approve), BOM review page
+- [ ] SCRUM-28: `parts` app — Part, Supplier, Quote, HistoricalCost (program/model year as fields); research quotes and approved BOMs write history; "who has quoted this" API; admin
+- [ ] SCRUM-58: CSV/Excel cost import with column aliases + rejected-row report (+ dry run); `seed_part_history` command with clearly labelled sample data
+- [ ] SCRUM-59: top-k similar parts with reasons; inflation-adjusted estimate with visible assumptions; sample-data warning
+- [ ] Thin slice: approved-supplier shortlist + one-request quick estimate (upload → BOM → estimate → shortlist), sources on every number; Estimate page
+- [ ] Verify: backend tests, frontend typecheck/lint/build, manual run of the flow
+
+Out of scope: SCRUM-41 hosting, the backup video recording.
+
+---
+
 # Task — Assistant RAG feature
 - [x] Review backend/frontend state to align implementation approach
 - [x] Backend: add `assistant` app (models, rag logic, view, urls), register in settings/urls
