@@ -6,10 +6,16 @@ Kept deliberately simple (user asked): one branch / one PR, one commit per story
 - [x] SCRUM-28: `parts` app — Part, Supplier, Quote, HistoricalCost (program/model year as fields); research quotes and approved BOMs write history; "who has quoted this" API; admin
 - [x] SCRUM-58: CSV/Excel cost import with column aliases + rejected-row report (+ dry run); `seed_part_history` command with clearly labelled sample data
 - [x] SCRUM-59: top-k similar parts with reasons; inflation-adjusted estimate with visible assumptions; sample-data warning
-- [ ] Thin slice: approved-supplier shortlist + one-request quick estimate (upload → BOM → estimate → shortlist), sources on every number; Estimate page
-- [ ] Verify: backend tests, frontend typecheck/lint/build, manual run of the flow
+- [x] Thin slice: approved-supplier shortlist + one-request quick estimate (upload → BOM → estimate → shortlist), sources on every number; Estimate page
+- [x] Verify: backend tests, frontend typecheck/lint/build, manual run of the flow
 
 Out of scope: SCRUM-41 hosting, the backup video recording.
+
+## Review
+- 183 backend tests pass; frontend typecheck and build pass; lint clean on changed files (one pre-existing error in BomAnalyticsDeck.tsx).
+- Real run against LocalStack (rolled back afterwards): sample assembly → BOM with 4 lines → $10.17 estimate with suppliers, in 0.7 s.
+- App is `part_history` (not `parts`): the Python .gitignore template ignores `parts/`.
+- Follow-ups: host the demo (SCRUM-41) and record the backup video; replace SAMPLE data with real cost exports; research runs could start from approved BOM rows.
 
 ---
 
