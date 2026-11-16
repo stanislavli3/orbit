@@ -89,7 +89,7 @@ class BomResearchRun(models.Model):
     completed_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
-        ordering = ["-created_at"]
+        ordering = ["-created_at", "-id"]
 
     def __str__(self):
         return f"BOM Run {self.id} — {self.project} ({self.status})"
