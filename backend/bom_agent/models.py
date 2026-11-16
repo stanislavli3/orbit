@@ -140,6 +140,14 @@ class SupplierQuote(models.Model):
     notes = models.TextField(blank=True)
     is_avl = models.BooleanField(default=False)
     is_selected = models.BooleanField(default=False)
+    # SCRUM-31: commodity (COTS) status is stored, not guessed from tooling cost.
+    COTS_SOURCE_CHOICES = [
+        ("agent", "Research agent"),
+        ("human", "Human override"),
+        ("backfill", "Inferred from tooling cost (backfill)"),
+    ]
+    is_cots = models.BooleanField(default=False)
+    is_cots_source = models.CharField(max_length=10, choices=COTS_SOURCE_CHOICES, default="agent")
 
     def __str__(self):
         return f"{self.supplier_name} — {self.line_item.part_name}"
@@ -320,3 +328,51 @@ class BomRow(models.Model):
 
     def __str__(self):
         return f"{self.part_number or '(no part number)'} × {self.quantity}"
+
+
+class RfqDraft(models.Model):
+    """An RFQ spec sheet drafted from one structured BOM row (SCRUM-32).
+
+    Blank quote-critical fields are never filled with guesses; they surface
+    as "assumption — confirm" lines until someone fills them in.
+    """
+
+    STATUS_CHOICES = [("draft", "Draft"), ("final", "Final")]
+    # field -> label for the quote-critical fields a supplier needs.
+    CRITICAL_FIELDS = {
+        "part_context": "Part description",
+        "material": "Material",
+        "blank_size": "Blank / stock size",
+        "tolerance": "Tolerance",
+        "quantity": "Quantity",
+        "due_date": "Quote due date",
+    }
+
+    bom_row = models.ForeignKey(BomRow, on_delete=models.CASCADE, related_name="rfq_drafts")
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rfq_drafts")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
+    part_number = models.CharField(max_length=100, blank=True)
+    part_context = models.TextField(blank=True)
+    material = models.CharField(max_length=200, blank=True)
+    blank_size = models.CharField(max_length=200, blank=True)
+    tolerance = models.CharField(max_length=200, blank=True)
+    process = models.CharField(max_length=100, blank=True)
+    quantity = models.PositiveIntegerField(null=True, blank=True)
+    due_date = models.DateField(null=True, blank=True)
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    @property
+    def assumptions(self) -> list[str]:
+        return [
+            f"{label}: not stated — assumption — confirm before quoting"
+            for field, label in self.CRITICAL_FIELDS.items()
+            if getattr(self, field) in (None, "")
+        ]
+
+    def __str__(self):
+        return f"RFQ {self.pk} — {self.part_number} ({self.status})"

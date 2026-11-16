@@ -146,6 +146,8 @@ export interface SupplierQuote {
   notes: string;
   is_avl: boolean;
   is_selected: boolean;
+  is_cots: boolean;
+  is_cots_source: 'agent' | 'human' | 'backfill';
 }
 
 export interface BomLineItem {
@@ -416,4 +418,23 @@ export interface QuickEstimateReport {
   year: number;
   uses_sample_data: boolean;
   elapsed_ms?: number;
+}
+
+export interface RfqDraft {
+  id: number;
+  bom_row: number;
+  bom_reference: string;
+  status: 'draft' | 'final';
+  part_number: string;
+  part_context: string;
+  material: string;
+  blank_size: string;
+  tolerance: string;
+  process: string;
+  quantity: number | null;
+  due_date: string | null;
+  notes: string;
+  assumptions: string[];
+  created_at: string;
+  updated_at: string;
 }
