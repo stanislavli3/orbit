@@ -241,6 +241,10 @@ class BomRunListViewTests(TestCase):
             status="completed",
         )
         BomLineItem.objects.create(run=other_run, part_name="Hidden", quantity=1, status="sourced")
+        # Same timestamp on both runs: the newer id must still come first.
+        BomResearchRun.objects.filter(pk__in=[self.run_one.pk, self.run_two.pk]).update(
+            created_at=timezone.now()
+        )
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
 
