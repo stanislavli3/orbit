@@ -99,3 +99,61 @@ def extract_step_header(file_bytes: bytes) -> dict:
         "warnings": warnings,
         "extracted_at": datetime.now(timezone.utc).isoformat(),
     }
+
+
+def _error_result(message: str) -> dict:
+    return {
+        "schema": None,
+        "file_description": None,
+        "units_hint": None,
+        "confidence": 0.0,
+        "error": message,
+        "warnings": [message],
+        "extracted_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def _extract_pdf_text(file_bytes: bytes) -> dict:
+    import io
+
+    from pypdf import PdfReader
+
+    try:
+        reader = PdfReader(io.BytesIO(file_bytes))
+        text = "\n".join((page.extract_text() or "") for page in reader.pages[:5])
+        pages = len(reader.pages)
+    except Exception as exc:  # pypdf raises many types on bad input
+        return _error_result(f"Could not read PDF: {exc}")
+    text = text.strip()
+    return {
+        "format": "pdf",
+        "page_count": pages,
+        "text_excerpt": text[:4000],
+        "file_description": (text.splitlines() or [""])[0][:200] or None,
+        "schema": None,
+        "units_hint": None,
+        "confidence": 0.7 if text else 0.3,
+        "warnings": [] if text else ["PDF has no extractable text (scanned drawing?)."],
+        "extracted_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+
+def extract_metadata(file_name: str, file_bytes: bytes) -> dict:
+    """
+    Dispatch to the right parser by extension. Never raises: a malformed file
+    returns a result with ``error`` set and confidence 0, so callers can mark
+    the file failed with a clear reason instead of silently indexing nothing.
+    """
+    from .matlab import MatlabParseError, parse_m, parse_mat
+
+    ext = file_name.rsplit(".", 1)[-1].lower() if "." in file_name else ""
+    try:
+        if ext == "mat":
+            return parse_mat(file_bytes)
+        if ext == "m":
+            return parse_m(file_bytes)
+    except MatlabParseError as exc:
+        return _error_result(f"Malformed MATLAB file: {exc}")
+    if ext == "pdf":
+        return _extract_pdf_text(file_bytes)
+    return extract_step_header(file_bytes)

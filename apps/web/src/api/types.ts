@@ -19,7 +19,30 @@ export interface UploadedFile {
   status: 'uploaded' | 'processing' | 'processed' | 'failed';
   category: 'vault' | 'library';
   created_at: string;
+  source?: 'upload' | 'local_folder' | 'google_drive';
+  source_name?: string | null;
+  connected_source?: number | null;
+  external_url?: string;
+  owner?: string | null;
+  last_editor?: string | null;
+  source_modified_at?: string | null;
 }
+
+export type ConnectorKind = 'local_folder' | 'google_drive';
+
+export interface ConnectedSource {
+  id: number;
+  project: number;
+  kind: ConnectorKind;
+  name: string;
+  config: { path?: string; folder_id?: string };
+  last_indexed_at: string | null;
+  last_error: string;
+  file_count: number;
+  created_at: string;
+}
+
+export type ConnectorStatus = Record<ConnectorKind, { configured: boolean; detail: string }>;
 
 export interface EngineeringProfile {
   part_number: string | null;
