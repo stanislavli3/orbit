@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("bom_agent", "0013_bomrow_revision"),
+        ("bom_agent", "0014_bomrow_entered_price"),
         ("part_history", "0002_cost_import"),
     ]
 

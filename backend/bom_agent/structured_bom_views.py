@@ -157,3 +157,29 @@ class BomCompareView(APIView):
             "recheck": recheck,
             "assembly": assembly,
         })
+
+
+# ── Standards & permit check (SCRUM-37, SCRUM-38) ────────────────────────────
+
+class StandardsCorpusView(APIView):
+    """The curated reference corpus (paraphrased summaries — verify against the official standard)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from .compliance import load_corpus
+
+        corpus = load_corpus()
+        return Response({"label": corpus.label, "version": corpus.version, "notes": corpus.notes,
+                         "rules": [r.as_dict() for r in corpus.rules]})
+
+
+class BomComplianceView(APIView):
+    """GET: per-line compliance findings for a structured BOM, each with its cited rule."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        from .compliance import check_bom
+
+        return Response(check_bom(_user_bom(request, pk)))

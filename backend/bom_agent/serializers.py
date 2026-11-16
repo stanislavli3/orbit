@@ -260,8 +260,10 @@ class BomRowSerializer(serializers.ModelSerializer):
         fields = [
             "id", "line_no", "part_number", "description", "material", "process",
             "quantity", "spec", "revision", "confidence", "flags", "sources", "edited", "needs_review",
+            "entered_price", "entered_price_note",
         ]
-        read_only_fields = ["id", "line_no", "confidence", "flags", "sources", "edited", "needs_review"]
+        read_only_fields = ["id", "line_no", "confidence", "flags", "sources", "edited", "needs_review",
+                            "entered_price", "entered_price_note"]
 
     def get_needs_review(self, row) -> bool:
         return not row.edited and row.confidence < REVIEW_THRESHOLD
