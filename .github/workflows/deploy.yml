@@ -1,0 +1,71 @@
+name: Deploy
+
+# Deploys the Render Blueprint (render.yaml) by calling Render deploy hooks.
+# Runs after CI succeeds on main, or manually. If the hook secrets are not set
+# (no Render account yet), it exits 0 with a notice so main stays green.
+# Setup and rollback: docs/deploy.md
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      target:
+        description: What to deploy
+        type: choice
+        options: [all, backend, frontend]
+        default: all
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Trigger Render deploys
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    environment: production
+    env:
+      BACKEND_HOOK: ${{ secrets.RENDER_BACKEND_DEPLOY_HOOK }}
+      WORKER_HOOK: ${{ secrets.RENDER_WORKER_DEPLOY_HOOK }}
+      FRONTEND_HOOK: ${{ secrets.RENDER_FRONTEND_DEPLOY_HOOK }}
+      TARGET: ${{ github.event.inputs.target || 'all' }}
+      # Deploy exactly the commit CI tested (workflow_run), else the dispatched ref.
+      COMMIT: ${{ github.event.workflow_run.head_sha || github.sha }}
+    steps:
+      - name: Trigger deploy hooks
+        run: |
+          set -euo pipefail
+          if [ -z "$BACKEND_HOOK$WORKER_HOOK$FRONTEND_HOOK" ]; then
+            echo "::notice title=Deploy skipped::Render deploy hook secrets are not set. See docs/deploy.md."
+            exit 0
+          fi
+          trigger() {
+            name="$1"; hook="$2"
+            if [ -z "$hook" ]; then
+              echo "::warning title=$name skipped::deploy hook secret not set"
+              return 0
+            fi
+            echo "Deploying $name at $COMMIT"
+            # Hook URLs embed a key: never echo them. ref pins the deploy to the tested commit.
+            curl --fail --silent --show-error --retry 3 -X POST \
+              "${hook}&ref=${COMMIT}" -o /dev/null
+            echo "$name deploy triggered"
+          }
+          if [ "$TARGET" = all ] || [ "$TARGET" = backend ]; then
+            trigger backend "$BACKEND_HOOK"
+            trigger worker "$WORKER_HOOK"
+          fi
+          if [ "$TARGET" = all ] || [ "$TARGET" = frontend ]; then
+            trigger frontend "$FRONTEND_HOOK"
+          fi
+          echo "Follow progress in the Render dashboard."
