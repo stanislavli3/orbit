@@ -20,8 +20,9 @@ def test_range_is_ordered_and_cites_its_basis():
     sc = should_cost_row(row(material="AL 6061-T6", process="machined"))
     low, exp, high = (Decimal(sc[k]) for k in ("low", "expected", "high"))
     assert low < exp < high
-    # 0.30 kg x 1.6 x $4.50 = 2.16 material; $12 run; $150 / 100 setup
-    assert exp == Decimal("15.66")
+    # 0.30 kg x 1.6 x $4.50 = 2.16 material; $12 run; $150 setup over 100/assy x 500 assemblies
+    assert exp == Decimal("14.16")
+    assert sc["volume"] == 100 * sc["build_volume"]
     assert sc["material"] == "aluminum" and sc["process"] == "machined"
     assert any(b.startswith("Material: Aluminum") for b in sc["basis"])
     assert any(b.startswith("Process: CNC machining") for b in sc["basis"])
@@ -29,7 +30,17 @@ def test_range_is_ordered_and_cites_its_basis():
     assert sc["spread"] == pytest.approx(0.20)
 
 
-def test_range_widens_for_unknown_and_low_volume_parts():
+def test_setup_is_spread_over_production_volume_not_bom_quantity(settings):
+    """BOM quantity is per assembly; 4 per assembly must not mean a 4-part batch."""
+    settings.SHOULD_COST_BUILD_VOLUME = 500
+    sc = should_cost_row(row(material="6061-T6", process="machined", quantity=4))
+    assert sc["volume"] == 2000
+    assert Decimal(sc["expected"]) < Decimal("15")  # not $12 run + $150/4 setup
+    assert "low volume" not in sc["basis"][2]
+
+
+def test_range_widens_for_unknown_and_low_volume_parts(settings):
+    settings.SHOULD_COST_BUILD_VOLUME = 10  # a prototype run
     known = should_cost_row(row(material="6061-T6", process="machined"))
     odd = should_cost_row(row(material="unobtainium", process="", quantity=2))
     assert odd["spread"] > known["spread"]
