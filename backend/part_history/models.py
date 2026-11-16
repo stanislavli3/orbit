@@ -69,6 +69,9 @@ class Quote(models.Model):
     program = models.CharField(max_length=200, blank=True)
     quoted_at = models.DateField(default=timezone.localdate)
     source = models.CharField(max_length=300, help_text='e.g. "BOM research run #3"')
+    import_batch = models.ForeignKey(
+        "ImportBatch", null=True, blank=True, on_delete=models.CASCADE, related_name="quotes"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -87,7 +90,10 @@ class ImportBatch(models.Model):
 
     workspace_owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="cost_imports")
     uploaded_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+")
+    KIND_CHOICES = [("cost", "Historical part costs"), ("spend", "Supplier spend / invoices")]
+
     filename = models.CharField(max_length=255)
+    kind = models.CharField(max_length=10, choices=KIND_CHOICES, default="cost")
     total_rows = models.PositiveIntegerField(default=0)
     imported_rows = models.PositiveIntegerField(default=0)
     rejected_rows = models.PositiveIntegerField(default=0)
@@ -130,6 +136,24 @@ class HistoricalCost(models.Model):
 
     def __str__(self):
         return f"{self.part} {self.unit_cost} ({self.program or self.model_year})"
+
+
+class SupplierResearch(models.Model):
+    """An UNVERIFIED look beyond the approved list for one BOM line (SCRUM-70).
+
+    Results never create Suppliers and never touch the AVL; they are kept
+    apart from the approved shortlist so nobody mistakes them for vetted data.
+    """
+
+    workspace_owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="supplier_research")
+    bom_row = models.ForeignKey("bom_agent.BomRow", on_delete=models.CASCADE, related_name="supplier_research")
+    mode = models.CharField(max_length=10, help_text='"web" (Claude + web_search) or "history" (no API key)')
+    note = models.CharField(max_length=300, blank=True)
+    results_json = models.JSONField(default=list)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-id"]
 
 
 class WorkspaceSource(models.Model):

@@ -46,7 +46,7 @@ class PartDetailSerializer(PartSerializer):
 class ImportBatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportBatch
-        fields = ["id", "filename", "total_rows", "imported_rows", "rejected_rows", "rejected_json", "is_sample", "created_at"]
+        fields = ["id", "filename", "kind", "total_rows", "imported_rows", "rejected_rows", "rejected_json", "is_sample", "created_at"]
 
 
 class WorkspaceSourceSerializer(serializers.ModelSerializer):

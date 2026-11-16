@@ -8,6 +8,7 @@ from .sources_views import (
 )
 
 from .views import BomEstimateView, CostReductionView, EstimateStagesExportView, CostImportView, QuickEstimateView, PartDetailView, PartListView, SuppliersWhoQuotedView
+from .views import SpendImportView, SupplierResearchView
 from .views import (
     BomEstimateView, CallSheetView, HandoffSummaryView, HandoffTimelineView, PartCompareView,
 )
@@ -22,6 +23,8 @@ urlpatterns = [
     path("quick-estimate/", QuickEstimateView.as_view(), name="quick-estimate"),
     path("quick-estimate/<int:bom_id>/", QuickEstimateView.as_view(), name="quick-estimate-report"),
     path("cost-reduction/<int:row_id>/", CostReductionView.as_view(), name="cost-reduction"),
+    path("spend-imports/", SpendImportView.as_view(), name="spend-imports"),
+    path("supplier-research/<int:row_id>/", SupplierResearchView.as_view(), name="supplier-research"),
     path("imports/", CostImportView.as_view(), name="cost-imports"),
     path("suppliers/who-quoted/", SuppliersWhoQuotedView.as_view(), name="suppliers-who-quoted"),
     path("sources/", WorkspaceSourceListView.as_view(), name="workspace-sources"),
