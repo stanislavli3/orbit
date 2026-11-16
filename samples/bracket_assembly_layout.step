@@ -1,0 +1,27 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('Bracket Assembly layout - bounding boxes for interference prototype'),'2;1');
+FILE_NAME('bracket_assembly_layout.step','2026-11-16T09:00:00',('Orbit sample'),(''),'','','');
+FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
+ENDSEC;
+DATA;
+/* Each part is a CSG BLOCK (x,y,z extents in mm) at an AXIS2_PLACEMENT_3D. */
+#1=DIRECTION('',(0.,0.,1.));
+#2=DIRECTION('',(1.,0.,0.));
+#10=CARTESIAN_POINT('',(0.,0.,0.));
+#11=AXIS2_PLACEMENT_3D('',#10,#1,#2);
+#12=BLOCK('ORB-1042',#11,40.,30.,5.);
+#20=CARTESIAN_POINT('',(0.,0.,4.));
+#21=AXIS2_PLACEMENT_3D('',#20,#1,#2);
+#22=BLOCK('ORB-1043',#21,40.,30.,1.5);
+#30=CARTESIAN_POINT('',(10.,10.,-2.));
+#31=AXIS2_PLACEMENT_3D('',#30,#1,#2);
+#32=BLOCK('SHCS-M6X16-1',#31,6.,6.,16.);
+#40=CARTESIAN_POINT('',(100.,0.,0.));
+#41=AXIS2_PLACEMENT_3D('',#40,#1,#2);
+#42=BLOCK('SHCS-M6X16-2',#41,6.,6.,16.);
+#50=CARTESIAN_POINT('',(5.,5.,-10.));
+#51=AXIS2_PLACEMENT_3D('',#50,#1,#2);
+#52=BLOCK('Spacer-1',#51,6.,6.,10.);
+ENDSEC;
+END-ISO-10303-21;
