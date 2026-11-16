@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Download, Loader2, Upload } from 'lucide-react';
 import { useApiClient } from '../../api/client';
-import type { Project, QuickEstimateReport, QuickEstimateRow } from '../../api/types';
+import type { CostReductionReport, Project, QuickEstimateReport, QuickEstimateRow } from '../../api/types';
 
 const CONFIDENCE_STYLE: Record<QuickEstimateRow['confidence'], string> = {
   high: 'text-emerald-700',
@@ -11,6 +11,75 @@ const CONFIDENCE_STYLE: Record<QuickEstimateRow['confidence'], string> = {
   low: 'text-amber-700',
   none: 'text-[#A89D91]',
 };
+
+/** SCRUM-60: ranked, cited ideas to challenge a line's cost assumptions. */
+function CostReduction({ rowId }: { rowId: number }) {
+  const apiFetch = useApiClient();
+  const [data, setData] = useState<CostReductionReport | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState('');
+
+  async function load() {
+    setBusy(true);
+    setError('');
+    try {
+      const res = await apiFetch(`/api/parts/cost-reduction/${rowId}/?target=0.10`);
+      const body = await res.json();
+      if (!res.ok) throw new Error(body.detail ?? 'Failed to find savings');
+      setData(body);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="px-4 py-3 bg-[#FFFCF7] border-t border-[#F2EDE3] text-xs text-[#2B2824]">
+      {!data && (
+        <button
+          onClick={load}
+          disabled={busy}
+          className="px-2.5 py-1 rounded-lg border border-[#E8E0D3] bg-white hover:bg-[#F9F9F9] disabled:opacity-40"
+        >
+          {busy ? 'Looking…' : 'Find 10% cost reduction'}
+        </button>
+      )}
+      {error && <p className="text-[#DC2626]">{error}</p>}
+      {data && (
+        <div className="space-y-2">
+          <p className="text-[#8B7F73]">
+            Baseline {data.baseline.unit_cost ? `$${data.baseline.unit_cost}` : '—'} ({data.baseline.basis}).{' '}
+            {data.target_met ? 'At least one idea reaches 10%.' : 'No single idea reaches 10%.'}
+          </p>
+          {data.suggestions.length === 0 && <p className="text-[#A89D91]">No ideas from your part history yet.</p>}
+          {data.suggestions.map((s) => (
+            <div key={`${s.kind}-${s.rank}`}>
+              <p>
+                <span className="text-[#A89D91]">{s.rank}.</span> <span className="font-medium">{s.title}</span>{' '}
+                <span className={s.meets_target ? 'text-emerald-700' : 'text-[#8B7F73]'}>
+                  ~{Math.round(s.estimated_saving_pct * 100)}%
+                  {s.estimated_saving_per_unit && ` ($${s.estimated_saving_per_unit}/unit)`}
+                </span>
+              </p>
+              <p className="text-[#8B7F73]">{s.rationale}</p>
+              {s.evidence.map((e) => (
+                <p key={e.text} className="text-[#A89D91]">{e.text} — Source: {e.source}</p>
+              ))}
+              {s.assumption && <p className="text-amber-700">Assumption: {s.assumption}</p>}
+            </div>
+          ))}
+          {data.questions.length > 0 && (
+            <ul className="list-disc pl-4 text-[#8B7F73]">
+              {data.questions.map((q) => <li key={q}>{q}</li>)}
+            </ul>
+          )}
+          <p className="text-[#A89D91] italic">{data.disclaimer}</p>
+        </div>
+      )}
+    </div>
+  );
+}
 
 /** One row's "why": matched parts and their cost sources, assumptions, and the supplier shortlist. */
 function RowDetails({ r }: { r: QuickEstimateRow }) {
@@ -31,6 +100,10 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
         ))}
       </div>
       <div>
+        <p className="font-medium text-[#8B7F73] mb-1">Lead time</p>
+        <p className="mb-2">
+          {r.lead_time.days !== null ? `${r.lead_time.days} days` : 'No data'} · {r.lead_time.source}
+        </p>
         <p className="font-medium text-[#8B7F73] mb-1">Assumptions</p>
         <ul className="space-y-1">
           {r.assumptions.map((a) => (
@@ -192,6 +265,11 @@ export function QuickEstimateCard() {
             <span className="text-[#2B2824]">
               Estimated total <span className="font-semibold">${report.total.extended_cost}</span>
             </span>
+            {report.critical_path && (
+              <span className="text-amber-800" title={report.critical_path.source}>
+                {report.critical_path.summary}
+              </span>
+            )}
             <button
               onClick={() => downloadStages(report.bom.id)}
               className="flex items-center gap-1 text-xs text-[#2B2824] underline"
@@ -213,6 +291,7 @@ export function QuickEstimateCard() {
                   <th className="px-3 py-2 text-right w-14">Qty</th>
                   <th className="px-3 py-2 text-right w-24">Unit est.</th>
                   <th className="px-3 py-2 text-right w-24">Line total</th>
+                  <th className="px-3 py-2 text-right w-24">Lead time</th>
                   <th className="px-3 py-2 text-right w-36" title="Material/process/volume model; SAMPLE/ASSUMED rates">
                     Should-cost (low–high)
                   </th>
@@ -225,7 +304,9 @@ export function QuickEstimateCard() {
                   <Fragment key={r.row_id}>
                     <tr
                       onClick={() => setOpen(open === r.row_id ? null : r.row_id)}
-                      className="border-t border-[#F2EDE3] cursor-pointer hover:bg-[#FFFCF7]"
+                      className={`border-t border-[#F2EDE3] cursor-pointer hover:bg-[#FFFCF7] ${
+                        r.lead_time.is_bottleneck ? 'bg-amber-50' : ''
+                      }`}
                     >
                       <td className="px-3 py-2 text-[#A89D91]">{r.line_no}</td>
                       <td className="px-3 py-2">
@@ -236,6 +317,14 @@ export function QuickEstimateCard() {
                       <td className="px-3 py-2 text-right" title={`Source: ${r.row.sources.quantity ?? '—'}`}>{r.quantity}</td>
                       <td className="px-3 py-2 text-right">{r.estimate ? `$${r.estimate.unit_cost}` : '—'}</td>
                       <td className="px-3 py-2 text-right font-medium">{r.estimate ? `$${r.estimate.extended_cost}` : '—'}</td>
+                      <td
+                        className={`px-3 py-2 text-right ${r.lead_time.is_bottleneck ? 'font-semibold text-amber-800' : ''}`}
+                        title={r.lead_time.source}
+                      >
+                        {r.lead_time.days !== null ? `${r.lead_time.days} d` : '—'}
+                        {r.lead_time.is_bottleneck && ' · bottleneck'}
+                        {r.lead_time.basis === 'similar_parts' && r.lead_time.days !== null && '*'}
+                      </td>
                       <td className="px-3 py-2 text-right text-xs" title={r.should_cost.basis.join('\n')}>
                         <span className="font-medium text-[#2B2824]">${r.should_cost.expected}</span>
                         <span className="text-[#8B7F73]"> (${r.should_cost.low}–${r.should_cost.high})</span>
@@ -245,8 +334,9 @@ export function QuickEstimateCard() {
                     </tr>
                     {open === r.row_id && (
                       <tr>
-                        <td colSpan={8}>
+                        <td colSpan={9}>
                           <RowDetails r={r} />
+                          <CostReduction rowId={r.row_id} />
                         </td>
                       </tr>
                     )}
@@ -255,7 +345,7 @@ export function QuickEstimateCard() {
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-[#A89D91]">Click a line to see where each number came from.</p>
+          <p className="text-xs text-[#A89D91]">Click a line to see where each number came from, or to find a 10% cost reduction. * lead time from similar parts.</p>
         </div>
       )}
     </div>
