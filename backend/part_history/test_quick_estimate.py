@@ -1,6 +1,7 @@
 """Thin slice — drop a STEP/PDF in, get BOM + estimate + approved-supplier shortlist."""
 
 import time
+from datetime import date
 from pathlib import Path
 from types import SimpleNamespace
 from unittest.mock import patch
@@ -118,3 +119,31 @@ def test_rejects_unsupported_files(auth_client, project, name):
 def test_project_must_belong_to_user(api_client, other_user, project):
     api_client.force_authenticate(other_user)
     assert _post(api_client, project).status_code == 404
+
+
+
+def test_shortlist_pros_and_cons_compare_suppliers(seeded):
+    """SCRUM-29: each approved supplier gets pros/cons judged against the rest of the shortlist."""
+    result = shortlist_row(
+        seeded, row(part_number="ORB-1043", material="6061-T6"), ["ORB-1130", "ORB-1042"], today=date(2026, 11, 16)
+    )
+    by_name = {s["supplier"]: s for s in result["suppliers"]}
+    sheetline, acme = by_name["SAMPLE Sheetline Fab"], by_name["SAMPLE Acme Machining"]
+
+    assert "Lowest quoted price on this shortlist" in sheetline["pros"]
+    assert "Shortest lead time on this shortlist (9 days)" in sheetline["pros"]
+    assert "Quote is 105% above the cheapest option" in acme["cons"]
+    assert "Lead time 12 days vs 9 for the fastest option" in acme["cons"]
+    for s in (sheetline, acme):
+        assert "Certified: ISO 9001" in s["pros"]
+        assert "No history on this exact part, only similar parts or the same material" in s["cons"]
+        assert not {"_exact", "_quoted_at"} & s.keys()  # internals stay out of the API
+
+
+def test_shortlist_flags_exact_part_and_stale_quotes(seeded):
+    fresh = shortlist_row(seeded, row(part_number="ORB-1042"), today=date(2026, 11, 16))["suppliers"][0]
+    assert fresh["pros"] == ["Has quoted or supplied this exact part", "Certified: ISO 9001"]
+    assert fresh["cons"] == []
+
+    later = shortlist_row(seeded, row(part_number="ORB-1042"), today=date(2028, 1, 1))["suppliers"][0]
+    assert "Quote is from 2025, so the price may have moved" in later["cons"]
