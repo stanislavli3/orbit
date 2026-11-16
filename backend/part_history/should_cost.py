@@ -43,7 +43,16 @@ UNKNOWN_PROCESS = {"mass_kg": Decimal("0.30"), "scrap": Decimal("1.4"), "run": D
                    "setup": Decimal("150"), "basis": "Process unknown, assumed general fabrication $10/part + $150 setup"}
 
 BASE_SPREAD = Decimal("0.20")  # +/-20% for a well-understood part
-LOW_VOLUME = 50  # batches below this are treated as low volume
+LOW_VOLUME = 50  # production volumes below this are treated as low volume
+# BOM quantity is per assembly; setup is spread over the production run of the
+# part (quantity x assemblies built). Override with SHOULD_COST_BUILD_VOLUME.
+DEFAULT_BUILD_VOLUME = 500
+
+
+def build_volume() -> int:
+    from django.conf import settings
+
+    return max(int(getattr(settings, "SHOULD_COST_BUILD_VOLUME", DEFAULT_BUILD_VOLUME) or 1), 1)
 
 
 def _money(value: Decimal) -> str:
@@ -73,7 +82,9 @@ def should_cost_row(row) -> dict:
     process = PROCESS_RATES.get(process_name, UNKNOWN_PROCESS)
 
     material_cost = process["mass_kg"] * process["scrap"] * material["usd_per_kg"]
-    setup_per_part = process["setup"] / quantity
+    assemblies = build_volume()
+    volume = quantity * assemblies
+    setup_per_part = process["setup"] / volume
     unit = material_cost + process["run"] + setup_per_part
 
     spread, widened = BASE_SPREAD, []
@@ -83,14 +94,15 @@ def should_cost_row(row) -> dict:
     if process_name not in PROCESS_RATES:
         spread += Decimal("0.15")
         widened.append("process unknown")
-    if quantity < LOW_VOLUME:
+    if volume < LOW_VOLUME:
         spread += Decimal("0.20")
-        widened.append(f"low volume ({quantity} < {LOW_VOLUME})")
+        widened.append(f"low volume ({volume} < {LOW_VOLUME})")
 
     basis = [
         f"Material: {material['basis']} x {process['mass_kg']} kg assumed mass x {process['scrap']} scrap factor"
         f" = ${_money(material_cost)}",
-        f"Process: {process['basis']}; setup spread over {quantity} = ${_money(setup_per_part)}/part",
+        f"Process: {process['basis']}; setup spread over {volume} parts"
+        f" ({quantity}/assembly x {assemblies} assemblies, assumed) = ${_money(setup_per_part)}/part",
         f"Range ±{spread:.0%}" + (f", widened for {', '.join(widened)}" if widened else ""),
         "⚠ " + REFERENCE_NOTE,
     ]
@@ -104,6 +116,8 @@ def should_cost_row(row) -> dict:
         "material": family or "unknown",
         "process": process_name or "unknown",
         "quantity": quantity,
+        "build_volume": assemblies,
+        "volume": volume,
         "basis": basis,
         "confidence": confidence,
         "is_assumed": True,
