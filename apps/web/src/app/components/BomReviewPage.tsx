@@ -2,10 +2,13 @@ import { Link } from 'react-router';
 import { useState } from 'react';
 import { useParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { AlertTriangle, CheckCircle2, FileText, Loader2 } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, FileText, HelpCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { TopBar } from './TopBar';
+import { AskOrbitPanel } from './AskOrbitPanel';
 import { useApiClient } from '../../api/client';
-import type { Bom, BomRow, RfqDraft } from '../../api/types';
+import type { Bom, BomCompliance, BomRow, ComplianceLine, ComplianceStatus, QuickEstimateReport, RfqDraft } from '../../api/types';
+import { CostRangeCell, EnteredPriceInput, PriceFlagBadge, PriceFlagSummaryText } from './ShouldCostRange';
+import { RfqList, RfqLoopPanel, RfqReviewQueue } from './RfqLoop';
 
 type EditableField = 'part_number' | 'description' | 'material' | 'process' | 'quantity' | 'spec' | 'revision';
 
@@ -57,6 +60,19 @@ export function BomReviewPage() {
     refetchInterval: (q) => (q.state.data?.status === 'extracting' ? 2000 : false),
   });
 
+  // SCRUM-38: re-run whenever the BOM (and so its rows) changes.
+  const { data: compliance } = useQuery<BomCompliance>({
+    queryKey: ['bom-compliance', id, bom?.rows.map((r) => `${r.id}:${r.material}:${r.spec}:${r.description}:${r.process}:${r.part_number}`).join('|')],
+    queryFn: async () => {
+      const res = await apiFetch(`/api/bom/structured/${id}/compliance/`);
+      if (!res.ok) throw new Error('Could not run the compliance check.');
+      return res.json();
+    },
+    enabled: !!bom && bom.status !== 'extracting',
+  });
+  const complianceByRow = new Map(compliance?.lines.map((l) => [l.row_id, l]) ?? []);
+  const [openFindings, setOpenFindings] = useState<number | null>(null);
+
   const saveRow = useMutation({
     mutationFn: async ({ rowId, field, value }: { rowId: number; field: EditableField; value: string }) => {
       const res = await apiFetch(`/api/bom/structured/${id}/rows/${rowId}/`, {
@@ -65,7 +81,10 @@ export function BomReviewPage() {
       });
       if (!res.ok) throw new Error('Could not save that change.');
     },
-    onSettled: () => qc.invalidateQueries({ queryKey }),
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey });
+      qc.invalidateQueries({ queryKey: ['bom-should-cost', id] });
+    },
   });
 
   const approve = useMutation({
@@ -75,6 +94,19 @@ export function BomReviewPage() {
     },
     onSettled: () => qc.invalidateQueries({ queryKey }),
   });
+
+  // SCRUM-73/74: should-cost range and price flags per line, from the quick-estimate report.
+  const costKey = ['bom-should-cost', id];
+  const { data: costs } = useQuery<QuickEstimateReport>({
+    queryKey: costKey,
+    queryFn: async () => {
+      const res = await apiFetch(`/api/parts/quick-estimate/${id}/`);
+      if (!res.ok) throw new Error('Could not load should-cost');
+      return res.json();
+    },
+    enabled: !!bom,
+  });
+  const costByRow = new Map((costs?.rows ?? []).map((r) => [r.row_id, r]));
 
   const [rfq, setRfq] = useState<RfqDraft | null>(null);
   const draftRfq = useMutation({
@@ -95,6 +127,7 @@ export function BomReviewPage() {
       <div className="flex-1 overflow-y-auto px-8 py-8 space-y-4">
         {isLoading && <Loader2 className="w-5 h-5 animate-spin text-[#8B7F73]" />}
         {error && <p className="text-sm text-[#DC2626]">{(error as Error).message}</p>}
+        <RfqReviewQueue />
         {(saveRow.error || approve.error || draftRfq.error) && (
           <p className="text-sm text-[#DC2626]">{((saveRow.error || approve.error || draftRfq.error) as Error).message}</p>
         )}
@@ -112,6 +145,7 @@ export function BomReviewPage() {
                 </span>
               )}
               {bom.error && <span className="text-xs text-[#DC2626]">{bom.error}</span>}
+              {costs && <span className="text-xs"><PriceFlagSummaryText summary={costs.price_flags} /></span>}
               <div className="flex-1" />
               <Link to={`/handoff/${bom.id}`} className="px-3 py-1.5 rounded-lg border border-[#E8E0D3] text-sm text-[#4A4038] bg-white">
                 Buyer handoff view
@@ -138,7 +172,10 @@ export function BomReviewPage() {
                         {c.label}
                       </th>
                     ))}
+                    <th className="px-3 py-3 text-right text-xs font-medium text-[#8B7F73] w-44">Should-cost (low–high)</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-[#8B7F73] w-32">Entered price</th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-[#8B7F73] w-24">Confidence</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-[#8B7F73] w-28">Compliance</th>
                     <th className="px-3 py-3 w-24" />
                   </tr>
                 </thead>
@@ -159,6 +196,22 @@ export function BomReviewPage() {
                           )}
                         </td>
                       ))}
+                      <td className="px-3 py-2 text-right">
+                        {costByRow.get(row.id) && <CostRangeCell range={costByRow.get(row.id)!.cost_range} />}
+                        <PriceFlagBadge flag={costByRow.get(row.id)?.price_flag ?? null} />
+                      </td>
+                      <td className="px-3 py-2">
+                        <EnteredPriceInput
+                          key={`${row.id}-${row.entered_price}-${row.entered_price_note}`}
+                          rowId={row.id}
+                          price={row.entered_price}
+                          note={row.entered_price_note}
+                          onSaved={() => {
+                            qc.invalidateQueries({ queryKey });
+                            qc.invalidateQueries({ queryKey: costKey });
+                          }}
+                        />
+                      </td>
                       <td className="px-3 py-2 text-xs">
                         {row.edited ? (
                           <span className="text-emerald-700">Reviewed</span>
@@ -167,6 +220,12 @@ export function BomReviewPage() {
                             {Math.round(row.confidence * 100)}%
                           </span>
                         )}
+                      </td>
+                      <td className="px-3 py-2">
+                        <ComplianceBadge
+                          line={complianceByRow.get(row.id)}
+                          onClick={() => setOpenFindings(openFindings === row.id ? null : row.id)}
+                        />
                       </td>
                       <td className="px-3 py-2">
                         <button
@@ -183,7 +242,16 @@ export function BomReviewPage() {
                 </tbody>
               </table>
             </div>
+            {compliance && (
+              <CompliancePanel
+                compliance={compliance}
+                line={openFindings != null ? complianceByRow.get(openFindings) : undefined}
+              />
+            )}
+            <AskOrbitPanel bomId={bom.id} placeholder={`Ask Orbit about ${bom.reference}…`} />
             {rfq && <RfqEditor key={rfq.id} rfq={rfq} onChange={setRfq} />}
+            {rfq && <RfqLoopPanel rfq={rfq} onChange={setRfq} />}
+            <RfqList bomId={Number(id)} onOpen={setRfq} />
             <p className="text-xs text-[#A89D91]">Hover a value to see where it came from. Edited rows are marked reviewed.</p>
           </>
         )}
@@ -192,9 +260,72 @@ export function BomReviewPage() {
   );
 }
 
-type RfqField = 'part_context' | 'material' | 'blank_size' | 'tolerance' | 'quantity' | 'due_date' | 'notes';
+const COMPLIANCE_STYLE: Record<ComplianceStatus, { label: string; className: string }> = {
+  pass: { label: 'Pass', className: 'bg-emerald-50 text-emerald-700' },
+  warning: { label: 'Warning', className: 'bg-red-50 text-[#DC2626]' },
+  needs_info: { label: 'Needs info', className: 'bg-amber-50 text-amber-700' },
+};
+
+function ComplianceBadge({ line, onClick }: { line?: ComplianceLine; onClick: () => void }) {
+  if (!line) return <span className="text-xs text-[#A89D91]">…</span>;
+  const style = COMPLIANCE_STYLE[line.status];
+  return (
+    <button onClick={onClick} title="Show findings and citations" className={`text-xs px-2 py-0.5 rounded-full font-medium ${style.className}`}>
+      {style.label} · {line.findings.length}
+    </button>
+  );
+}
+
+/** SCRUM-37/38: summary of the standards check plus the selected line's findings with citations. */
+function CompliancePanel({ compliance, line }: { compliance: BomCompliance; line?: ComplianceLine }) {
+  return (
+    <div className="bg-white border border-[#E8E0D3] rounded-xl p-5 space-y-3">
+      <div className="flex items-center gap-3 flex-wrap">
+        <ShieldCheck className="w-4 h-4 text-[#8B7F73]" />
+        <h3 className="text-sm font-medium text-[#2B2824]">Standards &amp; permit check</h3>
+        {(Object.keys(COMPLIANCE_STYLE) as ComplianceStatus[]).map((s) => (
+          <span key={s} className={`text-xs px-2 py-0.5 rounded-full ${COMPLIANCE_STYLE[s].className}`}>
+            {compliance.summary[s]} {COMPLIANCE_STYLE[s].label.toLowerCase()}
+          </span>
+        ))}
+      </div>
+      <p className="text-[11px] text-amber-700 inline-flex items-center gap-1">
+        <HelpCircle className="w-3.5 h-3.5" />
+        {compliance.corpus.label} (corpus {compliance.corpus.version}).
+      </p>
+      {line ? (
+        <div className="space-y-2">
+          <p className="text-xs text-[#8B7F73]">Line {line.line_no} · {line.part_number || 'no part number'}</p>
+          {line.findings.map((f, i) => (
+            <div key={i} className="border border-[#F2EDE3] rounded-lg p-3 text-sm">
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-0.5 rounded-full ${COMPLIANCE_STYLE[f.status].className}`}>
+                  {COMPLIANCE_STYLE[f.status].label}
+                </span>
+                <span className="text-[#2B2824]">{f.message}</span>
+              </div>
+              {f.rule && (
+                <div className="mt-2 text-xs text-[#4A4038] space-y-1">
+                  <p><span className="font-medium">{f.rule.id}</span> · {f.rule.title}</p>
+                  <p className="text-[#8B7F73]">Cites: {f.rule.citation}</p>
+                  <p>{f.rule.explanation}</p>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <p className="text-xs text-[#A89D91]">Click a line's compliance badge to see its findings and cited rules.</p>
+      )}
+    </div>
+  );
+}
+
+type RfqField = 'supplier_name' | 'supplier_email' | 'part_context' | 'material' | 'blank_size' | 'tolerance' | 'quantity' | 'due_date' | 'notes';
 
 const RFQ_FIELDS: { field: RfqField; label: string; type?: string }[] = [
+  { field: 'supplier_name', label: 'Supplier' },
+  { field: 'supplier_email', label: 'Supplier email', type: 'email' },
   { field: 'part_context', label: 'Part description' },
   { field: 'material', label: 'Material' },
   { field: 'blank_size', label: 'Blank / stock size' },

@@ -15,6 +15,7 @@ import { EstimatePage } from './components/EstimatePage';
 import { BomAnalyticsPage } from './components/BomAnalyticsPage';
 import { ProjectAnalyticsPage } from './components/ProjectAnalyticsPage';
 import { FileResultPage } from './components/FileResultPage';
+import { SearchPage } from './components/SearchPage';
 import { DesignReviewPage } from './components/DesignReviewPage';
 import { BuyerHandoffPage } from './components/BuyerHandoffPage';
 import { SignInPage } from './components/SignInPage';
@@ -57,6 +58,7 @@ export const router = createBrowserRouter([
       { path: 'boms/:id', Component: BomReviewPage },
       { path: 'handoff/:bomId', Component: BuyerHandoffPage },
       { path: 'estimate', Component: EstimatePage },
+      { path: 'search', Component: SearchPage },
       { path: 'history', Component: HistoryPage },
       { path: 'library', Component: LibraryPage },
       { path: 'settings', Component: SettingsPage },

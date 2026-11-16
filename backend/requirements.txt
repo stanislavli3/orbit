@@ -24,3 +24,8 @@ s3transfer==0.16.0
 six==1.17.0
 sqlparse==0.5.5
 urllib3==2.6.3
+# Production serving (Render): see docs/deploy.md
+gunicorn==23.0.0
+whitenoise==6.9.0
+dj-database-url==2.3.0
+psycopg[binary]==3.2.9

@@ -1,0 +1,111 @@
+{
+  "label": "Reference summary — verify against the official standard",
+  "version": "2026-11",
+  "notes": "Hand-curated, paraphrased summaries for demo/triage only. No standards text is reproduced. Always check the current official edition before relying on a finding.",
+  "rules": [
+    {
+      "id": "MAT-AL-6061",
+      "title": "6061 aluminium — recognised wrought alloy designation",
+      "citation": "ASTM B209 (sheet/plate), ASTM B221 (extrusions); AMS 4027 (plate, T6)",
+      "applies_to": {"material": ["\\b6061\\b"]},
+      "outcome": "pass",
+      "requires": {"pattern": "\\bT\\d{1,4}\\b|\\bO\\b", "fields": ["material", "spec"], "missing": "Temper (e.g. T6, T651) isn't stated — suppliers quote different stock without it."},
+      "severity": "info",
+      "explanation": "6061 is a common, readily available structural aluminium. Purchase specs should name the product form (plate, bar, extrusion) and the temper so the supplier quotes the right stock."
+    },
+    {
+      "id": "MAT-AL-7075",
+      "title": "7075 aluminium — high-strength alloy, check temper and stress-corrosion needs",
+      "citation": "ASTM B209 / B221; AMS 4045 (sheet/plate, T6)",
+      "applies_to": {"material": ["\\b7075\\b"]},
+      "outcome": "pass",
+      "requires": {"pattern": "\\bT\\d{1,4}\\b", "fields": ["material", "spec"], "missing": "Temper isn't stated — T6 and T73 differ a lot in stress-corrosion resistance."},
+      "severity": "low",
+      "explanation": "7075 is much stronger than 6061 but less corrosion resistant and costlier. Overaged tempers (T73/T7351) are typically chosen where stress-corrosion cracking is a concern."
+    },
+    {
+      "id": "MAT-SS-300",
+      "title": "300-series stainless — recognised designation",
+      "citation": "ASTM A276 (bar), ASTM A240 (plate/sheet); AMS 5639 (304 bar)",
+      "applies_to": {"material": ["\\b30[34]L?\\b", "\\b316L?\\b", "stainless"]},
+      "outcome": "pass",
+      "severity": "info",
+      "explanation": "Austenitic stainless steels such as 304 and 316 are widely stocked. 'Stainless' alone is ambiguous: name the grade (e.g. 316L) so quotes are comparable."
+    },
+    {
+      "id": "MAT-CS-1018",
+      "title": "Carbon / alloy steel — specify grade and corrosion protection",
+      "citation": "SAE J403 / ASTM A108 (1018 bar); SAE J404 / ASTM A29 (4140)",
+      "applies_to": {"material": ["\\b10[1-4]\\d\\b", "\\b41[34]0\\b", "\\bA36\\b", "carbon steel", "mild steel"]},
+      "outcome": "pass",
+      "requires": {"pattern": "zinc|plat|paint|powder|black oxide|phosphate|coat|galv|anodi|finish|oil", "fields": ["spec", "description", "process"], "missing": "No finish or corrosion protection is stated for a plain carbon steel part."},
+      "severity": "low",
+      "explanation": "Plain carbon and low-alloy steels rust without protection. A finish (zinc plate, black oxide, paint, etc.) is normally called out on the drawing or BOM."
+    },
+    {
+      "id": "FAST-SHCS",
+      "title": "Socket head cap screws — call out the fastener standard",
+      "citation": "ISO 4762 (metric SHCS); DIN 912 (legacy equivalent); ASME B18.3 (inch)",
+      "applies_to": {"part_type": ["\\bSHCS\\b", "socket head", "cap screw"]},
+      "outcome": "pass",
+      "requires": {"pattern": "ISO\\s?4762|DIN\\s?912|B18\\.3", "fields": ["spec", "description", "part_number"], "missing": "No fastener standard (ISO 4762 / DIN 912 / ASME B18.3) is cited, so head size and strength class are open."},
+      "severity": "low",
+      "explanation": "Citing the dimensional standard plus property class (e.g. 12.9 or A2-70) lets any distributor supply an interchangeable screw."
+    },
+    {
+      "id": "FAST-GENERIC",
+      "title": "Fasteners — state size, length and property class",
+      "citation": "ISO 898-1 (steel property classes); ISO 3506-1 (stainless property classes)",
+      "applies_to": {"part_type": ["\\bscrew\\b", "\\bbolt\\b", "\\bnut\\b", "\\bwasher\\b", "\\bM\\d+\\s?[xX×]\\s?\\d+"]},
+      "outcome": "pass",
+      "requires": {"pattern": "\\b\\d{1,2}\\.\\d\\b|A[24]-\\d{2}|grade", "fields": ["spec", "description", "material", "part_number"], "missing": "No strength / property class (e.g. 8.8, 12.9, A2-70) is stated."},
+      "severity": "info",
+      "explanation": "Strength class matters for joint design; without it a supplier may substitute a weaker part."
+    },
+    {
+      "id": "ROHS-CR6",
+      "title": "Hexavalent chromium finish — restricted substance",
+      "citation": "EU RoHS Directive 2011/65/EU, Annex II; REACH Annex XVII / XIV (Cr(VI) compounds)",
+      "applies_to": {"finish": ["hex(avalent)?\\s?chrom", "\\bcr\\s?\\(?vi\\)?\\b", "\\bcr6\\+?\\b", "yellow (zinc )?chromate", "chromate conversion"]},
+      "outcome": "warning",
+      "severity": "high",
+      "explanation": "Hexavalent chromium is restricted in electrical/electronic equipment sold in the EU and is heavily regulated under REACH. Trivalent (Cr(III)) passivates are the usual substitute."
+    },
+    {
+      "id": "ROHS-CD",
+      "title": "Cadmium plating — restricted substance",
+      "citation": "EU RoHS Directive 2011/65/EU, Annex II; REACH Annex XVII (cadmium)",
+      "applies_to": {"finish": ["cadmium", "\\bcad(mium)?\\s?plat", "\\bCd\\b"]},
+      "outcome": "warning",
+      "severity": "high",
+      "explanation": "Cadmium coatings are restricted for most commercial uses; zinc-nickel is a common alternative. Some aerospace/defence exemptions exist and must be documented."
+    },
+    {
+      "id": "ROHS-PB",
+      "title": "Lead-containing material or finish — restricted substance",
+      "citation": "EU RoHS Directive 2011/65/EU, Annex II and Annex III exemptions",
+      "applies_to": {"finish": ["\\blead\\b", "\\bPb\\b", "tin-lead", "\\bSnPb\\b"], "material": ["\\b12L14\\b", "leaded"]},
+      "outcome": "warning",
+      "severity": "medium",
+      "explanation": "Lead is restricted, though some alloys (e.g. free-machining steels and brasses) fall under time-limited exemptions. Confirm the product's market and whether an exemption applies."
+    },
+    {
+      "id": "CERT-AUTO",
+      "title": "Automotive part — supplier quality certification expected",
+      "citation": "IATF 16949 (automotive QMS); AIAG PPAP",
+      "applies_to": {"keywords": ["automotive", "vehicle", "\\bPPAP\\b", "\\bIATF\\b"]},
+      "outcome": "warning",
+      "severity": "medium",
+      "explanation": "Automotive OEMs normally expect production suppliers to hold IATF 16949 certification and submit PPAP before series supply. Confirm the shortlisted suppliers' certificates."
+    },
+    {
+      "id": "CERT-AERO",
+      "title": "Aerospace part — supplier quality certification expected",
+      "citation": "AS9100 (aerospace QMS); AS9102 (first article inspection)",
+      "applies_to": {"keywords": ["aerospace", "aircraft", "flight", "\\bAMS\\s?\\d", "\\bAS9100\\b", "\\bFAI\\b"]},
+      "outcome": "warning",
+      "severity": "medium",
+      "explanation": "Aerospace customers usually require AS9100-certified suppliers and an AS9102 first article inspection report. Material certs traceable to the AMS spec are typical."
+    }
+  ]
+}

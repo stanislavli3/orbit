@@ -30,4 +30,6 @@ CI only *reports* failures; GitHub blocks the merge once the check is required. 
 
 ## CD (deploy)
 
-Not configured yet.
+The **Deploy** workflow (`.github/workflows/deploy.yml`) ships `main` to Render after CI passes,
+or on a manual run. It is a no-op until the Render deploy hook secrets are set. Setup,
+sample data and rollback: [deploy.md](deploy.md).
