@@ -146,6 +146,8 @@ export interface SupplierQuote {
   notes: string;
   is_avl: boolean;
   is_selected: boolean;
+  is_cots: boolean;
+  is_cots_source: 'agent' | 'human' | 'backfill';
 }
 
 export interface BomLineItem {
@@ -406,6 +408,7 @@ export interface QuickEstimateRow {
   confidence: 'high' | 'medium' | 'low' | 'none';
   uses_sample_data: boolean;
   shortlist: { suppliers: ShortlistSupplier[]; non_approved_left_out: number };
+  should_cost: ShouldCost;
   /** SCRUM-61: lead-time estimate and which data it came from. */
   lead_time: LeadTimeEstimate;
 }
@@ -451,6 +454,21 @@ export interface CostReductionReport {
   disclaimer: string;
 }
 
+/** Material/process/volume should-cost range from assumed reference rates (SCRUM-30). */
+export interface ShouldCost {
+  low: string;
+  expected: string;
+  high: string;
+  currency: string;
+  spread: number;
+  material: string;
+  process: string;
+  quantity: number;
+  basis: string[];
+  confidence: 'medium' | 'medium-low' | 'low';
+  is_assumed: boolean;
+}
+
 export interface QuickEstimateReport {
   bom: { id: number; reference: string; status: BomStatus; error: string; source_name: string; review_count: number };
   rows: QuickEstimateRow[];
@@ -460,4 +478,23 @@ export interface QuickEstimateReport {
   uses_sample_data: boolean;
   critical_path: CriticalPath | null;
   elapsed_ms?: number;
+}
+
+export interface RfqDraft {
+  id: number;
+  bom_row: number;
+  bom_reference: string;
+  status: 'draft' | 'final';
+  part_number: string;
+  part_context: string;
+  material: string;
+  blank_size: string;
+  tolerance: string;
+  process: string;
+  quantity: number | null;
+  due_date: string | null;
+  notes: string;
+  assumptions: string[];
+  created_at: string;
+  updated_at: string;
 }
