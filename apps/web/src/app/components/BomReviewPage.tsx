@@ -5,7 +5,8 @@ import { AlertTriangle, CheckCircle2, FileText, HelpCircle, Loader2, ShieldCheck
 import { TopBar } from './TopBar';
 import { AskOrbitPanel } from './AskOrbitPanel';
 import { useApiClient } from '../../api/client';
-import type { Bom, BomCompliance, BomRow, ComplianceLine, ComplianceStatus, RfqDraft } from '../../api/types';
+import type { Bom, BomCompliance, BomRow, ComplianceLine, ComplianceStatus, QuickEstimateReport, RfqDraft } from '../../api/types';
+import { CostRangeCell, EnteredPriceInput, PriceFlagBadge, PriceFlagSummaryText } from './ShouldCostRange';
 
 type EditableField = 'part_number' | 'description' | 'material' | 'process' | 'quantity' | 'spec' | 'revision';
 
@@ -78,7 +79,10 @@ export function BomReviewPage() {
       });
       if (!res.ok) throw new Error('Could not save that change.');
     },
-    onSettled: () => qc.invalidateQueries({ queryKey }),
+    onSettled: () => {
+      qc.invalidateQueries({ queryKey });
+      qc.invalidateQueries({ queryKey: ['bom-should-cost', id] });
+    },
   });
 
   const approve = useMutation({
@@ -88,6 +92,19 @@ export function BomReviewPage() {
     },
     onSettled: () => qc.invalidateQueries({ queryKey }),
   });
+
+  // SCRUM-73/74: should-cost range and price flags per line, from the quick-estimate report.
+  const costKey = ['bom-should-cost', id];
+  const { data: costs } = useQuery<QuickEstimateReport>({
+    queryKey: costKey,
+    queryFn: async () => {
+      const res = await apiFetch(`/api/parts/quick-estimate/${id}/`);
+      if (!res.ok) throw new Error('Could not load should-cost');
+      return res.json();
+    },
+    enabled: !!bom,
+  });
+  const costByRow = new Map((costs?.rows ?? []).map((r) => [r.row_id, r]));
 
   const [rfq, setRfq] = useState<RfqDraft | null>(null);
   const draftRfq = useMutation({
@@ -125,6 +142,7 @@ export function BomReviewPage() {
                 </span>
               )}
               {bom.error && <span className="text-xs text-[#DC2626]">{bom.error}</span>}
+              {costs && <span className="text-xs"><PriceFlagSummaryText summary={costs.price_flags} /></span>}
               <div className="flex-1" />
               {bom.status === 'needs_review' && (
                 <button
@@ -148,6 +166,8 @@ export function BomReviewPage() {
                         {c.label}
                       </th>
                     ))}
+                    <th className="px-3 py-3 text-right text-xs font-medium text-[#8B7F73] w-44">Should-cost (low–high)</th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-[#8B7F73] w-32">Entered price</th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-[#8B7F73] w-24">Confidence</th>
                     <th className="px-3 py-3 text-left text-xs font-medium text-[#8B7F73] w-28">Compliance</th>
                     <th className="px-3 py-3 w-24" />
@@ -170,6 +190,22 @@ export function BomReviewPage() {
                           )}
                         </td>
                       ))}
+                      <td className="px-3 py-2 text-right">
+                        {costByRow.get(row.id) && <CostRangeCell range={costByRow.get(row.id)!.cost_range} />}
+                        <PriceFlagBadge flag={costByRow.get(row.id)?.price_flag ?? null} />
+                      </td>
+                      <td className="px-3 py-2">
+                        <EnteredPriceInput
+                          key={`${row.id}-${row.entered_price}-${row.entered_price_note}`}
+                          rowId={row.id}
+                          price={row.entered_price}
+                          note={row.entered_price_note}
+                          onSaved={() => {
+                            qc.invalidateQueries({ queryKey });
+                            qc.invalidateQueries({ queryKey: costKey });
+                          }}
+                        />
+                      </td>
                       <td className="px-3 py-2 text-xs">
                         {row.edited ? (
                           <span className="text-emerald-700">Reviewed</span>

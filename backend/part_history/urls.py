@@ -11,13 +11,14 @@ from .views import BomEstimateView, CostReductionView, EstimateStagesExportView,
 from .views import (
     BomEstimateView, CallSheetView, HandoffSummaryView, HandoffTimelineView, PartCompareView,
 )
-from .views import CostReductionView, EstimateStagesExportView, CostImportView, QuickEstimateView, PartDetailView, PartListView, SuppliersWhoQuotedView
+from .views import CostReductionView, EstimateStagesExportView, CostImportView, QuickEstimateView, RowPriceView, PartDetailView, PartListView, SuppliersWhoQuotedView
 
 urlpatterns = [
     path("", PartListView.as_view(), name="part-list"),
     path("<int:pk>/", PartDetailView.as_view(), name="part-detail"),
     path("estimate/bom/<int:bom_id>/", BomEstimateView.as_view(), name="bom-estimate"),
     path("estimate/bom/<int:bom_id>/stages.xlsx", EstimateStagesExportView.as_view(), name="bom-estimate-stages"),
+    path("rows/<int:row_id>/price/", RowPriceView.as_view(), name="row-price"),
     path("quick-estimate/", QuickEstimateView.as_view(), name="quick-estimate"),
     path("quick-estimate/<int:bom_id>/", QuickEstimateView.as_view(), name="quick-estimate-report"),
     path("cost-reduction/<int:row_id>/", CostReductionView.as_view(), name="cost-reduction"),
