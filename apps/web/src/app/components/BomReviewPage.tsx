@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertTriangle, CheckCircle2, FileText, HelpCircle, Loader2, ShieldCheck } from 'lucide-react';
 import { TopBar } from './TopBar';
+import { AskOrbitPanel } from './AskOrbitPanel';
 import { useApiClient } from '../../api/client';
 import type { Bom, BomCompliance, BomRow, ComplianceLine, ComplianceStatus, RfqDraft } from '../../api/types';
 
@@ -205,6 +206,7 @@ export function BomReviewPage() {
                 line={openFindings != null ? complianceByRow.get(openFindings) : undefined}
               />
             )}
+            <AskOrbitPanel bomId={bom.id} placeholder={`Ask Orbit about ${bom.reference}…`} />
             {rfq && <RfqEditor key={rfq.id} rfq={rfq} onChange={setRfq} />}
             <p className="text-xs text-[#A89D91]">Hover a value to see where it came from. Edited rows are marked reviewed.</p>
           </>
