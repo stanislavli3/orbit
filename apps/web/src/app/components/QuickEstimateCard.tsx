@@ -51,6 +51,12 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
             {s.evidence.map((e) => (
               <p key={e.text} className="text-[#8B7F73]" title={`Source: ${e.source}`}>{e.text}</p>
             ))}
+            {s.pros.map((p) => (
+              <p key={p} className="text-emerald-700">+ {p}</p>
+            ))}
+            {s.cons.map((c) => (
+              <p key={c} className="text-amber-700">− {c}</p>
+            ))}
           </div>
         ))}
         {r.shortlist.non_approved_left_out > 0 && (

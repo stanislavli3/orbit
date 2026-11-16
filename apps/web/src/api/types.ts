@@ -388,6 +388,9 @@ export interface ShortlistSupplier {
   score: number;
   best_quote: { unit_price: string; lead_time_days: number | null; source: string } | null;
   evidence: { text: string; source: string }[];
+  /** Trade-offs against the other suppliers on the same shortlist (SCRUM-29). */
+  pros: string[];
+  cons: string[];
 }
 
 export interface QuickEstimateRow {
