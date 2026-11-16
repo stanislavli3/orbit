@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("bom_agent", "0011_run_ordering_tiebreak"),
+        ("bom_agent", "0012_supplierquote_is_cots_and_rfq_draft"),
     ]
 
     operations = [
