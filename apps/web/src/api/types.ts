@@ -523,6 +523,65 @@ export interface QuickEstimateReport {
   elapsed_ms?: number;
 }
 
+// ── Design review (SCRUM-57 / SCRUM-56) ─────────────────────────────────────
+
+export type ReviewRole = 'designer' | 'reviewer';
+
+export interface ProjectMember {
+  id: number;
+  user: number;
+  username: string;
+  role: ReviewRole;
+  created_at: string;
+}
+
+export interface MembersResponse {
+  is_owner: boolean;
+  my_role: ReviewRole | null;
+  members: ProjectMember[];
+}
+
+export interface ChangeEvent {
+  id: number;
+  actor: string;
+  action: 'created' | 'approved' | 'rejected' | 'interference_check';
+  comment: string;
+  data: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface InterferencePair {
+  part_a: string;
+  part_b: string;
+  interferes: boolean;
+  overlap_volume: number;
+}
+
+export interface InterferenceCheck {
+  id: number;
+  changed_part: string;
+  neighbours: string[];
+  source: string;
+  results: InterferencePair[];
+  elapsed_ms: number;
+  manual_baseline_minutes: number | null;
+  created_at: string;
+}
+
+export interface DesignChange {
+  id: number;
+  project: number;
+  title: string;
+  description: string;
+  author: string;
+  files: number[];
+  parts: string[];
+  state: 'pending' | 'approved' | 'rejected';
+  created_at: string;
+  events: ChangeEvent[];
+  interference_checks: InterferenceCheck[];
+}
+
 export interface RfqDraft {
   id: number;
   bom_row: number;

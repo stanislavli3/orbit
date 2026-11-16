@@ -14,4 +14,5 @@ urlpatterns = [
     path("api/bom/", include("bom_agent.bom_urls")),
     path("api/library/", include("bom_agent.library_urls")),
     path("api/parts/", include("part_history.urls")),
+    path("api/review/", include("design_review.urls")),
 ]
