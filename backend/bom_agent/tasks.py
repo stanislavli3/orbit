@@ -181,6 +181,11 @@ def build_bom(file, data: bytes | None = None) -> Bom:
     bom.status = "needs_review" if rows else "failed"
     bom.error = "" if rows else "No parts found in this file."
     bom.save(update_fields=["status", "error"])
+    if rows:
+        from part_history.handoff import record  # SCRUM-75 handoff timing
+
+        record(bom, "cad_finished", at=file.created_at)
+        record(bom, "bom_shared", at=bom.created_at)
     return bom
 
 
