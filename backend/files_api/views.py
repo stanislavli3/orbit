@@ -12,6 +12,7 @@ from .serializers import UploadedFileSerializer
 from .s3_service import upload_file_to_s3, delete_file_from_s3, generate_presigned_url
 from .tasks import describe_file, extract_file
 from projects.models import Project
+from bom_agent.tasks import enqueue_bom_extraction
 
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_BYTES", 100_000_000))  # 100 MB default
 
@@ -80,6 +81,7 @@ class FileUploadView(APIView):
 
         if category == "vault":
             transaction.on_commit(lambda: describe_file.delay(file_record.id))
+            enqueue_bom_extraction(file_record)
 
         serializer = UploadedFileSerializer(file_record)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

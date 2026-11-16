@@ -16,8 +16,9 @@ from django.db import transaction
 
 from core.jobs import monitored_task
 from files_api.embeddings import generate_embedding
-from files_api.s3_service import get_s3_client
-from .models import BomResearchRun, LibraryDocument, LibraryEmbedding
+from files_api.s3_service import download_file_from_s3, get_s3_client
+from .bom_extraction import BOM_FILE_TYPES, extract_bom_rows
+from .models import Bom, BomResearchRun, BomRow, LibraryDocument, LibraryEmbedding
 
 # Statuses in which a research job is queued or running.
 RESEARCH_IN_FLIGHT = ("researching", "generating_report")
@@ -162,6 +163,43 @@ def ingest_library_document(doc_id: int) -> None:
     LibraryDocument.objects.filter(pk=doc.pk).update(ingest_status="ready")
 
 
+# ── Structured BOM extraction (SCRUM-22) ────────────────────────────────────
+
+def enqueue_bom_extraction(file) -> None:
+    """Queue BOM extraction for a STEP or PDF upload; other types are skipped."""
+    if (file.file_type or "").lower() in BOM_FILE_TYPES:
+        transaction.on_commit(lambda: extract_bom.delay(file.pk))
+
+
+def build_bom(file, data: bytes | None = None) -> Bom:
+    """Extract and save a BOM for ``file``. Pass ``data`` to skip the S3 download."""
+    bom = Bom.objects.create(project=file.project, source_file=file, source_name=file.original_name)
+    if data is None:
+        data = download_file_from_s3(file.s3_key)
+    rows = extract_bom_rows(data, file.file_type)
+    BomRow.objects.bulk_create(BomRow(bom=bom, line_no=n, **row) for n, row in enumerate(rows, start=1))
+    bom.status = "needs_review" if rows else "failed"
+    bom.error = "" if rows else "No parts found in this file."
+    bom.save(update_fields=["status", "error"])
+    return bom
+
+
+def _mark_bom_failed(args, exc) -> None:
+    Bom.objects.filter(source_file_id=args[0], status="extracting").update(
+        status="failed", error=f"Extraction failed: {exc}"[:500]
+    )
+
+
+@monitored_task("bom_extraction", on_dead=_mark_bom_failed)
+def extract_bom(file_id: int) -> None:
+    from files_api.models import UploadedFile
+
+    file = UploadedFile.objects.filter(pk=file_id).first()
+    if file is None:
+        return  # deleted while queued
+    build_bom(file)
+
+
 # ── Worker-start recovery ────────────────────────────────────────────────────
 
 def recover_orphaned_jobs() -> None:
@@ -176,3 +214,9 @@ def recover_orphaned_jobs() -> None:
         ingest_status__in=INGEST_IN_FLIGHT
     ).values_list("pk", flat=True):
         ingest_library_document.delay(doc_id)
+
+    # A BOM still "extracting" lost its worker; start that file over.
+    for bom in Bom.objects.filter(status="extracting", source_file__isnull=False):
+        file_id = bom.source_file_id
+        bom.delete()
+        extract_bom.delay(file_id)

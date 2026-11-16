@@ -11,7 +11,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { useApiClient } from '../../api/client';
-import type { ExtractionResult, UploadedFile } from '../../api/types';
+import type { Bom, ExtractionResult, UploadedFile } from '../../api/types';
 import { PartPreview3D } from './PartPreview3D';
 
 const PAPER = {
@@ -110,6 +110,18 @@ export function FileResultPage() {
 
   const file = files?.find((f) => String(f.id) === fileId) ?? null;
 
+  // Latest structured BOM for this file (SCRUM-22), newest first.
+  const { data: boms } = useQuery<Bom[]>({
+    queryKey: ['boms', 'file', fileId],
+    queryFn: async () => {
+      const res = await apiFetch(`/api/bom/structured/?file_id=${fileId}`);
+      if (!res.ok) throw new Error(`${res.status}`);
+      return res.json();
+    },
+    enabled: !!fileId,
+  });
+  const latestBom = boms?.[0];
+
   const bbox = result?.spatial?.bounding_box_estimate;
   const geom = result?.geometry;
   const prods = result?.products;
@@ -150,6 +162,17 @@ export function FileResultPage() {
               </p>
             )}
           </div>
+          <div className="flex-1" />
+          {latestBom && (
+            <Link
+              to={`/boms/${latestBom.id}`}
+              className="text-sm px-3 py-1.5 rounded-lg"
+              style={{ background: '#FFFCF7', border: `1px solid ${PAPER.fold}`, color: PAPER.ink }}
+            >
+              Review BOM · {latestBom.reference}
+              {latestBom.review_count > 0 ? ` (${latestBom.review_count} flagged)` : ''}
+            </Link>
+          )}
         </div>
       </div>
 

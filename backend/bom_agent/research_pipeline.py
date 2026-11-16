@@ -359,7 +359,7 @@ def _handle_record_supplier_quote(item, run, inputs: dict) -> str:
     if not is_avl:
         notes = f"⚠️ Non-AVL supplier. {notes}".strip()
 
-    SupplierQuote.objects.create(
+    quote = SupplierQuote.objects.create(
         line_item=item,
         supplier_name=inputs["supplier_name"],
         unit_price=inputs["unit_price"],
@@ -371,6 +371,14 @@ def _handle_record_supplier_quote(item, run, inputs: dict) -> str:
         notes=f"{notes} [Country: {country}]".strip() if country else notes,
         is_avl=is_avl,
     )
+    # Keep the quote in part/price history (SCRUM-28). History is a side
+    # effect: a failure here must not stop the research run.
+    try:
+        from part_history.history import record_research_quote
+
+        record_research_quote(quote)
+    except Exception as exc:
+        _log(run, "warn", f"  Could not save quote to price history: {exc}", item_id=item.id)
 
     avl_tag = "" if is_avl else " [Non-AVL ⚠️]"
     landed_str = f", landed ${landed:.2f}" if landed is not None else ""

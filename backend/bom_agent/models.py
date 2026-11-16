@@ -252,3 +252,71 @@ class TeamRequest(models.Model):
 
     def __str__(self):
         return f"TeamRequest {self.id} — {self.recipient_email} ({self.status})"
+
+
+class Bom(models.Model):
+    """A structured BOM extracted from one uploaded file (SCRUM-22).
+
+    Later features (estimates, supplier shortlist, RFQs) reference it by
+    ``reference`` (BOM-00012). Rows stay editable until a person approves it.
+    """
+
+    STATUS_CHOICES = [
+        ("extracting", "Extracting"),
+        ("needs_review", "Needs Review"),
+        ("approved", "Approved"),
+        ("failed", "Failed"),
+    ]
+
+    project = models.ForeignKey(
+        "projects.Project", on_delete=models.CASCADE, related_name="boms"
+    )
+    source_file = models.ForeignKey(
+        "files_api.UploadedFile",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="boms",
+    )
+    source_name = models.CharField(max_length=255, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="extracting")
+    error = models.TextField(blank=True)
+    approved_by = models.ForeignKey(
+        User, null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+    approved_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    @property
+    def reference(self) -> str:
+        return f"BOM-{self.pk:05d}"
+
+    def __str__(self):
+        return f"{self.reference} — {self.source_name} ({self.status})"
+
+
+class BomRow(models.Model):
+    bom = models.ForeignKey(Bom, on_delete=models.CASCADE, related_name="rows")
+    line_no = models.PositiveIntegerField()
+    part_number = models.CharField(max_length=100, blank=True)
+    description = models.CharField(max_length=500, blank=True)
+    material = models.CharField(max_length=200, blank=True)
+    process = models.CharField(max_length=100, blank=True)
+    quantity = models.PositiveIntegerField(default=1)
+    spec = models.CharField(max_length=200, blank=True)
+    # 0-1; below bom_extraction.REVIEW_THRESHOLD the row is flagged for review.
+    confidence = models.FloatField(default=1.0)
+    flags = models.JSONField(default=list)
+    # field name -> where the value came from, e.g. "STEP PRODUCT #20".
+    sources = models.JSONField(default=dict)
+    edited = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["line_no"]
+        indexes = [models.Index(fields=["bom", "part_number"])]
+
+    def __str__(self):
+        return f"{self.part_number or '(no part number)'} × {self.quantity}"

@@ -34,6 +34,8 @@ import {
   BookOpen,
   Zap,
   Wrench,
+  Calculator,
+  Upload,
   Loader2,
   MessageSquare,
 } from "lucide-react";
@@ -49,6 +51,7 @@ const pathToSection: Record<string, string> = {
   "/bom": "bom",
   "/history": "history",
   "/library": "library",
+  "/estimate": "estimate",
   "/settings": "settings",
 };
 
@@ -580,6 +583,21 @@ function getSidebarContent(
         },
       ],
     },
+    estimate: {
+      title: "Estimates",
+      sections: [
+        {
+          title: "Cost history",
+          items: [
+            {
+              icon: <Upload size={16} className={ic} />,
+              label: "Import part costs",
+              path: "/estimate",
+            },
+          ],
+        },
+      ],
+    },
     settings: {
       title: "Settings",
       sections: [
@@ -650,6 +668,7 @@ const iconNavItems = [
   { id: "bom", icon: <Wrench size={16} />, label: "BOM Agent", path: "/bom" },
   { id: "history", icon: <History size={16} />, label: "History", path: "/history" },
   { id: "library", icon: <Library size={16} />, label: "Knowledge Base", path: "/library" },
+  { id: "estimate", icon: <Calculator size={16} />, label: "Estimates", path: "/estimate" },
 ];
 
 function IconNavigation({ activeSection }: { activeSection: string }) {

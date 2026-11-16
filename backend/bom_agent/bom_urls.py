@@ -1,4 +1,11 @@
 from django.urls import path
+from .structured_bom_views import (
+    BomApproveView,
+    BomDetailView,
+    BomListView,
+    BomRowView,
+    FileBomExtractView,
+)
 from .bom_views import (
     BomRunListCreateView,
     BomRunDetailView,
@@ -18,6 +25,11 @@ from .bom_views import (
 )
 
 urlpatterns = [
+    path("structured/", BomListView.as_view(), name="bom-list"),
+    path("structured/<int:pk>/", BomDetailView.as_view(), name="bom-detail"),
+    path("structured/<int:pk>/approve/", BomApproveView.as_view(), name="bom-approve"),
+    path("structured/<int:pk>/rows/<int:row_id>/", BomRowView.as_view(), name="bom-row"),
+    path("files/<int:file_id>/structured/", FileBomExtractView.as_view(), name="bom-file-extract"),
     path("runs/", BomRunListCreateView.as_view(), name="bom-run-list-create"),
     path("runs/<int:pk>/", BomRunDetailView.as_view(), name="bom-run-detail"),
     path("runs/<int:pk>/inputs/", BomRunInputsView.as_view(), name="bom-run-inputs"),

@@ -304,3 +304,113 @@ export interface SessionMessagesResponse {
   session_id: string;
   messages: SessionMessage[];
 }
+
+// ── Structured BOM (SCRUM-22) ────────────────────────────────────────────────
+
+export type BomStatus = 'extracting' | 'needs_review' | 'approved' | 'failed';
+
+export interface BomRow {
+  id: number;
+  line_no: number;
+  part_number: string;
+  description: string;
+  material: string;
+  process: string;
+  quantity: number;
+  spec: string;
+  confidence: number;
+  flags: string[];
+  sources: Record<string, string>;
+  edited: boolean;
+  needs_review: boolean;
+}
+
+export interface Bom {
+  id: number;
+  reference: string;
+  project: number;
+  source_file: number | null;
+  source_name: string;
+  status: BomStatus;
+  error: string;
+  approved_at: string | null;
+  created_at: string;
+  review_count: number;
+  rows: BomRow[];
+}
+
+// ── Part cost history (SCRUM-28 / SCRUM-58) ─────────────────────────────────
+
+export interface RejectedRow {
+  row: number;
+  errors: string[];
+  values: Record<string, string>;
+}
+
+export interface CostImportReport {
+  filename: string;
+  dry_run: boolean;
+  total_rows: number;
+  valid_rows: number;
+  imported_rows: number;
+  rejected: RejectedRow[];
+  batch_id: number | null;
+}
+
+export interface CostImportBatch {
+  id: number;
+  filename: string;
+  total_rows: number;
+  imported_rows: number;
+  rejected_rows: number;
+  is_sample: boolean;
+  created_at: string;
+}
+
+// ── Estimates + supplier shortlist (SCRUM-59 / thin slice) ──────────────────
+
+export interface EstimateMatch {
+  part_id: number;
+  part_number: string;
+  description: string;
+  material: string;
+  similarity: number;
+  reasons: string[];
+  cost: { unit_cost: string; model_year: number | null; program: string; source: string; is_sample: boolean };
+  adjusted_unit_cost: string;
+}
+
+export interface ShortlistSupplier {
+  supplier_id: number;
+  supplier: string;
+  certifications: string;
+  approval: string;
+  score: number;
+  best_quote: { unit_price: string; lead_time_days: number | null; source: string } | null;
+  evidence: { text: string; source: string }[];
+}
+
+export interface QuickEstimateRow {
+  row_id: number;
+  line_no: number;
+  part_number: string;
+  description: string;
+  quantity: number;
+  row: BomRow;
+  matches: EstimateMatch[];
+  estimate: { unit_cost: string; quantity: number; extended_cost: string; currency: string; based_on: string[] } | null;
+  assumptions: string[];
+  confidence: 'high' | 'medium' | 'low' | 'none';
+  uses_sample_data: boolean;
+  shortlist: { suppliers: ShortlistSupplier[]; non_approved_left_out: number };
+}
+
+export interface QuickEstimateReport {
+  bom: { id: number; reference: string; status: BomStatus; error: string; source_name: string; review_count: number };
+  rows: QuickEstimateRow[];
+  total: { extended_cost: string; currency: string; rows_estimated: number; rows_without_estimate: number };
+  inflation: number;
+  year: number;
+  uses_sample_data: boolean;
+  elapsed_ms?: number;
+}
