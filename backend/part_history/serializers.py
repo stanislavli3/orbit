@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from .models import HistoricalCost, ImportBatch, Part, Quote
+from .models import HistoricalCost, ImportBatch, Part, Quote, Supplier, WorkspaceSource
 
 
 class HistoricalCostSerializer(serializers.ModelSerializer):
@@ -47,3 +47,17 @@ class ImportBatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = ImportBatch
         fields = ["id", "filename", "kind", "total_rows", "imported_rows", "rejected_rows", "rejected_json", "is_sample", "created_at"]
+
+
+class WorkspaceSourceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkspaceSource
+        fields = ["id", "kind", "name", "location", "config", "enabled", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
+
+
+class SupplierSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Supplier
+        fields = ["id", "name", "contact_email", "certifications", "is_approved", "approval_note"]
+        read_only_fields = ["id", "name"]

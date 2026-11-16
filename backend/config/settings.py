@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 from pathlib import Path
+
+import dj_database_url
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -54,6 +56,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -85,14 +88,21 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-        # The Celery worker is a second writer; wait for locks instead of erroring.
-        "OPTIONS": {"timeout": 20},
+# Local dev and tests use SQLite. Hosted environments (Render) set DATABASE_URL
+# to a Postgres connection string.
+if os.getenv("DATABASE_URL"):
+    DATABASES = {
+        "default": dj_database_url.config(conn_max_age=600, conn_health_checks=True)
     }
-}
+else:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": BASE_DIR / "db.sqlite3",
+            # The Celery worker is a second writer; wait for locks instead of erroring.
+            "OPTIONS": {"timeout": 20},
+        }
+    }
 
 
 # Celery — background jobs (file extraction, BOM research, library ingestion)
@@ -110,6 +120,21 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {"visibility_timeout": 4 * 60 * 60}
 CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 # `make dev-local` (no Redis) sets this so jobs run inline in the request.
 CELERY_TASK_ALWAYS_EAGER = os.getenv("CELERY_TASK_ALWAYS_EAGER", "False") == "True"
+
+# RFQ email loop (SCRUM-34/35): poll supplier threads every RFQ_POLL_MINUTES
+# (needs `celery -A config beat`; or cron `manage.py poll_rfq_replies`), and
+# escalate a sent RFQ with no reply after RFQ_ESCALATE_AFTER_DAYS.
+RFQ_POLL_MINUTES = int(os.getenv("RFQ_POLL_MINUTES", "15"))
+RFQ_ESCALATE_AFTER_DAYS = int(os.getenv("RFQ_ESCALATE_AFTER_DAYS", "5"))
+CELERY_BEAT_SCHEDULE = {
+    "poll-rfq-replies": {
+        "task": "bom_agent.tasks.poll_rfq_replies_task",
+        "schedule": RFQ_POLL_MINUTES * 60,
+    },
+}
+# Demo mode: RFQs "send" without a connected Gmail and a "Simulate supplier
+# reply" button appears. Always on when DEBUG.
+ORBIT_DEMO_MODE = DEBUG or os.getenv("ORBIT_DEMO_MODE", "False") == "True"
 
 # Failed background jobs: always recorded in the admin (core.JobFailure); also
 # POSTed to this Slack-compatible webhook when set. Empty disables the push.
@@ -172,5 +197,33 @@ CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173"
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {
+        "BACKEND": (
+            "django.contrib.staticfiles.storage.StaticFilesStorage"
+            if DEBUG
+            else "whitenoise.storage.CompressedManifestStaticFilesStorage"
+        )
+    },
+}
+
+
+# Production hardening — only on a hosted HTTPS deploy (Render sets RENDER=true;
+# set ORBIT_HTTPS=True elsewhere). A local run with DEBUG off stays on plain http.
+# The platform terminates TLS and forwards X-Forwarded-Proto.
+CSRF_TRUSTED_ORIGINS = [o for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o]
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+IS_HTTPS_DEPLOY = not DEBUG and (os.getenv("RENDER") == "true" or os.getenv("ORBIT_HTTPS") == "True")
+if IS_HTTPS_DEPLOY:
+    SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "True") == "True"
+    # Render's health check hits plain HTTP internally.
+    SECURE_REDIRECT_EXEMPT = [r"^api/health/?$"]
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = int(os.getenv("SECURE_HSTS_SECONDS", "3600"))
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_CONTENT_TYPE_NOSNIFF = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"

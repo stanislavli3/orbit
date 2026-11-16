@@ -185,3 +185,37 @@ class SessionStarView(APIView):
         return Response(
             {"session_id": str(session.session_id), "is_starred": session.is_starred}
         )
+
+
+class UnifiedSearchView(APIView):
+    """SCRUM-24: GET ?q=&project_id= — files, BOM rows, parts, quotes, suppliers."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from .search import unified_search
+
+        project_id = request.query_params.get("project_id")
+        return Response(
+            unified_search(
+                request.user,
+                request.query_params.get("q", ""),
+                project_id=int(project_id) if project_id and project_id.isdigit() else None,
+            )
+        )
+
+
+class AskInContextView(APIView):
+    """SCRUM-25: POST {question, bom_id?, row_id?} — answer with that BOM/part as context."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        from .ask import ask
+
+        question = str(request.data.get("question", "")).strip()
+        if not question:
+            return Response({"error": "Question is required."}, status=status.HTTP_400_BAD_REQUEST)
+        return Response(
+            ask(request.user, question, request.data.get("bom_id"), request.data.get("row_id"))
+        )

@@ -1,13 +1,26 @@
 from django.urls import path
 from .structured_bom_views import (
     BomApproveView,
+    BomComplianceView,
     BomCompareView,
     BomDetailView,
+    BomHandoffView,
     BomListView,
     BomRowView,
     FileBomExtractView,
+    StandardsCorpusView,
 )
-from .rfq_views import BomRowRfqView, RfqDraftView, RfqExportView, SupplierQuoteView
+from .rfq_views import (
+    BomRowRfqView,
+    RfqDraftView,
+    RfqExportView,
+    RfqListView,
+    RfqPollView,
+    RfqReviewView,
+    RfqSendView,
+    RfqSimulateReplyView,
+    SupplierQuoteView,
+)
 from .bom_views import (
     BomRunListCreateView,
     BomRunDetailView,
@@ -28,11 +41,19 @@ from .bom_views import (
 
 urlpatterns = [
     path("structured/", BomListView.as_view(), name="bom-list"),
+    path("standards/", StandardsCorpusView.as_view(), name="standards-corpus"),
+    path("structured/<int:pk>/compliance/", BomComplianceView.as_view(), name="bom-compliance"),
     path("structured/compare/", BomCompareView.as_view(), name="bom-compare"),
     path("structured/<int:pk>/", BomDetailView.as_view(), name="bom-detail"),
+    path("structured/<int:pk>/handoff/", BomHandoffView.as_view(), name="bom-handoff"),
     path("structured/<int:pk>/approve/", BomApproveView.as_view(), name="bom-approve"),
     path("structured/<int:pk>/rows/<int:row_id>/", BomRowView.as_view(), name="bom-row"),
     path("structured/<int:pk>/rows/<int:row_id>/rfq/", BomRowRfqView.as_view(), name="bom-row-rfq"),
+    path("rfqs/", RfqListView.as_view(), name="rfq-list"),
+    path("rfqs/poll/", RfqPollView.as_view(), name="rfq-poll"),
+    path("rfqs/<int:pk>/send/", RfqSendView.as_view(), name="rfq-send"),
+    path("rfqs/<int:pk>/review/", RfqReviewView.as_view(), name="rfq-review"),
+    path("rfqs/<int:pk>/simulate-reply/", RfqSimulateReplyView.as_view(), name="rfq-simulate-reply"),
     path("rfqs/<int:pk>/", RfqDraftView.as_view(), name="rfq-detail"),
     path("rfqs/<int:pk>/export/", RfqExportView.as_view(), name="rfq-export"),
     path("quotes/<int:pk>/", SupplierQuoteView.as_view(), name="supplier-quote"),

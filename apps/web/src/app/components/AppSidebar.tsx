@@ -52,6 +52,7 @@ const pathToSection: Record<string, string> = {
   "/history": "history",
   "/library": "library",
   "/estimate": "estimate",
+  "/search": "search",
   "/settings": "settings",
 };
 
@@ -583,6 +584,21 @@ function getSidebarContent(
         },
       ],
     },
+    search: {
+      title: "Search",
+      sections: [
+        {
+          title: "Everything",
+          items: [
+            {
+              icon: <Search size={16} className={ic} />,
+              label: "Files, BOMs & cost history",
+              path: "/search",
+            },
+          ],
+        },
+      ],
+    },
     estimate: {
       title: "Estimates",
       sections: [
@@ -663,6 +679,7 @@ function IconNavButton({
 
 const iconNavItems = [
   { id: "assistant", icon: <Bot size={16} />, label: "Assistant", path: "/assistant" },
+  { id: "search", icon: <Search size={16} />, label: "Search", path: "/search" },
   { id: "vault", icon: <FolderOpen size={16} />, label: "Projects", path: "/vault" },
   { id: "extraction-runs", icon: <PlayCircle size={16} />, label: "Extraction Runs", path: "/extraction-runs" },
   { id: "bom", icon: <Wrench size={16} />, label: "BOM Agent", path: "/bom" },

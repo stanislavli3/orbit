@@ -11,7 +11,7 @@ from core.jobs import monitored_task
 
 from .ai_description import generate_engineering_profile, generate_file_description
 from .embeddings import generate_embedding
-from .extractor import extract_step_header
+from .extractor import extract_metadata
 from .models import ExtractionResult, FileEmbedding, UploadedFile
 from .s3_service import download_file_from_s3
 
@@ -25,7 +25,10 @@ def describe_file(file_id: int) -> None:
     if file is None:
         return  # deleted while queued
     file_bytes = download_file_from_s3(file.s3_key)
-    result = extract_step_header(file_bytes)
+    result = extract_metadata(file.original_name, file_bytes)
+    if result.get("error"):
+        UploadedFile.objects.filter(id=file_id).update(description=result["error"])
+        return
     description = generate_file_description(file.original_name, file.file_type, result)
     if description:
         UploadedFile.objects.filter(id=file_id).update(description=description)
@@ -42,8 +45,22 @@ def extract_file(file_id: int) -> None:
     if file is None:
         return  # deleted while queued
     UploadedFile.objects.filter(id=file_id).update(status="processing")
+    if file.source != "upload":
+        from .connectors import index_single_file
+
+        index_single_file(file)
+        return
     file_bytes = download_file_from_s3(file.s3_key)
-    result = extract_step_header(file_bytes)
+    result = extract_metadata(file.original_name, file_bytes)
+    if result.get("error"):
+        # Malformed file: fail loudly with the parser's reason, don't index junk.
+        ExtractionResult.objects.update_or_create(
+            file_id=file_id, defaults={"result_json": result}
+        )
+        UploadedFile.objects.filter(id=file_id).update(
+            status="failed", description=result["error"]
+        )
+        return
     description = generate_file_description(file.original_name, file.file_type, result)
     profile = generate_engineering_profile(file.original_name, file.file_type, result)
     result["profile"] = profile
@@ -63,5 +80,5 @@ def extract_file(file_id: int) -> None:
 
 def recover_orphaned_jobs() -> None:
     """Re-queue extractions a dead worker left in 'processing'."""
-    for file_id in UploadedFile.objects.filter(status="processing").values_list("pk", flat=True):
+    for file_id in UploadedFile.objects.filter(status="processing", source="upload").values_list("pk", flat=True):
         extract_file.delay(file_id)

@@ -12,6 +12,7 @@ import { BomLivePanel } from './BomLivePanel';
 import { BomResultsPanel } from './BomResultsPanel';
 import { BomEmailPanel } from './BomEmailPanel';
 import { EngineeringProfileCard } from './EngineeringProfileCard';
+import { ConnectedSourcesPanel } from './ConnectedSourcesPanel';
 import { computeAnalyticsSummary, formatCurrency } from './BomAnalyticsDeck';
 
 function InlineStat({ icon: Icon, label, value, tone = 'neutral' }: {
@@ -465,6 +466,29 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
   );
 }
 
+/** Source + owner/last editor + link to the original (SCRUM-54/50). */
+function FileProvenance({ file }: { file: FileLike }) {
+  const connected = file.source && file.source !== 'upload';
+  const editedOn = file.source_modified_at ?? file.created_at;
+  return (
+    <p className="text-[#8B7F73] text-[12px] truncate">
+      {connected ? (
+        <>
+          {file.source === 'google_drive' ? 'Google Drive' : 'Folder'}{file.source_name ? ` · ${file.source_name}` : ''}
+          {file.owner && <> · Owner {file.owner}</>}
+          {file.last_editor && <> · Last edited by {file.last_editor}</>}
+          {' '}· {formatDate(editedOn)}
+          {file.external_url && (
+            <> · <a href={file.external_url} target="_blank" rel="noopener noreferrer" title={file.external_url} className="underline hover:text-[#2B2824]">Open original</a></>
+          )}
+        </>
+      ) : (
+        <>Uploaded {formatDate(file.created_at)}{file.owner && <> by {file.owner}</>}</>
+      )}
+    </p>
+  );
+}
+
 function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: ReturnType<typeof useApiClient>; projectId: string }) {
   const [expanded, setExpanded] = useState(false);
   const [editingDesc, setEditingDesc] = useState(false);
@@ -577,7 +601,7 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
             </div>
             <div className="min-w-0">
               <p className="text-[#2B2824] text-sm mb-0.5 truncate">{file.original_name}</p>
-              <p className="text-[#8B7F73] text-[12px]">Uploaded {formatDate(file.created_at)}</p>
+              <FileProvenance file={file} />
             </div>
           </div>
           <div className="col-span-2 flex items-center">
@@ -1042,7 +1066,7 @@ export function ProjectDetailPage() {
       <input
         ref={fileInputRef}
         type="file"
-        accept=".step,.stp,.pdf,.dwg,.dxf,.iges,.igs"
+        accept=".step,.stp,.pdf,.dwg,.dxf,.iges,.igs,.m,.mat"
         className="hidden"
         onChange={handleFileChange}
       />
@@ -1415,6 +1439,7 @@ export function ProjectDetailPage() {
             );
           })()}
 
+          {activeTab === 'vault' && <ConnectedSourcesPanel projectId={id!} />}
           {activeTab === 'vault' ? (
             <div className="bg-white border border-[#E8E0D3] rounded-xl overflow-hidden">
               <div className="grid grid-cols-12 gap-4 px-6 py-3 border-b border-[#E8E0D3] bg-[#FFFCF7]">

@@ -260,8 +260,10 @@ class BomRowSerializer(serializers.ModelSerializer):
         fields = [
             "id", "line_no", "part_number", "description", "material", "process",
             "quantity", "spec", "revision", "confidence", "flags", "sources", "edited", "needs_review",
+            "entered_price", "entered_price_note",
         ]
-        read_only_fields = ["id", "line_no", "confidence", "flags", "sources", "edited", "needs_review"]
+        read_only_fields = ["id", "line_no", "confidence", "flags", "sources", "edited", "needs_review",
+                            "entered_price", "entered_price_note"]
 
     def get_needs_review(self, row) -> bool:
         return not row.edited and row.confidence < REVIEW_THRESHOLD
@@ -286,12 +288,36 @@ class BomSerializer(serializers.ModelSerializer):
 class RfqDraftSerializer(serializers.ModelSerializer):
     assumptions = serializers.ListField(child=serializers.CharField(), read_only=True)
     bom_reference = serializers.CharField(source="bom_row.bom.reference", read_only=True)
+    bom_id = serializers.IntegerField(source="bom_row.bom_id", read_only=True)
+    row_sourcing_status = serializers.CharField(source="bom_row.sourcing_status", read_only=True)
+    demo_mode = serializers.SerializerMethodField()
+
+    LOOP_FIELDS = [
+        "gmail_message_id", "gmail_thread_id", "sent_at", "send_error", "last_checked_at",
+        "replied_at", "reply_text", "parsed_reply", "needs_attention", "attention_reason",
+        "excluded_suppliers", "next_suppliers", "quote",
+    ]
 
     class Meta:
         model = RfqDraft
         fields = [
-            "id", "bom_row", "bom_reference", "status", "part_number", "part_context", "material",
+            "id", "bom_row", "bom_id", "bom_reference", "status", "part_number", "part_context", "material",
             "blank_size", "tolerance", "process", "quantity", "due_date", "notes",
+            "supplier_name", "supplier_email", "row_sourcing_status", "demo_mode",
+            "gmail_message_id", "gmail_thread_id", "sent_at", "send_error", "last_checked_at",
+            "replied_at", "reply_text", "parsed_reply", "needs_attention", "attention_reason",
+            "excluded_suppliers", "next_suppliers", "quote",
             "assumptions", "created_at", "updated_at",
         ]
-        read_only_fields = ["id", "bom_row", "bom_reference", "assumptions", "created_at", "updated_at"]
+        read_only_fields = [
+            "id", "bom_row", "bom_id", "bom_reference", "status", "row_sourcing_status", "demo_mode",
+            "gmail_message_id", "gmail_thread_id", "sent_at", "send_error", "last_checked_at",
+            "replied_at", "reply_text", "parsed_reply", "needs_attention", "attention_reason",
+            "excluded_suppliers", "next_suppliers", "quote",
+            "assumptions", "created_at", "updated_at",
+        ]
+
+    def get_demo_mode(self, obj) -> bool:
+        from .rfq_loop import demo_mode
+
+        return demo_mode()

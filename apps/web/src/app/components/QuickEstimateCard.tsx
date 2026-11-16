@@ -1,8 +1,10 @@
+import { AskOrbitPanel } from './AskOrbitPanel';
 import { Fragment, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Download, Loader2, Upload } from 'lucide-react';
 import { useApiClient } from '../../api/client';
+import { CostRangeCell, CostRangeDetails, EnteredPriceInput, PriceFlagBadge, PriceFlagSummaryText } from './ShouldCostRange';
 import { CallSheetDialog, CompareDialog, HandoffPanel } from './QuickEstimateExtras';
 import type { CostReductionReport, Project, SupplierResearch, QuickEstimateReport, QuickEstimateRow } from '../../api/types';
 
@@ -142,6 +144,10 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
   const [callSheet, setCallSheet] = useState<number | null>(null);
   const [compare, setCompare] = useState<number | null>(null);
   return (
+    <div className="bg-[#FFFCF7]">
+    <div className="px-4 pt-3">
+      <AskOrbitPanel rowId={r.row_id} placeholder={`Ask Orbit about ${r.part_number || 'this part'}…`} />
+    </div>
     <div className="grid grid-cols-4 gap-4 text-xs text-[#2B2824] px-4 py-3 bg-[#FFFCF7]">
       <div>
         <p className="font-medium text-[#8B7F73] mb-1">Similar past parts</p>
@@ -171,12 +177,7 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
         </ul>
       </div>
       <div>
-        <p className="font-medium text-[#8B7F73] mb-1">Should-cost basis</p>
-        <ul className="space-y-1">
-          {r.should_cost.basis.map((b) => (
-            <li key={b} className={b.startsWith('⚠') ? 'text-amber-700' : ''}>{b}</li>
-          ))}
-        </ul>
+        <CostRangeDetails range={r.cost_range} />
       </div>
       <div>
         <p className="font-medium text-[#8B7F73] mb-1">Approved suppliers</p>
@@ -207,6 +208,7 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
       </div>
       {callSheet !== null && <CallSheetDialog rowId={r.row_id} supplierId={callSheet} onClose={() => setCallSheet(null)} />}
       {compare !== null && <CompareDialog rowId={r.row_id} partId={compare} onClose={() => setCompare(null)} />}
+    </div>
     </div>
   );
 }
@@ -242,6 +244,11 @@ export function QuickEstimateCard() {
     a.download = `estimate_stages_bom_${bomId}.xlsx`;
     a.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function refresh(bomId: number) {
+    const res = await apiFetch(`/api/parts/quick-estimate/${bomId}/`);
+    if (res.ok) setReport({ ...(await res.json()), elapsed_ms: undefined });
   }
 
   async function run(file: File) {
@@ -321,6 +328,7 @@ export function QuickEstimateCard() {
               {report.bom.reference}
             </Link>
             <span className="text-[#8B7F73]">{report.bom.source_name}</span>
+            <Link to={`/handoff/${report.bom.id}`} className="underline text-[#8B7F73]">Buyer handoff view</Link>
             {report.bom.review_count > 0 && (
               <span className="text-amber-700">{report.bom.review_count} line(s) need review</span>
             )}
@@ -328,6 +336,7 @@ export function QuickEstimateCard() {
             <span className="text-[#2B2824]">
               Estimated total <span className="font-semibold">${report.total.extended_cost}</span>
             </span>
+            <PriceFlagSummaryText summary={report.price_flags} />
             {report.critical_path && (
               <span className="text-amber-800" title={report.critical_path.source}>
                 {report.critical_path.summary}
@@ -355,9 +364,10 @@ export function QuickEstimateCard() {
                   <th className="px-3 py-2 text-right w-24">Unit est.</th>
                   <th className="px-3 py-2 text-right w-24">Line total</th>
                   <th className="px-3 py-2 text-right w-24">Lead time</th>
-                  <th className="px-3 py-2 text-right w-36" title="Material/process/volume model; SAMPLE/ASSUMED rates">
+                  <th className="px-3 py-2 text-right w-40" title="Similar-part history + material/process model; hover for the data">
                     Should-cost (low–high)
                   </th>
+                  <th className="px-3 py-2 text-left w-32">Entered price</th>
                   <th className="px-3 py-2 text-left w-24">Confidence</th>
                   <th className="px-3 py-2 text-left w-48">Top approved supplier</th>
                 </tr>
@@ -388,16 +398,25 @@ export function QuickEstimateCard() {
                         {r.lead_time.is_bottleneck && ' · bottleneck'}
                         {r.lead_time.basis === 'similar_parts' && r.lead_time.days !== null && '*'}
                       </td>
-                      <td className="px-3 py-2 text-right text-xs" title={r.should_cost.basis.join('\n')}>
-                        <span className="font-medium text-[#2B2824]">${r.should_cost.expected}</span>
-                        <span className="text-[#8B7F73]"> (${r.should_cost.low}–${r.should_cost.high})</span>
+                      <td className="px-3 py-2 text-right">
+                        <CostRangeCell range={r.cost_range} />
+                        <PriceFlagBadge flag={r.price_flag} />
+                      </td>
+                      <td className="px-3 py-2">
+                        <EnteredPriceInput
+                          key={`${r.row_id}-${r.row.entered_price}-${r.row.entered_price_note}`}
+                          rowId={r.row_id}
+                          price={r.row.entered_price}
+                          note={r.row.entered_price_note}
+                          onSaved={() => refresh(report.bom.id)}
+                        />
                       </td>
                       <td className={`px-3 py-2 text-xs ${CONFIDENCE_STYLE[r.confidence]}`}>{r.confidence}</td>
                       <td className="px-3 py-2 text-xs text-[#2B2824]">{r.shortlist.suppliers[0]?.supplier ?? '—'}</td>
                     </tr>
                     {open === r.row_id && (
                       <tr>
-                        <td colSpan={9}>
+                        <td colSpan={10}>
                           <RowDetails r={r} />
                           <CostReduction rowId={r.row_id} />
                         </td>
