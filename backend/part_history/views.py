@@ -1,9 +1,11 @@
 import time
+from datetime import date
 
 from django.http import HttpResponse
 
 from django.db import transaction
 from django.db.models import Q
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -17,6 +19,9 @@ from files_api.s3_service import upload_file_to_s3
 from files_api.tasks import describe_file
 from files_api.views import MAX_UPLOAD_BYTES
 from projects.models import Project
+from . import handoff
+from .call_sheet import NotShortlisted, call_sheet
+from .compare import compare, part_side, row_side
 from .cost_reduction import DEFAULT_TARGET, find_cost_reduction
 from .estimator import DEFAULT_INFLATION, estimate_bom
 from .history import suppliers_who_quoted
@@ -177,6 +182,92 @@ class QuickEstimateView(APIView):
         report = quick_report(bom, request.user)
         report["elapsed_ms"] = round((time.monotonic() - started) * 1000)
         return Response(report, status=status.HTTP_201_CREATED)
+
+
+def _int_param(request, name):
+    try:
+        return int(request.query_params.get(name, ""))
+    except ValueError:
+        return None
+
+
+class CallSheetView(APIView):
+    """GET ?row_id=&supplier_id= — a phone call sheet for a shortlisted supplier and a BOM line."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        row_id, supplier_id = _int_param(request, "row_id"), _int_param(request, "supplier_id")
+        if row_id is None or supplier_id is None:
+            return Response({"detail": "Send row_id and supplier_id."}, status=400)
+        row = get_object_or_404(BomRow.objects.select_related("bom"), pk=row_id, bom__project__owner=request.user)
+        try:
+            return Response(call_sheet(request.user, row, supplier_id))
+        except NotShortlisted as exc:
+            return Response({"detail": str(exc)}, status=404)
+
+
+class PartCompareView(APIView):
+    """GET ?a=<part id> or ?row_id=<BOM row id>, plus &b=<part id>: two parts side by side."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        a, row_id, b = _int_param(request, "a"), _int_param(request, "row_id"), _int_param(request, "b")
+        if b is None or (a is None) == (row_id is None):
+            return Response({"detail": "Send b and exactly one of a or row_id."}, status=400)
+        if a is not None:
+            left = part_side(get_object_or_404(Part, pk=a, workspace_owner=request.user))
+        else:
+            row = get_object_or_404(
+                BomRow.objects.select_related("bom__project"), pk=row_id, bom__project__owner=request.user
+            )
+            left = row_side(row)
+        right = part_side(get_object_or_404(Part, pk=b, workspace_owner=request.user))
+        return Response(compare(left, right))
+
+
+class HandoffTimelineView(APIView):
+    """GET: elapsed time per part and step for a BOM (``?export=csv`` for a file).
+    POST {step, date, part_number?}: set a step's date by hand."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def _bom(self, request, bom_id):
+        return get_object_or_404(
+            Bom.objects.select_related("project").prefetch_related("rows", "handoff_steps"),
+            pk=bom_id, project__owner=request.user,
+        )
+
+    def get(self, request, bom_id):
+        timeline = handoff.bom_timeline(self._bom(request, bom_id))
+        if request.query_params.get("export") == "csv":
+            response = HttpResponse(handoff.timeline_csv(timeline), content_type="text/csv")
+            response["Content-Disposition"] = f'attachment; filename="{timeline["reference"]}-handoff.csv"'
+            return response
+        return Response(timeline)
+
+    def post(self, request, bom_id):
+        bom = self._bom(request, bom_id)
+        step = request.data.get("step")
+        if step not in handoff.STEPS:
+            return Response({"detail": f"step must be one of {', '.join(handoff.STEPS)}."}, status=400)
+        try:
+            day = date.fromisoformat(str(request.data.get("date", "")))
+        except ValueError:
+            return Response({"detail": "date must be YYYY-MM-DD."}, status=400)
+        part_number = str(request.data.get("part_number", "")).strip()
+        if part_number and not bom.rows.filter(part_number=part_number).exists():
+            return Response({"detail": "That part isn't on this BOM."}, status=400)
+        handoff.set_manual(bom, step, day, part_number=part_number)
+        return Response(handoff.bom_timeline(self._bom(request, bom_id)))
+
+
+class HandoffSummaryView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        return Response(handoff.summary(request.user))
 
 
 class CostReductionView(APIView):

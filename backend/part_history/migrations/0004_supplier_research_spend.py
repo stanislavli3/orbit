@@ -9,7 +9,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("bom_agent", "0013_bomrow_revision"),
-        ("part_history", "0002_cost_import"),
+        ("part_history", "0003_part_dimensions_and_handoff_steps"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
