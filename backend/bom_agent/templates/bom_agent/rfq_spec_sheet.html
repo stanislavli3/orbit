@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>RFQ spec sheet — {{ rfq.part_number|default:"part" }}</title>
+<style>
+  body { font-family: Helvetica, Arial, sans-serif; color: #222; max-width: 760px; margin: 32px auto; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; }
+  th, td { text-align: left; border: 1px solid #ccc; padding: 6px 10px; font-size: 13px; }
+  th { width: 30%; background: #f5f5f5; }
+  .confirm { color: #b45309; font-weight: bold; }
+  .meta { color: #666; font-size: 12px; }
+</style>
+</head>
+<body>
+<h1>Request for Quote — spec sheet</h1>
+<p class="meta">{{ rfq.bom_row.bom.reference }} line {{ rfq.bom_row.line_no }} · RFQ #{{ rfq.pk }} · {{ rfq.get_status_display }}</p>
+<table>
+{% for label, value in rows %}
+  <tr><th>{{ label }}</th><td>{% if value %}{{ value }}{% else %}<span class="confirm">Assumption — confirm</span>{% endif %}</td></tr>
+{% endfor %}
+</table>
+{% if rfq.assumptions %}
+<h2 style="font-size:15px">Assumptions — confirm before quoting</h2>
+<ul>{% for line in rfq.assumptions %}<li class="confirm">{{ line }}</li>{% endfor %}</ul>
+{% endif %}
+{% if rfq.notes %}<h2 style="font-size:15px">Notes</h2><p>{{ rfq.notes|linebreaksbr }}</p>{% endif %}
+<p class="meta">Quote only to the values stated above. Where a field says "assumption — confirm", ask before quoting.</p>
+</body>
+</html>

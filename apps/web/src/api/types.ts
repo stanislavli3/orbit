@@ -146,6 +146,8 @@ export interface SupplierQuote {
   notes: string;
   is_avl: boolean;
   is_selected: boolean;
+  is_cots: boolean;
+  is_cots_source: 'agent' | 'human' | 'backfill';
 }
 
 export interface BomLineItem {
@@ -449,6 +451,65 @@ export interface QuickEstimateRow {
   confidence: 'high' | 'medium' | 'low' | 'none';
   uses_sample_data: boolean;
   shortlist: { suppliers: ShortlistSupplier[]; non_approved_left_out: number };
+  should_cost: ShouldCost;
+  /** SCRUM-61: lead-time estimate and which data it came from. */
+  lead_time: LeadTimeEstimate;
+}
+
+export interface LeadTimeEstimate {
+  days: number | null;
+  basis: 'quote_history' | 'similar_parts' | 'no_data';
+  source: string;
+  evidence: { text: string; source: string }[];
+  is_bottleneck: boolean;
+}
+
+export interface CriticalPath {
+  row_id: number;
+  part_number: string;
+  days: number;
+  source: string;
+  summary: string;
+  rows_without_data: number;
+}
+
+/** SCRUM-60: rules-based cost-reduction ideas for one BOM line. */
+export interface CostReductionSuggestion {
+  rank: number;
+  kind: 'material' | 'supplier' | 'volume' | 'cots' | 'tolerance' | 'fastener_count';
+  title: string;
+  rationale: string;
+  estimated_saving_pct: number;
+  estimated_saving_per_unit: string | null;
+  evidence: { text: string; source: string }[];
+  assumption: string | null;
+  meets_target: boolean;
+}
+
+export interface CostReductionReport {
+  row_id: number;
+  part_number: string;
+  target_pct: number;
+  baseline: { unit_cost: string | null; basis: string };
+  suggestions: CostReductionSuggestion[];
+  target_met: boolean;
+  questions: string[];
+  disclaimer: string;
+}
+
+/** Material/process/volume should-cost range from assumed reference rates (SCRUM-30). */
+export interface ShouldCost {
+  low: string;
+  expected: string;
+  high: string;
+  currency: string;
+  spread: number;
+  material: string;
+  process: string;
+  quantity: number;
+  basis: string[];
+  confidence: 'medium' | 'medium-low' | 'low';
+  is_assumed: boolean;
 }
 
 export interface QuickEstimateReport {
@@ -458,5 +519,25 @@ export interface QuickEstimateReport {
   inflation: number;
   year: number;
   uses_sample_data: boolean;
+  critical_path: CriticalPath | null;
   elapsed_ms?: number;
+}
+
+export interface RfqDraft {
+  id: number;
+  bom_row: number;
+  bom_reference: string;
+  status: 'draft' | 'final';
+  part_number: string;
+  part_context: string;
+  material: string;
+  blank_size: string;
+  tolerance: string;
+  process: string;
+  quantity: number | null;
+  due_date: string | null;
+  notes: string;
+  assumptions: string[];
+  created_at: string;
+  updated_at: string;
 }
