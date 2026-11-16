@@ -23,6 +23,8 @@ COLUMN_ALIASES = {
     "model_year": {"model year", "my", "year"},
     "program": {"program", "program name", "vehicle program"},
     "supplier": {"supplier", "vendor"},
+    "dimensions": {"dimensions", "dims", "size"},
+    "mass": {"mass", "weight", "mass (kg)", "weight (kg)"},
 }
 
 
@@ -160,9 +162,11 @@ def import_costs(owner, data: bytes, filename: str, *, dry_run=False, is_sample=
                     part_number=values["part_number"],
                     description=values.get("description", ""),
                     material=values.get("material", ""),
+                    dimensions=values.get("dimensions", ""),
+                    mass=values.get("mass", ""),
                 )
             else:
-                changed = [f for f in ("description", "material") if not getattr(part, f) and values.get(f)]
+                changed = [f for f in ("description", "material", "dimensions", "mass") if not getattr(part, f) and values.get(f)]
                 for field in changed:
                     setattr(part, field, values[field])
                 if changed:

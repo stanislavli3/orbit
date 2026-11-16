@@ -24,7 +24,7 @@ def record_research_quote(supplier_quote) -> Quote:
             part_number=item.part_number,
             defaults={"description": item.part_name, "material": item.material_spec},
         )
-    return Quote.objects.create(
+    quote = Quote.objects.create(
         workspace_owner=owner,
         supplier=supplier,
         part=part,
@@ -35,6 +35,10 @@ def record_research_quote(supplier_quote) -> Quote:
         program=run.project.name,
         source=f"BOM research run #{run.pk}",
     )
+    from .handoff import record_quote_received  # avoids a circular import via bom_agent
+
+    record_quote_received(owner, item.part_number)
+    return quote
 
 
 def record_bom_parts(bom, owner) -> int:

@@ -9,6 +9,7 @@ from .models import (
     BomResearchRun,
     BomLineItem,
     SupplierQuote,
+    RfqDraft,
     LibraryDocument,
     TeamRequest,
 )
@@ -52,7 +53,10 @@ class SupplierQuoteSerializer(serializers.ModelSerializer):
             "notes",
             "is_avl",
             "is_selected",
+            "is_cots",
+            "is_cots_source",
         ]
+        read_only_fields = ["is_cots_source"]
 
 
 class BomLineItemSerializer(serializers.ModelSerializer):
@@ -255,7 +259,7 @@ class BomRowSerializer(serializers.ModelSerializer):
         model = BomRow
         fields = [
             "id", "line_no", "part_number", "description", "material", "process",
-            "quantity", "spec", "confidence", "flags", "sources", "edited", "needs_review",
+            "quantity", "spec", "revision", "confidence", "flags", "sources", "edited", "needs_review",
         ]
         read_only_fields = ["id", "line_no", "confidence", "flags", "sources", "edited", "needs_review"]
 
@@ -277,3 +281,17 @@ class BomSerializer(serializers.ModelSerializer):
 
     def get_review_count(self, bom) -> int:
         return sum(1 for r in bom.rows.all() if not r.edited and r.confidence < REVIEW_THRESHOLD)
+
+
+class RfqDraftSerializer(serializers.ModelSerializer):
+    assumptions = serializers.ListField(child=serializers.CharField(), read_only=True)
+    bom_reference = serializers.CharField(source="bom_row.bom.reference", read_only=True)
+
+    class Meta:
+        model = RfqDraft
+        fields = [
+            "id", "bom_row", "bom_reference", "status", "part_number", "part_context", "material",
+            "blank_size", "tolerance", "process", "quantity", "due_date", "notes",
+            "assumptions", "created_at", "updated_at",
+        ]
+        read_only_fields = ["id", "bom_row", "bom_reference", "assumptions", "created_at", "updated_at"]

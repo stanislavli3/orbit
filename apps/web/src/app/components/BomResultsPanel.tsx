@@ -96,7 +96,7 @@ function getBestQuote(item: BomLineItem) {
 
 function getDisplayStatus(item: BomLineItem, bestQuote: BomLineItem['quotes'][number] | null) {
   if (item.status === 'needs_input') return { label: 'Needs Input', sortValue: 'needs_input' as const };
-  if (item.status === 'sourced' && bestQuote && Number(bestQuote.tooling_cost) === 0) {
+  if (item.status === 'sourced' && bestQuote?.is_cots) {
     return { label: 'COTS', sortValue: 'cots' as const };
   }
   if (item.status === 'sourced') return { label: 'Sourced', sortValue: 'sourced' as const };

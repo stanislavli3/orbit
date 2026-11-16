@@ -232,6 +232,10 @@ _TOOLS = [
                 "source_url": {"type": "string", "description": "Supplier website URL, empty if unknown"},
                 "notes": {"type": "string", "description": "Any relevant notes"},
                 "is_avl": {"type": "boolean"},
+                "is_cots": {
+                    "type": "boolean",
+                    "description": "True if this is a commercial off-the-shelf / catalog part (fasteners, bearings, stock hardware)",
+                },
                 "country": {"type": "string", "description": "Supplier country, e.g. 'USA', 'China', 'Germany'"},
             },
             "required": [
@@ -242,6 +246,7 @@ _TOOLS = [
                 "tooling_cost",
                 "landed_cost_usd",
                 "is_avl",
+                "is_cots",
                 "country",
             ],
         },
@@ -370,6 +375,8 @@ def _handle_record_supplier_quote(item, run, inputs: dict) -> str:
         source_url=inputs.get("source_url", ""),
         notes=f"{notes} [Country: {country}]".strip() if country else notes,
         is_avl=is_avl,
+        is_cots=bool(inputs.get("is_cots", False)),
+        is_cots_source="agent",
     )
     # Keep the quote in part/price history (SCRUM-28). History is a side
     # effect: a failure here must not stop the research run.

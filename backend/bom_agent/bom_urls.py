@@ -1,11 +1,13 @@
 from django.urls import path
 from .structured_bom_views import (
     BomApproveView,
+    BomCompareView,
     BomDetailView,
     BomListView,
     BomRowView,
     FileBomExtractView,
 )
+from .rfq_views import BomRowRfqView, RfqDraftView, RfqExportView, SupplierQuoteView
 from .bom_views import (
     BomRunListCreateView,
     BomRunDetailView,
@@ -26,9 +28,14 @@ from .bom_views import (
 
 urlpatterns = [
     path("structured/", BomListView.as_view(), name="bom-list"),
+    path("structured/compare/", BomCompareView.as_view(), name="bom-compare"),
     path("structured/<int:pk>/", BomDetailView.as_view(), name="bom-detail"),
     path("structured/<int:pk>/approve/", BomApproveView.as_view(), name="bom-approve"),
     path("structured/<int:pk>/rows/<int:row_id>/", BomRowView.as_view(), name="bom-row"),
+    path("structured/<int:pk>/rows/<int:row_id>/rfq/", BomRowRfqView.as_view(), name="bom-row-rfq"),
+    path("rfqs/<int:pk>/", RfqDraftView.as_view(), name="rfq-detail"),
+    path("rfqs/<int:pk>/export/", RfqExportView.as_view(), name="rfq-export"),
+    path("quotes/<int:pk>/", SupplierQuoteView.as_view(), name="supplier-quote"),
     path("files/<int:file_id>/structured/", FileBomExtractView.as_view(), name="bom-file-extract"),
     path("runs/", BomRunListCreateView.as_view(), name="bom-run-list-create"),
     path("runs/<int:pk>/", BomRunDetailView.as_view(), name="bom-run-detail"),

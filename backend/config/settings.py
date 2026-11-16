@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     "assistant",
     "bom_agent",
     "part_history",
+    "design_review",
 ]
 
 MIDDLEWARE = [
