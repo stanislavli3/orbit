@@ -9,9 +9,17 @@ from .views import (
     FileDeleteView,
     FileDownloadView,
     FileProfileDownloadView,
+    ConnectorStatusView,
+    ProjectSourcesView,
+    SourceDetailView,
+    SourceIndexView,
 )
 
 urlpatterns = [
+    path("connectors/", ConnectorStatusView.as_view(), name="connector-status"),
+    path("project/<int:project_id>/sources/", ProjectSourcesView.as_view(), name="project-sources"),
+    path("sources/<int:source_id>/", SourceDetailView.as_view(), name="source-detail"),
+    path("sources/<int:source_id>/index/", SourceIndexView.as_view(), name="source-index"),
     path("", AllFilesView.as_view(), name="all-files"),
     path("upload/", FileUploadView.as_view(), name="file-upload"),
     path(
