@@ -665,3 +665,33 @@ export interface RfqDraft {
   created_at: string;
   updated_at: string;
 }
+
+// SCRUM-52 — Settings -> Workspace sources
+export type WorkspaceSourceKind = 'local_folder' | 'google_drive' | 'cost_import' | 'supplier_list' | 'plm' | 'other';
+
+export interface WorkspaceSource {
+  id: number;
+  kind: WorkspaceSourceKind;
+  name: string;
+  location: string;
+  config: Record<string, unknown>;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkspaceSourcesOverview {
+  sources: WorkspaceSource[];
+  kinds: { value: WorkspaceSourceKind; label: string }[];
+  cost_imports: { id: number; filename: string; imported_rows: number; created_at: string }[];
+  supplier_counts: { total: number; approved: number };
+}
+
+export interface SupplierSetting {
+  id: number;
+  name: string;
+  contact_email: string;
+  certifications: string;
+  is_approved: boolean;
+  approval_note: string;
+}
