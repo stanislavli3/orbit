@@ -349,6 +349,9 @@ export interface BomRow {
   sources: Record<string, string>;
   edited: boolean;
   needs_review: boolean;
+  /** SCRUM-74: prototype / entered unit price and where it came from. */
+  entered_price: string | null;
+  entered_price_note: string;
 }
 
 export interface Bom {
@@ -475,6 +478,10 @@ export interface QuickEstimateRow {
   uses_sample_data: boolean;
   shortlist: { suppliers: ShortlistSupplier[]; non_approved_left_out: number };
   should_cost: ShouldCost;
+  /** SCRUM-73: one low / likely / high range combining history and the model. */
+  cost_range: CostRange;
+  /** SCRUM-74: null when no price was entered for the line. */
+  price_flag: PriceFlag | null;
   /** SCRUM-61: lead-time estimate and which data it came from. */
   lead_time: LeadTimeEstimate;
 }
@@ -535,6 +542,45 @@ export interface ShouldCost {
   is_assumed: boolean;
 }
 
+export interface CostRange {
+  low: string;
+  likely: string;
+  high: string;
+  currency: string;
+  basis: 'model' | 'history + model';
+  method: string;
+  history_unit_cost: string | null;
+  model_unit_cost: string;
+  similar_parts: {
+    part_number: string;
+    description: string;
+    similarity: number;
+    unit_cost: string;
+    source: string;
+    model_year: number | null;
+    program: string;
+    is_sample: boolean;
+  }[];
+  rates: string[];
+  uses_sample_data: boolean;
+}
+
+export interface PriceFlag {
+  entered_price: string;
+  note: string;
+  margin: number;
+  level: 'ok' | 'far_below' | 'far_above';
+  pct_from_range: number;
+  message: string;
+}
+
+export interface PriceFlagSummary {
+  margin: number;
+  priced: number;
+  far_below: number;
+  far_above: number;
+}
+
 export interface QuickEstimateReport {
   bom: { id: number; reference: string; status: BomStatus; error: string; source_name: string; review_count: number };
   rows: QuickEstimateRow[];
@@ -543,6 +589,7 @@ export interface QuickEstimateReport {
   year: number;
   uses_sample_data: boolean;
   critical_path: CriticalPath | null;
+  price_flags: PriceFlagSummary;
   elapsed_ms?: number;
 }
 
@@ -674,8 +721,26 @@ export interface RfqDraft {
   id: number;
   bom_row: number;
   bom_reference: string;
-  status: 'draft' | 'final';
+  bom_id: number;
+  status: RfqStatus;
   part_number: string;
+  supplier_name: string;
+  supplier_email: string;
+  row_sourcing_status: '' | 'rfq_sent' | 'sourced';
+  demo_mode: boolean;
+  gmail_message_id: string;
+  gmail_thread_id: string;
+  sent_at: string | null;
+  send_error: string;
+  last_checked_at: string | null;
+  replied_at: string | null;
+  reply_text: string;
+  parsed_reply: RfqParsedReply;
+  needs_attention: boolean;
+  attention_reason: string;
+  excluded_suppliers: string[];
+  next_suppliers: { supplier: string; supplier_id: number; best_quote: { unit_price: string; lead_time_days: number | null; source: string } | null }[];
+  quote: number | null;
   part_context: string;
   material: string;
   blank_size: string;
@@ -687,4 +752,106 @@ export interface RfqDraft {
   assumptions: string[];
   created_at: string;
   updated_at: string;
+}
+
+export type RfqStatus =
+  | 'draft' | 'final' | 'sent' | 'send_failed' | 'needs_review'
+  | 'quoted' | 'declined' | 'info_requested' | 'escalated';
+
+export interface RfqParsedReply {
+  intent?: 'quote' | 'decline' | 'info_request' | 'unknown';
+  unit_price?: string | null;
+  lead_time_days?: number | null;
+  moq?: number | null;
+  notes?: string;
+  confidence?: number;
+}
+
+// ── Standards & permit check (SCRUM-37/38) ──────────────────────────────────
+export type ComplianceStatus = 'pass' | 'warning' | 'needs_info';
+
+export interface ComplianceFinding {
+  status: ComplianceStatus;
+  severity: 'info' | 'low' | 'medium' | 'high';
+  message: string;
+  rule: { id: string; title: string; citation: string; explanation: string } | null;
+}
+
+export interface ComplianceLine {
+  row_id: number;
+  line_no: number;
+  part_number: string;
+  status: ComplianceStatus;
+  findings: ComplianceFinding[];
+}
+
+export interface BomCompliance {
+  bom_id: number;
+  reference: string;
+  corpus: { label: string; version: string };
+  summary: Record<ComplianceStatus, number>;
+  lines: ComplianceLine[];
+}
+
+/** SCRUM-24: one hit from /api/assistant/search/. */
+export interface SearchHit {
+  type: 'file' | 'bom_row' | 'part' | 'quote' | 'supplier';
+  id: number;
+  title: string;
+  snippet: string;
+  citation: string;
+  link: string;
+  score: number;
+}
+
+export interface SearchResponse {
+  query: string;
+  groups: Record<'files' | 'bom_rows' | 'parts' | 'quotes' | 'suppliers', SearchHit[]>;
+  total: number;
+}
+
+/** SCRUM-25: /api/assistant/ask/ answer with numbered cited sources. */
+export interface AskSource {
+  n: number;
+  title: string;
+  snippet: string;
+  citation: string;
+  link: string;
+}
+
+export interface AskResponse {
+  answer: string;
+  mode: 'ai' | 'retrieval_only';
+  focus: string;
+  sources: AskSource[];
+}
+
+// SCRUM-52 — Settings -> Workspace sources
+export type WorkspaceSourceKind = 'local_folder' | 'google_drive' | 'cost_import' | 'supplier_list' | 'plm' | 'other';
+
+export interface WorkspaceSource {
+  id: number;
+  kind: WorkspaceSourceKind;
+  name: string;
+  location: string;
+  config: Record<string, unknown>;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkspaceSourcesOverview {
+  sources: WorkspaceSource[];
+  kinds: { value: WorkspaceSourceKind; label: string }[];
+  cost_imports: { id: number; filename: string; imported_rows: number; created_at: string }[];
+  supplier_counts: { total: number; approved: number };
+}
+
+export interface SupplierSetting {
+  id: number;
+  name: string;
+  contact_email: string;
+  certifications: string;
+  is_approved: boolean;
+  approval_note: string;
 }

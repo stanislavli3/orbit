@@ -322,6 +322,12 @@ class BomRow(models.Model):
     # field name -> where the value came from, e.g. "STEP PRODUCT #20".
     sources = models.JSONField(default=dict)
     edited = models.BooleanField(default=False)
+    # SCRUM-35: "sourced" once a supplier quote from an RFQ thread is accepted.
+    SOURCING_CHOICES = [("", "Open"), ("rfq_sent", "RFQ sent"), ("sourced", "Sourced")]
+    sourcing_status = models.CharField(max_length=10, choices=SOURCING_CHOICES, blank=True, default="")
+    # A prototype / entered price per unit (SCRUM-74), compared against the should-cost range.
+    entered_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    entered_price_note = models.CharField(max_length=200, blank=True)  # e.g. "prototype, Amazon"
 
     class Meta:
         ordering = ["line_no"]
@@ -338,7 +344,19 @@ class RfqDraft(models.Model):
     as "assumption — confirm" lines until someone fills them in.
     """
 
-    STATUS_CHOICES = [("draft", "Draft"), ("final", "Final")]
+    # SCRUM-33/34/35: draft -> sent (or send_failed) -> a reply moves it to
+    # quoted / needs_review / declined / info_requested; silence -> escalated.
+    STATUS_CHOICES = [
+        ("draft", "Draft"),
+        ("final", "Final"),
+        ("sent", "Sent"),
+        ("send_failed", "Send failed"),
+        ("needs_review", "Needs review"),
+        ("quoted", "Quoted"),
+        ("declined", "Declined"),
+        ("info_requested", "Info requested"),
+        ("escalated", "Escalated"),
+    ]
     # field -> label for the quote-critical fields a supplier needs.
     CRITICAL_FIELDS = {
         "part_context": "Part description",
@@ -351,8 +369,28 @@ class RfqDraft(models.Model):
 
     bom_row = models.ForeignKey(BomRow, on_delete=models.CASCADE, related_name="rfq_drafts")
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name="rfq_drafts")
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="draft")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="draft")
     part_number = models.CharField(max_length=100, blank=True)
+    supplier_name = models.CharField(max_length=200, blank=True)
+    supplier_email = models.EmailField(blank=True)
+    gmail_message_id = models.CharField(max_length=255, blank=True)
+    gmail_thread_id = models.CharField(max_length=255, blank=True)
+    gmail_reply_message_id = models.CharField(max_length=255, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    send_error = models.TextField(blank=True)
+    last_checked_at = models.DateTimeField(null=True, blank=True)
+    replied_at = models.DateTimeField(null=True, blank=True)
+    reply_text = models.TextField(blank=True)
+    # {intent, unit_price, lead_time_days, moq, notes, confidence}
+    parsed_reply = models.JSONField(default=dict, blank=True)
+    needs_attention = models.BooleanField(default=False)
+    attention_reason = models.CharField(max_length=300, blank=True)
+    excluded_suppliers = models.JSONField(default=list, blank=True)
+    # Shortlist re-run after a decline, excluding the suppliers above.
+    next_suppliers = models.JSONField(default=list, blank=True)
+    quote = models.ForeignKey(
+        "part_history.Quote", null=True, blank=True, on_delete=models.SET_NULL, related_name="rfqs"
+    )
     part_context = models.TextField(blank=True)
     material = models.CharField(max_length=200, blank=True)
     blank_size = models.CharField(max_length=200, blank=True)

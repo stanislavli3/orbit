@@ -225,3 +225,15 @@ def recover_orphaned_jobs() -> None:
         file_id = bom.source_file_id
         bom.delete()
         extract_bom.delay(file_id)
+
+
+# ── RFQ reply polling (SCRUM-34) ─────────────────────────────────────────────
+
+@monitored_task("rfq_poll", notify=False)
+def poll_rfq_replies_task():
+    """Beat-scheduled every settings.RFQ_POLL_MINUTES: check RFQ threads, escalate silent ones."""
+    from .rfq_loop import escalate_silent_rfqs, poll_rfq_replies
+
+    replied = poll_rfq_replies()
+    escalated = escalate_silent_rfqs()
+    return {"replied": replied, "escalated": escalated}
