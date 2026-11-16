@@ -600,3 +600,29 @@ export interface RfqDraft {
   created_at: string;
   updated_at: string;
 }
+
+// ── Standards & permit check (SCRUM-37/38) ──────────────────────────────────
+export type ComplianceStatus = 'pass' | 'warning' | 'needs_info';
+
+export interface ComplianceFinding {
+  status: ComplianceStatus;
+  severity: 'info' | 'low' | 'medium' | 'high';
+  message: string;
+  rule: { id: string; title: string; citation: string; explanation: string } | null;
+}
+
+export interface ComplianceLine {
+  row_id: number;
+  line_no: number;
+  part_number: string;
+  status: ComplianceStatus;
+  findings: ComplianceFinding[];
+}
+
+export interface BomCompliance {
+  bom_id: number;
+  reference: string;
+  corpus: { label: string; version: string };
+  summary: Record<ComplianceStatus, number>;
+  lines: ComplianceLine[];
+}

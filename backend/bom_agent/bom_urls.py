@@ -1,11 +1,13 @@
 from django.urls import path
 from .structured_bom_views import (
     BomApproveView,
+    BomComplianceView,
     BomCompareView,
     BomDetailView,
     BomListView,
     BomRowView,
     FileBomExtractView,
+    StandardsCorpusView,
 )
 from .rfq_views import BomRowRfqView, RfqDraftView, RfqExportView, SupplierQuoteView
 from .bom_views import (
@@ -28,6 +30,8 @@ from .bom_views import (
 
 urlpatterns = [
     path("structured/", BomListView.as_view(), name="bom-list"),
+    path("standards/", StandardsCorpusView.as_view(), name="standards-corpus"),
+    path("structured/<int:pk>/compliance/", BomComplianceView.as_view(), name="bom-compliance"),
     path("structured/compare/", BomCompareView.as_view(), name="bom-compare"),
     path("structured/<int:pk>/", BomDetailView.as_view(), name="bom-detail"),
     path("structured/<int:pk>/approve/", BomApproveView.as_view(), name="bom-approve"),
