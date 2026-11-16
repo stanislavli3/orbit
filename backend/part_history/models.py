@@ -17,6 +17,8 @@ class Part(models.Model):
     description = models.CharField(max_length=500, blank=True)
     material = models.CharField(max_length=200, blank=True)
     process = models.CharField(max_length=100, blank=True)
+    dimensions = models.CharField(max_length=200, blank=True, help_text='e.g. "120 x 40 x 3 mm"')
+    mass = models.CharField(max_length=100, blank=True, help_text='e.g. "0.12 kg"')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -128,3 +130,35 @@ class HistoricalCost(models.Model):
 
     def __str__(self):
         return f"{self.part} {self.unit_cost} ({self.program or self.model_year})"
+
+
+class HandoffStep(models.Model):
+    """When a CAD-to-quote handoff step happened for a BOM, or for one part on it (SCRUM-75).
+
+    A blank ``part_number`` means the step applies to the whole BOM (e.g. the
+    BOM was shared); parts without their own time for a step inherit it.
+    """
+
+    STEPS = [
+        ("cad_finished", "CAD finished"),
+        ("bom_shared", "BOM shared"),
+        ("shortlist_ready", "Shortlist ready"),
+        ("quote_received", "Quote received"),
+        ("quote_accepted", "Quote accepted"),
+    ]
+
+    workspace_owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="handoff_steps")
+    bom = models.ForeignKey("bom_agent.Bom", on_delete=models.CASCADE, related_name="handoff_steps")
+    part_number = models.CharField(max_length=100, blank=True)
+    step = models.CharField(max_length=20, choices=STEPS)
+    at = models.DateTimeField()
+    is_manual = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["at"]
+        constraints = [
+            models.UniqueConstraint(fields=["bom", "part_number", "step"], name="unique_handoff_step")
+        ]
+
+    def __str__(self):
+        return f"{self.bom_id} {self.part_number or '(BOM)'} {self.step} {self.at:%Y-%m-%d}"
