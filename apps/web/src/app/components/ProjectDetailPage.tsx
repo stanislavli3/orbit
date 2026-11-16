@@ -1246,6 +1246,15 @@ export function ProjectDetailPage() {
       {/* Content */}
       <div className="flex-1 overflow-auto bg-[#FAF7F2]">
         <div className="max-w-[1400px] mx-auto px-8 py-8">
+          <div className="mb-4 flex justify-end">
+            <Link
+              to={`/project/${id}/compare`}
+              className="inline-flex items-center gap-1.5 text-sm text-[#2B2824] px-3 py-1.5 rounded-lg border border-[#E8E0D3] bg-white hover:bg-[#F2EDE3]"
+            >
+              <ListChecks className="w-4 h-4" />
+              Compare versions
+            </Link>
+          </div>
           {/* BOM Analytics CTA — prominent hero banner */}
           {(() => {
             const bannerRun = activeBomRun ?? selectedBomRun ?? bomRuns.find((r) => r.status === 'completed') ?? bomRuns[0] ?? null;

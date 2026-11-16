@@ -6,7 +6,7 @@ import { TopBar } from './TopBar';
 import { useApiClient } from '../../api/client';
 import type { Bom, BomRow } from '../../api/types';
 
-type EditableField = 'part_number' | 'description' | 'material' | 'process' | 'quantity' | 'spec';
+type EditableField = 'part_number' | 'description' | 'material' | 'process' | 'quantity' | 'spec' | 'revision';
 
 const COLUMNS: { field: EditableField; label: string; width: string }[] = [
   { field: 'part_number', label: 'Part number', width: 'w-36' },
@@ -15,6 +15,7 @@ const COLUMNS: { field: EditableField; label: string; width: string }[] = [
   { field: 'process', label: 'Process', width: 'w-32' },
   { field: 'quantity', label: 'Qty', width: 'w-16' },
   { field: 'spec', label: 'Spec / tolerance', width: 'w-32' },
+  { field: 'revision', label: 'Rev', width: 'w-16' },
 ];
 
 const STATUS_LABEL: Record<Bom['status'], string> = {

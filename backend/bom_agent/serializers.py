@@ -255,7 +255,7 @@ class BomRowSerializer(serializers.ModelSerializer):
         model = BomRow
         fields = [
             "id", "line_no", "part_number", "description", "material", "process",
-            "quantity", "spec", "confidence", "flags", "sources", "edited", "needs_review",
+            "quantity", "spec", "revision", "confidence", "flags", "sources", "edited", "needs_review",
         ]
         read_only_fields = ["id", "line_no", "confidence", "flags", "sources", "edited", "needs_review"]
 
