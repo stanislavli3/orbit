@@ -3,7 +3,7 @@ import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Download, Loader2, Upload } from 'lucide-react';
 import { useApiClient } from '../../api/client';
-import type { CostReductionReport, Project, QuickEstimateReport, QuickEstimateRow } from '../../api/types';
+import type { CostReductionReport, Project, SupplierResearch, QuickEstimateReport, QuickEstimateRow } from '../../api/types';
 
 const CONFIDENCE_STYLE: Record<QuickEstimateRow['confidence'], string> = {
   high: 'text-emerald-700',
@@ -81,6 +81,61 @@ function CostReduction({ rowId }: { rowId: number }) {
   );
 }
 
+/** SCRUM-70: optional, clearly UNVERIFIED suppliers beyond the approved list. Never added to the AVL. */
+function BeyondApprovedList({ rowId }: { rowId: number }) {
+  const apiFetch = useApiClient();
+  const [on, setOn] = useState(false);
+  const { data, isFetching, error } = useQuery<SupplierResearch>({
+    queryKey: ['supplier-research', rowId],
+    enabled: on,
+    staleTime: Infinity,
+    queryFn: async () => {
+      const res = await apiFetch(`/api/parts/supplier-research/${rowId}/`, { method: 'POST' });
+      if (!res.ok) throw new Error('Supplier research failed');
+      return res.json();
+    },
+  });
+  return (
+    <div className="mt-3 pt-2 border-t border-[#F2EDE3]">
+      <label className="flex items-center gap-1.5 text-[#8B7F73] cursor-pointer">
+        <input type="checkbox" checked={on} onChange={(e) => setOn(e.target.checked)} />
+        Look beyond approved list
+      </label>
+      {on && isFetching && <Loader2 className="w-3 h-3 mt-1 animate-spin text-[#8B7F73]" />}
+      {on && error && <p className="text-[#DC2626]">{(error as Error).message}</p>}
+      {on && data && (
+        <div className="mt-2 border border-amber-300 bg-amber-50 rounded p-2 space-y-2">
+          <p className="font-medium text-amber-800">UNVERIFIED · not on the approved list</p>
+          <p className="text-amber-800">{data.note}</p>
+          {data.results.length === 0 && <p className="text-[#A89D91]">No other suppliers found.</p>}
+          {data.results.map((s) => (
+            <div key={s.supplier}>
+              <p>
+                <span className="font-medium">{s.supplier}</span>
+                {s.unit_price && ` · $${s.unit_price}`}
+                {s.lead_time_days && `, ${s.lead_time_days} days`}
+                <span className="ml-1 text-amber-700">[{s.origin === 'web' ? 'web' : 'part history'}]</span>
+              </p>
+              {s.risk_notes.map((n) => (
+                <p key={n} className="text-amber-700">⚠ {n}</p>
+              ))}
+              {s.sources.map((src) =>
+                src.startsWith('http') ? (
+                  <a key={src} href={src} target="_blank" rel="noreferrer" className="block text-[#8B7F73] underline truncate">
+                    {src}
+                  </a>
+                ) : (
+                  <p key={src} className="text-[#A89D91]">Source: {src}</p>
+                ),
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /** One row's "why": matched parts and their cost sources, assumptions, and the supplier shortlist. */
 function RowDetails({ r }: { r: QuickEstimateRow }) {
   return (
@@ -143,6 +198,7 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
         {r.shortlist.non_approved_left_out > 0 && (
           <p className="text-[#A89D91]">{r.shortlist.non_approved_left_out} non-approved supplier(s) left out.</p>
         )}
+        <BeyondApprovedList rowId={r.row_id} />
       </div>
     </div>
   );

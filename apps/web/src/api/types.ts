@@ -405,6 +405,7 @@ export interface CostImportReport {
 export interface CostImportBatch {
   id: number;
   filename: string;
+  kind?: 'cost' | 'spend';
   total_rows: number;
   imported_rows: number;
   rejected_rows: number;
@@ -599,4 +600,26 @@ export interface RfqDraft {
   assumptions: string[];
   created_at: string;
   updated_at: string;
+}
+
+// ── Unverified supplier research (SCRUM-70) ─────────────────────────────────
+
+export interface ResearchedSupplier {
+  supplier: string;
+  unit_price: string | null;
+  lead_time_days: number | null;
+  risk_notes: string[];
+  sources: string[];
+  origin: 'web' | 'part_history';
+  verified: false;
+}
+
+export interface SupplierResearch {
+  id: number;
+  row_id: number;
+  mode: 'web' | 'history';
+  note: string;
+  status: 'UNVERIFIED';
+  results: ResearchedSupplier[];
+  created_at: string;
 }

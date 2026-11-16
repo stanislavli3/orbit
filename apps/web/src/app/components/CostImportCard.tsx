@@ -5,7 +5,12 @@ import { useApiClient } from '../../api/client';
 import type { CostImportBatch, CostImportReport } from '../../api/types';
 
 /** Import historical part costs (SCRUM-58): validate first, show rejected rows, then import. */
-export function CostImportCard() {
+export function CostImportCard({
+  endpoint = '/api/parts/imports/',
+  queryKey = 'cost-imports',
+  title = 'Import historical part costs',
+  hint = 'CSV or Excel with part number, description, material, cost and model year or program.',
+}: { endpoint?: string; queryKey?: string; title?: string; hint?: string } = {}) {
   const apiFetch = useApiClient();
   const qc = useQueryClient();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -15,9 +20,9 @@ export function CostImportCard() {
   const [error, setError] = useState('');
 
   const { data: batches = [] } = useQuery<CostImportBatch[]>({
-    queryKey: ['cost-imports'],
+    queryKey: [queryKey],
     queryFn: async () => {
-      const res = await apiFetch('/api/parts/imports/');
+      const res = await apiFetch(endpoint);
       if (!res.ok) throw new Error('Failed to load imports');
       return res.json();
     },
@@ -30,11 +35,11 @@ export function CostImportCard() {
     body.append('file', selected);
     body.append('dry_run', String(dryRun));
     try {
-      const res = await apiFetch('/api/parts/imports/', { method: 'POST', body });
+      const res = await apiFetch(endpoint, { method: 'POST', body });
       const data = await res.json();
       if (!res.ok) throw new Error(data.detail ?? 'Import failed');
       setReport(data);
-      if (!dryRun) qc.invalidateQueries({ queryKey: ['cost-imports'] });
+      if (!dryRun) qc.invalidateQueries({ queryKey: [queryKey] });
     } catch (e) {
       setError((e as Error).message);
       setReport(null);
@@ -48,9 +53,9 @@ export function CostImportCard() {
       <div className="flex items-center gap-3">
         <FileSpreadsheet className="w-5 h-5 text-[#8B7F73]" strokeWidth={1.5} />
         <div className="flex-1">
-          <h2 className="text-sm font-medium text-[#2B2824]">Import historical part costs</h2>
+          <h2 className="text-sm font-medium text-[#2B2824]">{title}</h2>
           <p className="text-xs text-[#8B7F73]">
-            CSV or Excel with part number, description, material, cost and model year or program.
+            {hint}
           </p>
         </div>
         <input

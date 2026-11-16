@@ -21,7 +21,9 @@ from .cost_reduction import DEFAULT_TARGET, find_cost_reduction
 from .estimator import DEFAULT_INFLATION, estimate_bom
 from .history import suppliers_who_quoted
 from .importer import ImportFileError, import_costs
-from .models import ImportBatch, Part
+from .models import ImportBatch, Part, SupplierResearch
+from .spend_import import import_spend
+from .supplier_research import research_suppliers, serialize as serialize_research
 from .quick_estimate import quick_report
 from .stages_export import render_stages_workbook
 from .serializers import ImportBatchSerializer, PartDetailSerializer, PartSerializer
@@ -71,9 +73,13 @@ class CostImportView(APIView):
     """GET: past imports. POST: a .csv/.xlsx file (``dry_run=true`` to only validate)."""
 
     permission_classes = [permissions.IsAuthenticated]
+    kind = "cost"
+
+    def importer(self, *args, **kwargs):
+        return import_costs(*args, **kwargs)
 
     def get(self, request):
-        batches = ImportBatch.objects.filter(workspace_owner=request.user)[:50]
+        batches = ImportBatch.objects.filter(workspace_owner=request.user, kind=self.kind)[:50]
         return Response(ImportBatchSerializer(batches, many=True).data)
 
     def post(self, request):
@@ -84,12 +90,36 @@ class CostImportView(APIView):
             return Response({"detail": "File is larger than 10 MB."}, status=status.HTTP_400_BAD_REQUEST)
         dry_run = str(request.data.get("dry_run", "")).lower() in ("1", "true", "yes")
         try:
-            report = import_costs(
+            report = self.importer(
                 request.user, upload.read(), upload.name, dry_run=dry_run, uploaded_by=request.user
             )
         except ImportFileError as exc:
             return Response({"detail": str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         return Response(report, status=status.HTTP_200_OK if dry_run else status.HTTP_201_CREATED)
+
+
+class SpendImportView(CostImportView):
+    """Supplier spend / invoice export (SCRUM-72): same flow as the cost import."""
+
+    kind = "spend"
+
+    def importer(self, *args, **kwargs):
+        return import_spend(*args, **kwargs)
+
+
+class SupplierResearchView(APIView):
+    """GET <row_id>: latest UNVERIFIED research for a BOM line. POST: run it now (SCRUM-70)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, row_id):
+        row = get_object_or_404(BomRow, pk=row_id, bom__project__owner=request.user)
+        record = SupplierResearch.objects.filter(workspace_owner=request.user, bom_row=row).first()
+        return Response(serialize_research(record) if record else None)
+
+    def post(self, request, row_id):
+        row = get_object_or_404(BomRow, pk=row_id, bom__project__owner=request.user)
+        return Response(research_suppliers(request.user, row), status=status.HTTP_201_CREATED)
 
 
 class BomEstimateView(APIView):
