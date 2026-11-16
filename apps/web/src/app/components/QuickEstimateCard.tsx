@@ -1,7 +1,7 @@
 import { Fragment, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, Loader2, Upload } from 'lucide-react';
+import { AlertTriangle, Download, Loader2, Upload } from 'lucide-react';
 import { useApiClient } from '../../api/client';
 import type { Project, QuickEstimateReport, QuickEstimateRow } from '../../api/types';
 
@@ -15,7 +15,7 @@ const CONFIDENCE_STYLE: Record<QuickEstimateRow['confidence'], string> = {
 /** One row's "why": matched parts and their cost sources, assumptions, and the supplier shortlist. */
 function RowDetails({ r }: { r: QuickEstimateRow }) {
   return (
-    <div className="grid grid-cols-3 gap-4 text-xs text-[#2B2824] px-4 py-3 bg-[#FFFCF7]">
+    <div className="grid grid-cols-4 gap-4 text-xs text-[#2B2824] px-4 py-3 bg-[#FFFCF7]">
       <div>
         <p className="font-medium text-[#8B7F73] mb-1">Similar past parts</p>
         {r.matches.length === 0 && <p className="text-[#A89D91]">None found.</p>}
@@ -35,6 +35,14 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
         <ul className="space-y-1">
           {r.assumptions.map((a) => (
             <li key={a} className={a.startsWith('⚠') ? 'text-amber-700' : ''}>{a}</li>
+          ))}
+        </ul>
+      </div>
+      <div>
+        <p className="font-medium text-[#8B7F73] mb-1">Should-cost basis</p>
+        <ul className="space-y-1">
+          {r.should_cost.basis.map((b) => (
+            <li key={b} className={b.startsWith('⚠') ? 'text-amber-700' : ''}>{b}</li>
           ))}
         </ul>
       </div>
@@ -85,6 +93,20 @@ export function QuickEstimateCard() {
       return res.json();
     },
   });
+
+  async function downloadStages(bomId: number) {
+    const res = await apiFetch(`/api/parts/estimate/bom/${bomId}/stages.xlsx`);
+    if (!res.ok) {
+      setError('Export failed');
+      return;
+    }
+    const url = URL.createObjectURL(await res.blob());
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `estimate_stages_bom_${bomId}.xlsx`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   async function run(file: File) {
     setBusy(true);
@@ -170,6 +192,13 @@ export function QuickEstimateCard() {
             <span className="text-[#2B2824]">
               Estimated total <span className="font-semibold">${report.total.extended_cost}</span>
             </span>
+            <button
+              onClick={() => downloadStages(report.bom.id)}
+              className="flex items-center gap-1 text-xs text-[#2B2824] underline"
+              title="Historical estimate → should-cost → supplier quotes, rebuilt from live data"
+            >
+              <Download className="w-3.5 h-3.5" /> Estimate stages (.xlsx)
+            </button>
             {report.elapsed_ms !== undefined && (
               <span className="text-xs text-[#A89D91]">{(report.elapsed_ms / 1000).toFixed(1)} s</span>
             )}
@@ -184,6 +213,9 @@ export function QuickEstimateCard() {
                   <th className="px-3 py-2 text-right w-14">Qty</th>
                   <th className="px-3 py-2 text-right w-24">Unit est.</th>
                   <th className="px-3 py-2 text-right w-24">Line total</th>
+                  <th className="px-3 py-2 text-right w-36" title="Material/process/volume model; SAMPLE/ASSUMED rates">
+                    Should-cost (low–high)
+                  </th>
                   <th className="px-3 py-2 text-left w-24">Confidence</th>
                   <th className="px-3 py-2 text-left w-48">Top approved supplier</th>
                 </tr>
@@ -204,12 +236,16 @@ export function QuickEstimateCard() {
                       <td className="px-3 py-2 text-right" title={`Source: ${r.row.sources.quantity ?? '—'}`}>{r.quantity}</td>
                       <td className="px-3 py-2 text-right">{r.estimate ? `$${r.estimate.unit_cost}` : '—'}</td>
                       <td className="px-3 py-2 text-right font-medium">{r.estimate ? `$${r.estimate.extended_cost}` : '—'}</td>
+                      <td className="px-3 py-2 text-right text-xs" title={r.should_cost.basis.join('\n')}>
+                        <span className="font-medium text-[#2B2824]">${r.should_cost.expected}</span>
+                        <span className="text-[#8B7F73]"> (${r.should_cost.low}–${r.should_cost.high})</span>
+                      </td>
                       <td className={`px-3 py-2 text-xs ${CONFIDENCE_STYLE[r.confidence]}`}>{r.confidence}</td>
                       <td className="px-3 py-2 text-xs text-[#2B2824]">{r.shortlist.suppliers[0]?.supplier ?? '—'}</td>
                     </tr>
                     {open === r.row_id && (
                       <tr>
-                        <td colSpan={7}>
+                        <td colSpan={8}>
                           <RowDetails r={r} />
                         </td>
                       </tr>
