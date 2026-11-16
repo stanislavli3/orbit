@@ -600,3 +600,36 @@ export interface RfqDraft {
   created_at: string;
   updated_at: string;
 }
+
+/** SCRUM-24: one hit from /api/assistant/search/. */
+export interface SearchHit {
+  type: 'file' | 'bom_row' | 'part' | 'quote' | 'supplier';
+  id: number;
+  title: string;
+  snippet: string;
+  citation: string;
+  link: string;
+  score: number;
+}
+
+export interface SearchResponse {
+  query: string;
+  groups: Record<'files' | 'bom_rows' | 'parts' | 'quotes' | 'suppliers', SearchHit[]>;
+  total: number;
+}
+
+/** SCRUM-25: /api/assistant/ask/ answer with numbered cited sources. */
+export interface AskSource {
+  n: number;
+  title: string;
+  snippet: string;
+  citation: string;
+  link: string;
+}
+
+export interface AskResponse {
+  answer: string;
+  mode: 'ai' | 'retrieval_only';
+  focus: string;
+  sources: AskSource[];
+}

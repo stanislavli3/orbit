@@ -1,3 +1,4 @@
+import { AskOrbitPanel } from './AskOrbitPanel';
 import { Fragment, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
@@ -84,6 +85,10 @@ function CostReduction({ rowId }: { rowId: number }) {
 /** One row's "why": matched parts and their cost sources, assumptions, and the supplier shortlist. */
 function RowDetails({ r }: { r: QuickEstimateRow }) {
   return (
+    <div className="bg-[#FFFCF7]">
+    <div className="px-4 pt-3">
+      <AskOrbitPanel rowId={r.row_id} placeholder={`Ask Orbit about ${r.part_number || 'this part'}…`} />
+    </div>
     <div className="grid grid-cols-4 gap-4 text-xs text-[#2B2824] px-4 py-3 bg-[#FFFCF7]">
       <div>
         <p className="font-medium text-[#8B7F73] mb-1">Similar past parts</p>
@@ -144,6 +149,7 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
           <p className="text-[#A89D91]">{r.shortlist.non_approved_left_out} non-approved supplier(s) left out.</p>
         )}
       </div>
+    </div>
     </div>
   );
 }
