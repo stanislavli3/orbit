@@ -3,6 +3,7 @@ import { useUser, useClerk } from '@clerk/clerk-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { LogOut, Ban, Plus, Pencil, Trash2, Upload, X, Search, Mail, MessageSquare, Link2, ShieldCheck } from 'lucide-react';
 import { TopBar } from './TopBar';
+import { WorkspaceSourcesSection } from './WorkspaceSourcesSection';
 import { useApiClient } from '../../api/client';
 import type { TeamContact, GmailCredentialStatus, GmailOAuthStartResponse } from '../../api/types';
 import { toast } from 'sonner';
@@ -860,6 +861,10 @@ export function SettingsPage() {
 
           {/* ── Team Contacts ────────────────────────────────────── */}
           <TeamContactsSection />
+
+          <div className="mx-8 border-t border-[#E8E0D3]" />
+
+          <WorkspaceSourcesSection />
 
           {/* ── Danger Zone ──────────────────────────────────────── */}
           <section className="px-8 pt-6 pb-2">

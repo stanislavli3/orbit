@@ -712,3 +712,92 @@ export interface RfqDraft {
   created_at: string;
   updated_at: string;
 }
+
+// ── Standards & permit check (SCRUM-37/38) ──────────────────────────────────
+export type ComplianceStatus = 'pass' | 'warning' | 'needs_info';
+
+export interface ComplianceFinding {
+  status: ComplianceStatus;
+  severity: 'info' | 'low' | 'medium' | 'high';
+  message: string;
+  rule: { id: string; title: string; citation: string; explanation: string } | null;
+}
+
+export interface ComplianceLine {
+  row_id: number;
+  line_no: number;
+  part_number: string;
+  status: ComplianceStatus;
+  findings: ComplianceFinding[];
+}
+
+export interface BomCompliance {
+  bom_id: number;
+  reference: string;
+  corpus: { label: string; version: string };
+  summary: Record<ComplianceStatus, number>;
+  lines: ComplianceLine[];
+}
+
+/** SCRUM-24: one hit from /api/assistant/search/. */
+export interface SearchHit {
+  type: 'file' | 'bom_row' | 'part' | 'quote' | 'supplier';
+  id: number;
+  title: string;
+  snippet: string;
+  citation: string;
+  link: string;
+  score: number;
+}
+
+export interface SearchResponse {
+  query: string;
+  groups: Record<'files' | 'bom_rows' | 'parts' | 'quotes' | 'suppliers', SearchHit[]>;
+  total: number;
+}
+
+/** SCRUM-25: /api/assistant/ask/ answer with numbered cited sources. */
+export interface AskSource {
+  n: number;
+  title: string;
+  snippet: string;
+  citation: string;
+  link: string;
+}
+
+export interface AskResponse {
+  answer: string;
+  mode: 'ai' | 'retrieval_only';
+  focus: string;
+  sources: AskSource[];
+}
+
+// SCRUM-52 — Settings -> Workspace sources
+export type WorkspaceSourceKind = 'local_folder' | 'google_drive' | 'cost_import' | 'supplier_list' | 'plm' | 'other';
+
+export interface WorkspaceSource {
+  id: number;
+  kind: WorkspaceSourceKind;
+  name: string;
+  location: string;
+  config: Record<string, unknown>;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface WorkspaceSourcesOverview {
+  sources: WorkspaceSource[];
+  kinds: { value: WorkspaceSourceKind; label: string }[];
+  cost_imports: { id: number; filename: string; imported_rows: number; created_at: string }[];
+  supplier_counts: { total: number; approved: number };
+}
+
+export interface SupplierSetting {
+  id: number;
+  name: string;
+  contact_email: string;
+  certifications: string;
+  is_approved: boolean;
+  approval_note: string;
+}

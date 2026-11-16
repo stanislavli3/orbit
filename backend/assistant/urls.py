@@ -1,8 +1,17 @@
 from django.urls import path
-from .views import ChatView, SessionListView, SessionMessagesView, SessionStarView
+from .views import (
+    AskInContextView,
+    ChatView,
+    SessionListView,
+    SessionMessagesView,
+    SessionStarView,
+    UnifiedSearchView,
+)
 
 urlpatterns = [
     path("chat/", ChatView.as_view(), name="assistant-chat"),
+    path("search/", UnifiedSearchView.as_view(), name="assistant-search"),
+    path("ask/", AskInContextView.as_view(), name="assistant-ask"),
     path("sessions/", SessionListView.as_view(), name="assistant-sessions"),
     path(
         "sessions/<uuid:session_id>/messages/",

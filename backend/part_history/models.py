@@ -132,6 +132,43 @@ class HistoricalCost(models.Model):
         return f"{self.part} {self.unit_cost} ({self.program or self.model_year})"
 
 
+class WorkspaceSource(models.Model):
+    """A system, folder or list Orbit pulls data from (SCRUM-52).
+
+    Generic per-user source settings. Connectors (local folder, Google Drive,
+    PLM exports...) register here by ``kind`` and keep their own settings in
+    ``config``; Orbit only reads from sources that are ``enabled``. New
+    connectors extend ``KIND_CHOICES`` and read their own ``config`` keys.
+    """
+
+    KIND_CHOICES = [
+        ("local_folder", "Local / watched folder"),
+        ("google_drive", "Google Drive folder"),
+        ("cost_import", "Cost-history import"),
+        ("supplier_list", "Supplier list / AVL"),
+        ("plm", "PLM / CAD system"),
+        ("other", "Other"),
+    ]
+
+    workspace_owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="workspace_sources")
+    kind = models.CharField(max_length=30, choices=KIND_CHOICES)
+    name = models.CharField(max_length=200)
+    location = models.CharField(max_length=500, blank=True, help_text="Folder path, Drive folder id or URL")
+    config = models.JSONField(default=dict, blank=True)
+    enabled = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["kind", "name"]
+        constraints = [
+            models.UniqueConstraint(fields=["workspace_owner", "kind", "name"], name="unique_source_per_workspace")
+        ]
+
+    def __str__(self):
+        return f"{self.get_kind_display()}: {self.name}"
+
+
 class HandoffStep(models.Model):
     """When a CAD-to-quote handoff step happened for a BOM, or for one part on it (SCRUM-75).
 
