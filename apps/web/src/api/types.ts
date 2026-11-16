@@ -406,6 +406,49 @@ export interface QuickEstimateRow {
   confidence: 'high' | 'medium' | 'low' | 'none';
   uses_sample_data: boolean;
   shortlist: { suppliers: ShortlistSupplier[]; non_approved_left_out: number };
+  /** SCRUM-61: lead-time estimate and which data it came from. */
+  lead_time: LeadTimeEstimate;
+}
+
+export interface LeadTimeEstimate {
+  days: number | null;
+  basis: 'quote_history' | 'similar_parts' | 'no_data';
+  source: string;
+  evidence: { text: string; source: string }[];
+  is_bottleneck: boolean;
+}
+
+export interface CriticalPath {
+  row_id: number;
+  part_number: string;
+  days: number;
+  source: string;
+  summary: string;
+  rows_without_data: number;
+}
+
+/** SCRUM-60: rules-based cost-reduction ideas for one BOM line. */
+export interface CostReductionSuggestion {
+  rank: number;
+  kind: 'material' | 'supplier' | 'volume' | 'cots' | 'tolerance' | 'fastener_count';
+  title: string;
+  rationale: string;
+  estimated_saving_pct: number;
+  estimated_saving_per_unit: string | null;
+  evidence: { text: string; source: string }[];
+  assumption: string | null;
+  meets_target: boolean;
+}
+
+export interface CostReductionReport {
+  row_id: number;
+  part_number: string;
+  target_pct: number;
+  baseline: { unit_cost: string | null; basis: string };
+  suggestions: CostReductionSuggestion[];
+  target_met: boolean;
+  questions: string[];
+  disclaimer: string;
 }
 
 export interface QuickEstimateReport {
@@ -415,5 +458,6 @@ export interface QuickEstimateReport {
   inflation: number;
   year: number;
   uses_sample_data: boolean;
+  critical_path: CriticalPath | null;
   elapsed_ms?: number;
 }
