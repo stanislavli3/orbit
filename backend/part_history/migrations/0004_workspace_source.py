@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("part_history", "0002_cost_import"),
+        ("part_history", "0003_part_dimensions_and_handoff_steps"),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

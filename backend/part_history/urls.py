@@ -8,6 +8,10 @@ from .sources_views import (
 )
 
 from .views import BomEstimateView, CostReductionView, EstimateStagesExportView, CostImportView, QuickEstimateView, PartDetailView, PartListView, SuppliersWhoQuotedView
+from .views import (
+    BomEstimateView, CallSheetView, HandoffSummaryView, HandoffTimelineView, PartCompareView,
+)
+from .views import CostReductionView, EstimateStagesExportView, CostImportView, QuickEstimateView, PartDetailView, PartListView, SuppliersWhoQuotedView
 
 urlpatterns = [
     path("", PartListView.as_view(), name="part-list"),
@@ -23,4 +27,8 @@ urlpatterns = [
     path("sources/<int:pk>/", WorkspaceSourceDetailView.as_view(), name="workspace-source-detail"),
     path("suppliers/", SupplierSettingsListView.as_view(), name="supplier-settings"),
     path("suppliers/<int:pk>/", SupplierSettingsDetailView.as_view(), name="supplier-settings-detail"),
+    path("call-sheet/", CallSheetView.as_view(), name="call-sheet"),
+    path("compare/", PartCompareView.as_view(), name="part-compare"),
+    path("handoff/bom/<int:bom_id>/", HandoffTimelineView.as_view(), name="handoff-timeline"),
+    path("handoff/summary/", HandoffSummaryView.as_view(), name="handoff-summary"),
 ]
