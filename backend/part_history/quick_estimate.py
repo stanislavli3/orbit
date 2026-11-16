@@ -6,6 +6,7 @@ via the quote.
 """
 
 from bom_agent.serializers import BomRowSerializer
+from . import handoff
 from .estimator import DEFAULT_INFLATION, estimate_bom
 from .lead_time import lead_time_row, mark_bottleneck
 from .should_cost import should_cost_row
@@ -14,6 +15,9 @@ from .shortlist import shortlist_row
 
 def quick_report(bom, owner, *, k=3, inflation=DEFAULT_INFLATION) -> dict:
     report = estimate_bom(bom, owner, k=k, inflation=inflation)
+    if bom.source_file_id:
+        handoff.record(bom, "cad_finished", at=bom.source_file.created_at)
+    handoff.record(bom, "bom_shared", at=bom.created_at)
     rows = {row.id: row for row in bom.rows.all()}
     for entry in report["rows"]:
         row = rows[entry["row_id"]]
@@ -22,6 +26,8 @@ def quick_report(bom, owner, *, k=3, inflation=DEFAULT_INFLATION) -> dict:
         similar = [m["part_number"] for m in entry["matches"]]
         entry["shortlist"] = shortlist_row(owner, row, similar)
         entry["lead_time"] = lead_time_row(owner, row, similar)
+        if row.part_number:
+            handoff.record(bom, "shortlist_ready", part_number=row.part_number)
     report["critical_path"] = mark_bottleneck(report["rows"])
     report["bom"] = {
         "id": bom.id,

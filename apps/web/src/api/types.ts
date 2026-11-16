@@ -546,6 +546,71 @@ export interface QuickEstimateReport {
   elapsed_ms?: number;
 }
 
+// ── Call sheets (SCRUM-71), part compare (SCRUM-53), handoff timing (SCRUM-75) ──
+
+export interface CallSheet {
+  supplier: { id: number; name: string; contact_email: string; certifications: string; approval: string };
+  bom_reference: string;
+  line_no: number;
+  part_summary: string;
+  specs: { label: string; value: string; source: string }[];
+  volume_and_timing: {
+    quantity: number;
+    last_quote: string | null;
+    last_lead_time_days: number | null;
+    needed_by: string;
+  };
+  pros: string[];
+  cons: string[];
+  evidence: { text: string; source: string }[];
+  questions: string[];
+}
+
+export interface CompareSide {
+  kind: 'part' | 'bom_row';
+  id: number;
+  link: string;
+  values: Record<string, string>;
+  sources: Record<string, string>;
+}
+
+export interface PartComparison {
+  left: CompareSide;
+  right: CompareSide;
+  rows: { key: string; label: string; left: string; right: string; same: boolean }[];
+}
+
+export type HandoffStepKey = 'cad_finished' | 'bom_shared' | 'shortlist_ready' | 'quote_received' | 'quote_accepted';
+
+export interface HandoffInterval {
+  from: HandoffStepKey;
+  to: HandoffStepKey;
+  label: string;
+  hours: number;
+}
+
+export interface HandoffTimeline {
+  bom_id: number;
+  reference: string;
+  steps: { key: HandoffStepKey; label: string }[];
+  parts: {
+    part_number: string;
+    steps: Record<HandoffStepKey, string | null>;
+    manual: HandoffStepKey[];
+    intervals: HandoffInterval[];
+    total_hours: number | null;
+    slowest: HandoffInterval | null;
+  }[];
+  total_hours: number | null;
+  slowest_step: { label: string; median_hours: number } | null;
+}
+
+export interface HandoffSummary {
+  parts_timed: number;
+  median_total_hours: number | null;
+  median_step_hours: { label: string; median_hours: number }[];
+}
+
 // ── Design review (SCRUM-57 / SCRUM-56) ─────────────────────────────────────
 
 export type ReviewRole = 'designer' | 'reviewer';
