@@ -3,6 +3,7 @@ import { Link } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Download, Loader2, Upload } from 'lucide-react';
 import { useApiClient } from '../../api/client';
+import { CallSheetDialog, CompareDialog, HandoffPanel } from './QuickEstimateExtras';
 import type { CostReductionReport, Project, QuickEstimateReport, QuickEstimateRow } from '../../api/types';
 
 const CONFIDENCE_STYLE: Record<QuickEstimateRow['confidence'], string> = {
@@ -83,6 +84,8 @@ function CostReduction({ rowId }: { rowId: number }) {
 
 /** One row's "why": matched parts and their cost sources, assumptions, and the supplier shortlist. */
 function RowDetails({ r }: { r: QuickEstimateRow }) {
+  const [callSheet, setCallSheet] = useState<number | null>(null);
+  const [compare, setCompare] = useState<number | null>(null);
   return (
     <div className="grid grid-cols-4 gap-4 text-xs text-[#2B2824] px-4 py-3 bg-[#FFFCF7]">
       <div>
@@ -96,6 +99,7 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
             </p>
             <p className="text-[#8B7F73]">{m.reasons.join(' · ')}</p>
             <p className="text-[#A89D91]">Source: {m.cost.source}</p>
+            <button onClick={() => setCompare(m.part_id)} className="underline text-[#2B2824]">Compare side by side</button>
           </div>
         ))}
       </div>
@@ -138,12 +142,15 @@ function RowDetails({ r }: { r: QuickEstimateRow }) {
             {s.cons.map((c) => (
               <p key={c} className="text-amber-700">− {c}</p>
             ))}
+            <button onClick={() => setCallSheet(s.supplier_id)} className="underline text-[#2B2824]">Call sheet</button>
           </div>
         ))}
         {r.shortlist.non_approved_left_out > 0 && (
           <p className="text-[#A89D91]">{r.shortlist.non_approved_left_out} non-approved supplier(s) left out.</p>
         )}
       </div>
+      {callSheet !== null && <CallSheetDialog rowId={r.row_id} supplierId={callSheet} onClose={() => setCallSheet(null)} />}
+      {compare !== null && <CompareDialog rowId={r.row_id} partId={compare} onClose={() => setCompare(null)} />}
     </div>
   );
 }
@@ -346,6 +353,7 @@ export function QuickEstimateCard() {
             </table>
           </div>
           <p className="text-xs text-[#A89D91]">Click a line to see where each number came from, or to find a 10% cost reduction. * lead time from similar parts.</p>
+          <HandoffPanel bomId={report.bom.id} />
         </div>
       )}
     </div>
