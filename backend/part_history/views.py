@@ -1,5 +1,7 @@
 import time
 
+from django.http import HttpResponse
+
 from django.db import transaction
 from django.db.models import Q
 from django.shortcuts import get_object_or_404
@@ -8,18 +10,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from bom_agent.bom_extraction import BOM_FILE_TYPES
-from bom_agent.models import Bom
+from bom_agent.models import Bom, BomRow
 from bom_agent.tasks import build_bom
 from files_api.models import UploadedFile
 from files_api.s3_service import upload_file_to_s3
 from files_api.tasks import describe_file
 from files_api.views import MAX_UPLOAD_BYTES
 from projects.models import Project
+from .cost_reduction import DEFAULT_TARGET, find_cost_reduction
 from .estimator import DEFAULT_INFLATION, estimate_bom
 from .history import suppliers_who_quoted
 from .importer import ImportFileError, import_costs
 from .models import ImportBatch, Part
 from .quick_estimate import quick_report
+from .stages_export import render_stages_workbook
 from .serializers import ImportBatchSerializer, PartDetailSerializer, PartSerializer
 
 
@@ -143,3 +147,34 @@ class QuickEstimateView(APIView):
         report = quick_report(bom, request.user)
         report["elapsed_ms"] = round((time.monotonic() - started) * 1000)
         return Response(report, status=status.HTTP_201_CREATED)
+
+
+class CostReductionView(APIView):
+    """GET <row_id>/?target=0.10: ranked, cited ideas to cut a BOM line's cost (SCRUM-60)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, row_id):
+        row = get_object_or_404(BomRow, pk=row_id, bom__project__owner=request.user)
+        try:
+            target = float(request.query_params.get("target", DEFAULT_TARGET))
+        except ValueError:
+            return Response({"detail": "target must be a decimal like 0.10."}, status=400)
+        if not 0 < target < 1:
+            return Response({"detail": "target must be between 0 and 1."}, status=400)
+        return Response(find_cost_reduction(request.user, row, target=target))
+
+
+class EstimateStagesExportView(APIView):
+    """GET: .xlsx of each part's estimate stages, rebuilt from live data (SCRUM-36)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, bom_id):
+        bom = get_object_or_404(Bom.objects.prefetch_related("rows"), pk=bom_id, project__owner=request.user)
+        response = HttpResponse(
+            render_stages_workbook(bom, request.user),
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        response["Content-Disposition"] = f'attachment; filename="estimate_stages_bom_{bom.id}.xlsx"'
+        return response

@@ -26,7 +26,7 @@ CI only *reports* failures; GitHub blocks the merge once the check is required. 
 ## Known gaps
 
 - `ruff check` / `ruff format --check` currently fail on existing code, so lint is **not** part of CI yet. Fix the backlog, then add a lint step.
-- Frontend (`apps/web`) has no CI job yet.
+- Frontend (`apps/web`) is checked by the **Frontend checks** job (lint, typecheck, build on Node 22), but there is no committed `package-lock.json`, so it uses `npm install` (unpinned transitive deps, no npm cache) and there are no frontend unit tests yet.
 
 ## CD (deploy)
 

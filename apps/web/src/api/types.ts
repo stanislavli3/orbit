@@ -146,6 +146,8 @@ export interface SupplierQuote {
   notes: string;
   is_avl: boolean;
   is_selected: boolean;
+  is_cots: boolean;
+  is_cots_source: 'agent' | 'human' | 'backfill';
 }
 
 export interface BomLineItem {
@@ -318,6 +320,7 @@ export interface BomRow {
   process: string;
   quantity: number;
   spec: string;
+  revision: string;
   confidence: number;
   flags: string[];
   sources: Record<string, string>;
@@ -337,6 +340,48 @@ export interface Bom {
   created_at: string;
   review_count: number;
   rows: BomRow[];
+}
+
+// ── Design change review (SCRUM-23 / SCRUM-55) ──────────────────────────────
+
+export interface BomCitation {
+  bom_id: number;
+  reference: string;
+  source_name: string;
+  row_id: number | null;
+  line_no: number | null;
+  part_number: string;
+}
+
+export interface BomFieldChange {
+  field: string;
+  before: string | number;
+  after: string | number;
+}
+
+export interface BomConflict {
+  kind: 'part_number' | 'revision' | 'material' | 'tolerance';
+  title: string;
+  detail: string;
+  citations: BomCitation[];
+}
+
+export interface BomNeighbours {
+  method: 'placement_distance' | 'assembly_structure' | 'not_in_assembly';
+  radius: number;
+  parts: { part_number: string; distance: number | null; reason: string }[];
+}
+
+export interface BomComparison {
+  base: { id: number; reference: string; source_name: string };
+  target: { id: number; reference: string; source_name: string };
+  summary: string;
+  added: { part_number: string; row: BomCitation }[];
+  removed: { part_number: string; row: BomCitation }[];
+  changed: { part_number: string; fields: BomFieldChange[]; rows: BomCitation[] }[];
+  conflicts: BomConflict[];
+  recheck: Record<string, BomNeighbours>;
+  assembly: { bom_id: number; reference: string; source_name: string } | null;
 }
 
 // ── Part cost history (SCRUM-28 / SCRUM-58) ─────────────────────────────────
@@ -406,6 +451,65 @@ export interface QuickEstimateRow {
   confidence: 'high' | 'medium' | 'low' | 'none';
   uses_sample_data: boolean;
   shortlist: { suppliers: ShortlistSupplier[]; non_approved_left_out: number };
+  should_cost: ShouldCost;
+  /** SCRUM-61: lead-time estimate and which data it came from. */
+  lead_time: LeadTimeEstimate;
+}
+
+export interface LeadTimeEstimate {
+  days: number | null;
+  basis: 'quote_history' | 'similar_parts' | 'no_data';
+  source: string;
+  evidence: { text: string; source: string }[];
+  is_bottleneck: boolean;
+}
+
+export interface CriticalPath {
+  row_id: number;
+  part_number: string;
+  days: number;
+  source: string;
+  summary: string;
+  rows_without_data: number;
+}
+
+/** SCRUM-60: rules-based cost-reduction ideas for one BOM line. */
+export interface CostReductionSuggestion {
+  rank: number;
+  kind: 'material' | 'supplier' | 'volume' | 'cots' | 'tolerance' | 'fastener_count';
+  title: string;
+  rationale: string;
+  estimated_saving_pct: number;
+  estimated_saving_per_unit: string | null;
+  evidence: { text: string; source: string }[];
+  assumption: string | null;
+  meets_target: boolean;
+}
+
+export interface CostReductionReport {
+  row_id: number;
+  part_number: string;
+  target_pct: number;
+  baseline: { unit_cost: string | null; basis: string };
+  suggestions: CostReductionSuggestion[];
+  target_met: boolean;
+  questions: string[];
+  disclaimer: string;
+}
+
+/** Material/process/volume should-cost range from assumed reference rates (SCRUM-30). */
+export interface ShouldCost {
+  low: string;
+  expected: string;
+  high: string;
+  currency: string;
+  spread: number;
+  material: string;
+  process: string;
+  quantity: number;
+  basis: string[];
+  confidence: 'medium' | 'medium-low' | 'low';
+  is_assumed: boolean;
 }
 
 export interface QuickEstimateReport {
@@ -415,6 +519,7 @@ export interface QuickEstimateReport {
   inflation: number;
   year: number;
   uses_sample_data: boolean;
+  critical_path: CriticalPath | null;
   elapsed_ms?: number;
 }
 
@@ -475,4 +580,23 @@ export interface DesignChange {
   created_at: string;
   events: ChangeEvent[];
   interference_checks: InterferenceCheck[];
+}
+
+export interface RfqDraft {
+  id: number;
+  bom_row: number;
+  bom_reference: string;
+  status: 'draft' | 'final';
+  part_number: string;
+  part_context: string;
+  material: string;
+  blank_size: string;
+  tolerance: string;
+  process: string;
+  quantity: number | null;
+  due_date: string | null;
+  notes: string;
+  assumptions: string[];
+  created_at: string;
+  updated_at: string;
 }

@@ -10,6 +10,7 @@ import { ExtractionRunsPage } from './components/ExtractionRunsPage';
 import { BomAgentPage } from './components/BomAgentPage';
 import { BomRunPage } from './components/BomRunPage';
 import { BomReviewPage } from './components/BomReviewPage';
+import { BomComparePage } from './components/BomComparePage';
 import { EstimatePage } from './components/EstimatePage';
 import { BomAnalyticsPage } from './components/BomAnalyticsPage';
 import { ProjectAnalyticsPage } from './components/ProjectAnalyticsPage';
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
       { path: 'vault', Component: VaultPage },
       { path: 'project/:id', Component: ProjectDetailPage },
       { path: 'project/:id/analytics', Component: ProjectAnalyticsPage },
+      { path: 'project/:id/compare', Component: BomComparePage },
       { path: 'project/:id/file/:fileId/result', Component: FileResultPage },
       { path: 'project/:id/review', Component: DesignReviewPage },
       { path: 'extraction-runs', Component: ExtractionRunsPage },

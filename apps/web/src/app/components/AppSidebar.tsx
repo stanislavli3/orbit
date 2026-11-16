@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useClerk } from "@clerk/clerk-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useApiClient } from "../../api/client";
@@ -900,12 +900,16 @@ function DetailSidebar({ activeSection }: { activeSection: string }) {
     }
   };
 
+  const handleNewConversation = useCallback(() => {
+    navigate(`/assistant?t=${Date.now()}`);
+  }, [navigate]);
+
   const content = getSidebarContent(
     activeSection,
     projects,
     {
       onNewProject: () => setDialogOpen(true),
-      onNewConversation: () => navigate(`/assistant?t=${Date.now()}`),
+      onNewConversation: handleNewConversation,
     },
     bomRuns,
     chatSessions,
