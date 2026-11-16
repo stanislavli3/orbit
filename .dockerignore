@@ -1,0 +1,9 @@
+# Docker build context is the repo root (backend/Dockerfile copies backend/ and samples/).
+*
+!backend
+!samples
+backend/.venv
+backend/**/__pycache__
+backend/db.sqlite3
+backend/.env
+backend/staticfiles

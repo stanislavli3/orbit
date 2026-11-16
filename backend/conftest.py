@@ -3,6 +3,12 @@ from django.contrib.auth.models import User
 from rest_framework.test import APIClient
 
 
+@pytest.fixture(autouse=True)
+def _no_https_redirect(settings):
+    """Tests run with DEBUG off, which turns on the production HTTPS redirect."""
+    settings.SECURE_SSL_REDIRECT = False
+
+
 @pytest.fixture
 def api_client():
     return APIClient()
