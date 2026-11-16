@@ -468,7 +468,9 @@ function ExtractionResultPanel({ fileId, fileName, apiFetch, description }: { fi
 function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: ReturnType<typeof useApiClient>; projectId: string }) {
   const [expanded, setExpanded] = useState(false);
   const [editingDesc, setEditingDesc] = useState(false);
-  const [descValue, setDescValue] = useState(file.description || '');
+  const [descDraft, setDescValue] = useState(file.description || '');
+  // While not editing, always show the latest saved description.
+  const descValue = editingDesc ? descDraft : file.description || '';
   const [savingDesc, setSavingDesc] = useState(false);
   const [promoteDocType, setPromoteDocType] = useState<LibraryDocType | ''>('');
   const [showPromoteModal, setShowPromoteModal] = useState(false);
@@ -516,9 +518,6 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
     }
   }
 
-  useEffect(() => {
-    if (!editingDesc) setDescValue(file.description || '');
-  }, [file.description, editingDesc]);
   const handleDownload = async () => {
     try {
       const res = await apiFetch(`/api/files/${file.id}/download/`);
@@ -692,7 +691,10 @@ function FileRow({ file, apiFetch, projectId }: { file: FileLike; apiFetch: Retu
             </span>
           ) : (
             <button
-              onClick={() => setEditingDesc(true)}
+              onClick={() => {
+                setDescValue(file.description || '');
+                setEditingDesc(true);
+              }}
               className="flex-1 text-left group/desc"
             >
               {descValue ? (
@@ -862,7 +864,7 @@ export function ProjectDetailPage() {
   const [bomPanelOpen, setBomPanelOpen] = useState(false);
   const [bomStarting, setBomStarting] = useState(false);
   const [activeBomRun, setActiveBomRun] = useState<BomResearchRun | null>(null);
-  const [selectedBomRunId, setSelectedBomRunId] = useState<number | null>(null);
+  const [selectedBomRunIdState, setSelectedBomRunId] = useState<number | null>(null);
   const [emailComposerTrigger, setEmailComposerTrigger] = useState<BomEmailComposerTrigger | null>(null);
   const prevStatuses = useRef<Record<number, UploadedFile['status']>>({});
 
@@ -918,6 +920,13 @@ export function ProjectDetailPage() {
     },
   });
 
+  // Fall back to the most recent run when nothing valid is selected (and no run is active).
+  const selectedBomRunId =
+    activeBomRun ||
+    (selectedBomRunIdState && bomRuns.some((run) => run.id === selectedBomRunIdState))
+      ? selectedBomRunIdState
+      : (bomRuns[0]?.id ?? selectedBomRunIdState);
+
   const { data: selectedBomRun } = useQuery<BomResearchRun>({
     queryKey: ['bom-run', selectedBomRunId],
     queryFn: async () => {
@@ -953,14 +962,6 @@ export function ProjectDetailPage() {
     });
     prevStatuses.current = next;
   }, [files]);
-
-  useEffect(() => {
-    if (activeBomRun) return;
-    if (selectedBomRunId && bomRuns.some((run) => run.id === selectedBomRunId)) return;
-    if (bomRuns.length > 0) {
-      setSelectedBomRunId(bomRuns[0].id);
-    }
-  }, [activeBomRun, bomRuns, selectedBomRunId]);
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -1246,6 +1247,18 @@ export function ProjectDetailPage() {
       {/* Content */}
       <div className="flex-1 overflow-auto bg-[#FAF7F2]">
         <div className="max-w-[1400px] mx-auto px-8 py-8">
+          <div className="mb-4 flex justify-end items-center gap-4">
+            <Link
+              to={`/project/${id}/compare`}
+              className="inline-flex items-center gap-1.5 text-sm text-[#2B2824] px-3 py-1.5 rounded-lg border border-[#E8E0D3] bg-white hover:bg-[#F2EDE3]"
+            >
+              <ListChecks className="w-4 h-4" />
+              Compare versions
+            </Link>
+            <Link to={`/project/${id}/review`} className="text-sm font-medium text-[#C66A4E] hover:underline">
+              Design review: changes & approvals →
+            </Link>
+          </div>
           {/* BOM Analytics CTA — prominent hero banner */}
           {(() => {
             const bannerRun = activeBomRun ?? selectedBomRun ?? bomRuns.find((r) => r.status === 'completed') ?? bomRuns[0] ?? null;

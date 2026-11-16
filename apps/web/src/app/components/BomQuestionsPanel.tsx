@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { X, Mail, MessageSquare, Users, ChevronRight, Check, Loader2 } from 'lucide-react';
 import { Link } from 'react-router';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -152,7 +152,7 @@ function QuestionCard({
 export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: Props) {
   const apiFetch = useApiClient();
   const [step, setStep] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [userAnswers, setAnswers] = useState<Record<string, string | string[]>>({});
 
   const { data, isLoading, isError } = useQuery<BomQuestionsResponse>({
     queryKey: ['bom-questions', runId],
@@ -163,20 +163,16 @@ export function BomQuestionsPanel({ runId, onClose, onComplete, onDraftEmail }: 
     },
   });
 
-  // Pre-fill defaults on load
-  useEffect(() => {
-    if (!data) return;
+  // Pre-fill defaults; user-entered answers take precedence.
+  const answers = useMemo(() => {
     const defaults: Record<string, string | string[]> = {};
-    for (const q of data.questions) {
-      if (q.default !== undefined && q.default !== '' && !(q.id in answers)) {
+    for (const q of data?.questions ?? []) {
+      if (q.default !== undefined && q.default !== '') {
         defaults[q.id] = q.type === 'multi_select' ? [q.default] : q.default;
       }
     }
-    if (Object.keys(defaults).length > 0) {
-      setAnswers((prev) => ({ ...defaults, ...prev }));
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+    return { ...defaults, ...userAnswers };
+  }, [data, userAnswers]);
 
   const submitMutation = useMutation({
     mutationFn: async () => {

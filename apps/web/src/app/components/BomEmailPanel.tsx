@@ -291,7 +291,7 @@ export function BomEmailPanel({
 }: Props) {
   const apiFetch = useApiClient();
   const queryClient = useQueryClient();
-  const [selectedRequestId, setSelectedRequestId] = useState<number | null>(null);
+  const [selectedRequestIdState, setSelectedRequestId] = useState<number | null>(null);
   const [composerOpen, setComposerOpen] = useState(false);
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
 
@@ -380,13 +380,10 @@ export function BomEmailPanel({
     };
   }, [apiFetch, composerTrigger, onComposerTriggerHandled, queryClient, runId]);
 
-  useEffect(() => {
-    if (selectedRequestId) return;
-    const firstDraft = emails.find((request) => request.status === 'draft') ?? emails[0];
-    if (firstDraft) {
-      setSelectedRequestId(firstDraft.id);
-    }
-  }, [emails, selectedRequestId]);
+  // Default to the first draft (or first email) until the user picks one.
+  const selectedRequestId =
+    selectedRequestIdState ||
+    ((emails.find((request) => request.status === 'draft') ?? emails[0])?.id ?? selectedRequestIdState);
 
   const selectedRequest = useMemo(
     () => emails.find((request) => request.id === selectedRequestId) ?? null,

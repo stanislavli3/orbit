@@ -152,6 +152,8 @@ export function LibraryPage() {
   // Filter state
   const [filterType, setFilterType] = useState<LibraryDocType | 'all'>('all');
   const [showFilterPanel, setShowFilterPanel] = useState(false);
+  // Reference time for the "recent" view, captured once on mount (keeps render pure).
+  const [now] = useState(() => Date.now());
 
   const invalidate = useCallback(() => qc.invalidateQueries({ queryKey: ['library'] }), [qc]);
 
@@ -176,16 +178,18 @@ export function LibraryPage() {
     }
   }, [uploadParam, setSearchParams]);
 
+  // Open the filter panel during render when the sidebar signal arrives; the effect only clears the URL param.
+  if (filterParam === '1' && !showFilterPanel) setShowFilterPanel(true);
+
   useEffect(() => {
     if (filterParam === '1') {
-      setShowFilterPanel(true);
       setSearchParams((p) => { p.delete('filter'); return p; }, { replace: true });
     }
   }, [filterParam, setSearchParams]);
 
   const visibleDocs = docs.filter((doc) => {
     if (viewParam === 'recent') {
-      const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      const weekAgo = now - 7 * 24 * 60 * 60 * 1000;
       if (new Date(doc.uploaded_at).getTime() < weekAgo) return false;
     }
     if (filterType !== 'all' && doc.doc_type !== filterType) return false;

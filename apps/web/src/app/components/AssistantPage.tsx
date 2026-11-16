@@ -51,10 +51,15 @@ export function AssistantPage({ initialSessionId }: AssistantPageProps) {
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(initialSessionId ?? null);
   const [isLoadingMessages, setIsLoadingMessages] = useState(!!initialSessionId);
+  // Enter the loading state during render when a new session is requested.
+  const [loadingFor, setLoadingFor] = useState(initialSessionId);
+  if (initialSessionId !== loadingFor) {
+    setLoadingFor(initialSessionId);
+    if (initialSessionId) setIsLoadingMessages(true);
+  }
 
   useEffect(() => {
     if (!initialSessionId) return;
-    setIsLoadingMessages(true);
     apiFetch(`/api/assistant/sessions/${initialSessionId}/messages/`)
       .then((r) => r.json())
       .then((data: SessionMessagesResponse) => {
