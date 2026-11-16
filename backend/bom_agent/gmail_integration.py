@@ -72,6 +72,11 @@ def google_oauth_is_configured() -> bool:
 
 
 def gmail_oauth_redirect_uri(request) -> str:
+    # Behind a TLS-terminating proxy, build_absolute_uri() can produce http://,
+    # which Google rejects. Production pins the exact URI registered with Google.
+    configured = os.getenv("GMAIL_OAUTH_REDIRECT_URI", "").strip()
+    if configured:
+        return configured
     return request.build_absolute_uri(reverse("gmail-oauth-callback"))
 
 
