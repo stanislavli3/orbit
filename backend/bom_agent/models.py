@@ -322,6 +322,9 @@ class BomRow(models.Model):
     # field name -> where the value came from, e.g. "STEP PRODUCT #20".
     sources = models.JSONField(default=dict)
     edited = models.BooleanField(default=False)
+    # A prototype / entered price per unit (SCRUM-74), compared against the should-cost range.
+    entered_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    entered_price_note = models.CharField(max_length=200, blank=True)  # e.g. "prototype, Amazon"
 
     class Meta:
         ordering = ["line_no"]

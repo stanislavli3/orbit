@@ -1,4 +1,5 @@
 import time
+from decimal import Decimal, InvalidOperation
 
 from django.http import HttpResponse
 
@@ -117,7 +118,15 @@ class QuickEstimateView(APIView):
 
     def get(self, request, bom_id):
         bom = get_object_or_404(Bom.objects.prefetch_related("rows"), pk=bom_id, project__owner=request.user)
-        return Response(quick_report(bom, request.user))
+        margin = None
+        if "margin" in request.query_params:
+            try:
+                margin = float(request.query_params["margin"])
+            except ValueError:
+                margin = -1
+            if not 0 <= margin < 1:
+                return Response({"detail": "margin must be a decimal between 0 and 1, like 0.30."}, status=400)
+        return Response(quick_report(bom, request.user, margin=margin))
 
     def post(self, request):
         started = time.monotonic()
@@ -178,3 +187,28 @@ class EstimateStagesExportView(APIView):
         )
         response["Content-Disposition"] = f'attachment; filename="estimate_stages_bom_{bom.id}.xlsx"'
         return response
+
+
+class RowPriceView(APIView):
+    """PATCH {entered_price, entered_price_note}: a prototype/entered unit price for one BOM line (SCRUM-74).
+    Unlike a review edit, this doesn't touch the row's extraction flags. Send entered_price=null to clear."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, row_id):
+        row = get_object_or_404(BomRow, pk=row_id, bom__project__owner=request.user)
+        raw = request.data.get("entered_price", row.entered_price)
+        if raw in (None, ""):
+            price = None
+        else:
+            try:
+                price = Decimal(str(raw)).quantize(Decimal("0.01"))
+            except (InvalidOperation, ValueError):
+                return Response({"detail": "entered_price must be a number."}, status=400)
+            if price < 0 or price >= Decimal("1e10"):
+                return Response({"detail": "entered_price must be a positive amount."}, status=400)
+        row.entered_price = price
+        row.entered_price_note = str(request.data.get("entered_price_note", row.entered_price_note))[:200]
+        row.save(update_fields=["entered_price", "entered_price_note"])
+        return Response({"id": row.id, "entered_price": None if price is None else str(price),
+                         "entered_price_note": row.entered_price_note})

@@ -326,6 +326,9 @@ export interface BomRow {
   sources: Record<string, string>;
   edited: boolean;
   needs_review: boolean;
+  /** SCRUM-74: prototype / entered unit price and where it came from. */
+  entered_price: string | null;
+  entered_price_note: string;
 }
 
 export interface Bom {
@@ -452,6 +455,10 @@ export interface QuickEstimateRow {
   uses_sample_data: boolean;
   shortlist: { suppliers: ShortlistSupplier[]; non_approved_left_out: number };
   should_cost: ShouldCost;
+  /** SCRUM-73: one low / likely / high range combining history and the model. */
+  cost_range: CostRange;
+  /** SCRUM-74: null when no price was entered for the line. */
+  price_flag: PriceFlag | null;
   /** SCRUM-61: lead-time estimate and which data it came from. */
   lead_time: LeadTimeEstimate;
 }
@@ -512,6 +519,45 @@ export interface ShouldCost {
   is_assumed: boolean;
 }
 
+export interface CostRange {
+  low: string;
+  likely: string;
+  high: string;
+  currency: string;
+  basis: 'model' | 'history + model';
+  method: string;
+  history_unit_cost: string | null;
+  model_unit_cost: string;
+  similar_parts: {
+    part_number: string;
+    description: string;
+    similarity: number;
+    unit_cost: string;
+    source: string;
+    model_year: number | null;
+    program: string;
+    is_sample: boolean;
+  }[];
+  rates: string[];
+  uses_sample_data: boolean;
+}
+
+export interface PriceFlag {
+  entered_price: string;
+  note: string;
+  margin: number;
+  level: 'ok' | 'far_below' | 'far_above';
+  pct_from_range: number;
+  message: string;
+}
+
+export interface PriceFlagSummary {
+  margin: number;
+  priced: number;
+  far_below: number;
+  far_above: number;
+}
+
 export interface QuickEstimateReport {
   bom: { id: number; reference: string; status: BomStatus; error: string; source_name: string; review_count: number };
   rows: QuickEstimateRow[];
@@ -520,6 +566,7 @@ export interface QuickEstimateReport {
   year: number;
   uses_sample_data: boolean;
   critical_path: CriticalPath | null;
+  price_flags: PriceFlagSummary;
   elapsed_ms?: number;
 }
 
