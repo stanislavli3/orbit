@@ -698,8 +698,26 @@ export interface RfqDraft {
   id: number;
   bom_row: number;
   bom_reference: string;
-  status: 'draft' | 'final';
+  bom_id: number;
+  status: RfqStatus;
   part_number: string;
+  supplier_name: string;
+  supplier_email: string;
+  row_sourcing_status: '' | 'rfq_sent' | 'sourced';
+  demo_mode: boolean;
+  gmail_message_id: string;
+  gmail_thread_id: string;
+  sent_at: string | null;
+  send_error: string;
+  last_checked_at: string | null;
+  replied_at: string | null;
+  reply_text: string;
+  parsed_reply: RfqParsedReply;
+  needs_attention: boolean;
+  attention_reason: string;
+  excluded_suppliers: string[];
+  next_suppliers: { supplier: string; supplier_id: number; best_quote: { unit_price: string; lead_time_days: number | null; source: string } | null }[];
+  quote: number | null;
   part_context: string;
   material: string;
   blank_size: string;
@@ -711,6 +729,19 @@ export interface RfqDraft {
   assumptions: string[];
   created_at: string;
   updated_at: string;
+}
+
+export type RfqStatus =
+  | 'draft' | 'final' | 'sent' | 'send_failed' | 'needs_review'
+  | 'quoted' | 'declined' | 'info_requested' | 'escalated';
+
+export interface RfqParsedReply {
+  intent?: 'quote' | 'decline' | 'info_request' | 'unknown';
+  unit_price?: string | null;
+  lead_time_days?: number | null;
+  moq?: number | null;
+  notes?: string;
+  confidence?: number;
 }
 
 // ── Standards & permit check (SCRUM-37/38) ──────────────────────────────────

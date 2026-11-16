@@ -216,25 +216,36 @@ def get_valid_access_token(user) -> tuple[GmailCredential, str]:
     raise RuntimeError("No usable Gmail access token is available for this user.")
 
 
-def send_team_request_via_gmail(team_request: TeamRequest) -> dict:
-    credential, access_token = get_valid_access_token(team_request.run.created_by)
+def send_gmail_message(user, *, to: str, subject: str, body: str, thread_id: str = "") -> dict:
+    """Send one plain-text email from ``user``'s connected Gmail account."""
+    credential, access_token = get_valid_access_token(user)
 
     message = EmailMessage()
-    message["To"] = team_request.recipient_email
+    message["To"] = to
     message["From"] = credential.gmail_address
-    message["Subject"] = team_request.email_subject
-    message.set_content(team_request.email_body)
+    message["Subject"] = subject
+    message.set_content(body)
 
     encoded_message = base64.urlsafe_b64encode(message.as_bytes()).decode()
     payload = {"raw": encoded_message}
-    if team_request.gmail_thread_id:
-        payload["threadId"] = team_request.gmail_thread_id
+    if thread_id:
+        payload["threadId"] = thread_id
     payload = _gmail_request("POST", "/messages/send", access_token, payload)
     return {
         "gmail_address": credential.gmail_address,
         "message_id": payload.get("id", ""),
         "thread_id": payload.get("threadId", ""),
     }
+
+
+def send_team_request_via_gmail(team_request: TeamRequest) -> dict:
+    return send_gmail_message(
+        team_request.run.created_by,
+        to=team_request.recipient_email,
+        subject=team_request.email_subject,
+        body=team_request.email_body,
+        thread_id=team_request.gmail_thread_id,
+    )
 
 
 def _payload_headers(message: dict) -> dict[str, str]:
@@ -260,22 +271,47 @@ def _extract_plain_text(payload: dict) -> str:
     return ""
 
 
-def _latest_inbound_message(team_request: TeamRequest, gmail_address: str, access_token: str) -> dict | None:
-    if not team_request.gmail_thread_id:
+def _latest_message_from(
+    thread_id: str, sender_email: str, skip_ids: set, gmail_address: str, access_token: str
+) -> dict | None:
+    if not thread_id:
         return None
-    thread = _gmail_request("GET", f"/threads/{team_request.gmail_thread_id}", access_token)
+    thread = _gmail_request("GET", f"/threads/{thread_id}", access_token)
     messages = thread.get("messages", []) or []
     for message in reversed(messages):
-        if message.get("id") in {team_request.gmail_message_id, team_request.gmail_reply_message_id}:
+        if message.get("id") in skip_ids:
             continue
         headers = _payload_headers(message)
         sender = headers.get("from", "").lower()
-        if team_request.recipient_email.lower() not in sender:
+        if sender_email.lower() not in sender:
             continue
         if gmail_address.lower() in sender:
             continue
         return message
     return None
+
+
+def _latest_inbound_message(team_request: TeamRequest, gmail_address: str, access_token: str) -> dict | None:
+    return _latest_message_from(
+        team_request.gmail_thread_id,
+        team_request.recipient_email,
+        {team_request.gmail_message_id, team_request.gmail_reply_message_id},
+        gmail_address,
+        access_token,
+    )
+
+
+def fetch_thread_reply(user, *, thread_id: str, sender_email: str, skip_ids: set) -> dict | None:
+    """Newest message in ``thread_id`` from ``sender_email`` not in ``skip_ids``.
+
+    Returns {"id", "text"} or None.
+    """
+    credential, access_token = get_valid_access_token(user)
+    message = _latest_message_from(thread_id, sender_email, skip_ids, credential.gmail_address, access_token)
+    if not message:
+        return None
+    text = _extract_plain_text(message.get("payload", {})).strip() or message.get("snippet", "").strip()
+    return {"id": message.get("id", ""), "text": text}
 
 
 def sync_team_request_reply(team_request: TeamRequest) -> bool:

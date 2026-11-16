@@ -7,6 +7,7 @@ import { AskOrbitPanel } from './AskOrbitPanel';
 import { useApiClient } from '../../api/client';
 import type { Bom, BomCompliance, BomRow, ComplianceLine, ComplianceStatus, QuickEstimateReport, RfqDraft } from '../../api/types';
 import { CostRangeCell, EnteredPriceInput, PriceFlagBadge, PriceFlagSummaryText } from './ShouldCostRange';
+import { RfqList, RfqLoopPanel, RfqReviewQueue } from './RfqLoop';
 
 type EditableField = 'part_number' | 'description' | 'material' | 'process' | 'quantity' | 'spec' | 'revision';
 
@@ -125,6 +126,7 @@ export function BomReviewPage() {
       <div className="flex-1 overflow-y-auto px-8 py-8 space-y-4">
         {isLoading && <Loader2 className="w-5 h-5 animate-spin text-[#8B7F73]" />}
         {error && <p className="text-sm text-[#DC2626]">{(error as Error).message}</p>}
+        <RfqReviewQueue />
         {(saveRow.error || approve.error || draftRfq.error) && (
           <p className="text-sm text-[#DC2626]">{((saveRow.error || approve.error || draftRfq.error) as Error).message}</p>
         )}
@@ -244,6 +246,8 @@ export function BomReviewPage() {
             )}
             <AskOrbitPanel bomId={bom.id} placeholder={`Ask Orbit about ${bom.reference}…`} />
             {rfq && <RfqEditor key={rfq.id} rfq={rfq} onChange={setRfq} />}
+            {rfq && <RfqLoopPanel rfq={rfq} onChange={setRfq} />}
+            <RfqList bomId={Number(id)} onOpen={setRfq} />
             <p className="text-xs text-[#A89D91]">Hover a value to see where it came from. Edited rows are marked reviewed.</p>
           </>
         )}
@@ -313,9 +317,11 @@ function CompliancePanel({ compliance, line }: { compliance: BomCompliance; line
   );
 }
 
-type RfqField = 'part_context' | 'material' | 'blank_size' | 'tolerance' | 'quantity' | 'due_date' | 'notes';
+type RfqField = 'supplier_name' | 'supplier_email' | 'part_context' | 'material' | 'blank_size' | 'tolerance' | 'quantity' | 'due_date' | 'notes';
 
 const RFQ_FIELDS: { field: RfqField; label: string; type?: string }[] = [
+  { field: 'supplier_name', label: 'Supplier' },
+  { field: 'supplier_email', label: 'Supplier email', type: 'email' },
   { field: 'part_context', label: 'Part description' },
   { field: 'material', label: 'Material' },
   { field: 'blank_size', label: 'Blank / stock size' },

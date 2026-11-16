@@ -121,6 +121,21 @@ CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
 # `make dev-local` (no Redis) sets this so jobs run inline in the request.
 CELERY_TASK_ALWAYS_EAGER = os.getenv("CELERY_TASK_ALWAYS_EAGER", "False") == "True"
 
+# RFQ email loop (SCRUM-34/35): poll supplier threads every RFQ_POLL_MINUTES
+# (needs `celery -A config beat`; or cron `manage.py poll_rfq_replies`), and
+# escalate a sent RFQ with no reply after RFQ_ESCALATE_AFTER_DAYS.
+RFQ_POLL_MINUTES = int(os.getenv("RFQ_POLL_MINUTES", "15"))
+RFQ_ESCALATE_AFTER_DAYS = int(os.getenv("RFQ_ESCALATE_AFTER_DAYS", "5"))
+CELERY_BEAT_SCHEDULE = {
+    "poll-rfq-replies": {
+        "task": "bom_agent.tasks.poll_rfq_replies_task",
+        "schedule": RFQ_POLL_MINUTES * 60,
+    },
+}
+# Demo mode: RFQs "send" without a connected Gmail and a "Simulate supplier
+# reply" button appears. Always on when DEBUG.
+ORBIT_DEMO_MODE = DEBUG or os.getenv("ORBIT_DEMO_MODE", "False") == "True"
+
 # Failed background jobs: always recorded in the admin (core.JobFailure); also
 # POSTed to this Slack-compatible webhook when set. Empty disables the push.
 ALERT_WEBHOOK_URL = os.getenv("ALERT_WEBHOOK_URL", "")
