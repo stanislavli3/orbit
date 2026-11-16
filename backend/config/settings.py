@@ -194,11 +194,13 @@ STORAGES = {
 }
 
 
-# Production hardening — only active when DEBUG is off (hosted environments).
+# Production hardening — only on a hosted HTTPS deploy (Render sets RENDER=true;
+# set ORBIT_HTTPS=True elsewhere). A local run with DEBUG off stays on plain http.
 # The platform terminates TLS and forwards X-Forwarded-Proto.
 CSRF_TRUSTED_ORIGINS = [o for o in os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",") if o]
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
-if not DEBUG:
+IS_HTTPS_DEPLOY = not DEBUG and (os.getenv("RENDER") == "true" or os.getenv("ORBIT_HTTPS") == "True")
+if IS_HTTPS_DEPLOY:
     SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "True") == "True"
     # Render's health check hits plain HTTP internally.
     SECURE_REDIRECT_EXEMPT = [r"^api/health/?$"]
