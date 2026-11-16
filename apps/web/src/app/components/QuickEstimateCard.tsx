@@ -272,6 +272,7 @@ export function QuickEstimateCard() {
               {report.bom.reference}
             </Link>
             <span className="text-[#8B7F73]">{report.bom.source_name}</span>
+            <Link to={`/handoff/${report.bom.id}`} className="underline text-[#8B7F73]">Buyer handoff view</Link>
             {report.bom.review_count > 0 && (
               <span className="text-amber-700">{report.bom.review_count} line(s) need review</span>
             )}

@@ -1,3 +1,4 @@
+import { Link } from 'react-router';
 import { useState } from 'react';
 import { useParams } from 'react-router';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -146,6 +147,9 @@ export function BomReviewPage() {
               {bom.error && <span className="text-xs text-[#DC2626]">{bom.error}</span>}
               {costs && <span className="text-xs"><PriceFlagSummaryText summary={costs.price_flags} /></span>}
               <div className="flex-1" />
+              <Link to={`/handoff/${bom.id}`} className="px-3 py-1.5 rounded-lg border border-[#E8E0D3] text-sm text-[#4A4038] bg-white">
+                Buyer handoff view
+              </Link>
               {bom.status === 'needs_review' && (
                 <button
                   onClick={() => approve.mutate()}

@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, Loader2 } from 'lucide-react';
 import { TopBar } from './TopBar';
+import { GalvanicFlags } from './GalvanicFlags';
 import { useApiClient } from '../../api/client';
 import type { Bom, BomCitation, BomComparison, BomNeighbours } from '../../api/types';
 
@@ -117,6 +118,11 @@ export function BomComparePage() {
                 ))}
               </ul>
             </section>
+
+            {cmp.galvanic && <GalvanicFlags report={cmp.galvanic} />}
+            <p className="text-xs">
+              <Link to={`/handoff/${cmp.target.id}`} className="underline text-[#8B7F73]">Buyer handoff view of the newer version</Link>
+            </p>
 
             <section className={card}>
               <h2 className="text-sm font-medium text-[#2B2824] mb-2">Changed ({cmp.changed.length})</h2>
