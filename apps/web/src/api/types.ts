@@ -406,6 +406,22 @@ export interface QuickEstimateRow {
   confidence: 'high' | 'medium' | 'low' | 'none';
   uses_sample_data: boolean;
   shortlist: { suppliers: ShortlistSupplier[]; non_approved_left_out: number };
+  should_cost: ShouldCost;
+}
+
+/** Material/process/volume should-cost range from assumed reference rates (SCRUM-30). */
+export interface ShouldCost {
+  low: string;
+  expected: string;
+  high: string;
+  currency: string;
+  spread: number;
+  material: string;
+  process: string;
+  quantity: number;
+  basis: string[];
+  confidence: 'medium' | 'medium-low' | 'low';
+  is_assumed: boolean;
 }
 
 export interface QuickEstimateReport {

@@ -7,6 +7,7 @@ via the quote.
 
 from bom_agent.serializers import BomRowSerializer
 from .estimator import DEFAULT_INFLATION, estimate_bom
+from .should_cost import should_cost_row
 from .shortlist import shortlist_row
 
 
@@ -16,6 +17,7 @@ def quick_report(bom, owner, *, k=3, inflation=DEFAULT_INFLATION) -> dict:
     for entry in report["rows"]:
         row = rows[entry["row_id"]]
         entry["row"] = BomRowSerializer(row).data
+        entry["should_cost"] = should_cost_row(row)
         entry["shortlist"] = shortlist_row(owner, row, [m["part_number"] for m in entry["matches"]])
     report["bom"] = {
         "id": bom.id,
