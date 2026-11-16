@@ -382,6 +382,67 @@ export interface BomComparison {
   conflicts: BomConflict[];
   recheck: Record<string, BomNeighbours>;
   assembly: { bom_id: number; reference: string; source_name: string } | null;
+  galvanic?: GalvanicReport;
+}
+
+// ── Galvanic material pairs (SCRUM-77) / buyer handoff (SCRUM-69) ───────────
+
+export interface GalvanicFlag {
+  kind: 'galvanic';
+  severity: 'high' | 'medium';
+  environment: 'general' | 'harsh';
+  parts: string[];
+  materials: string[];
+  anodic_index: number[];
+  difference_v: number;
+  threshold_v: number;
+  corrodes: string;
+  title: string;
+  detail: string;
+  mitigations: string[];
+}
+
+export interface GalvanicReport {
+  method: 'placement_distance' | 'assembly_structure' | 'same_bom';
+  environment: 'general' | 'harsh';
+  threshold_v: number;
+  flags: GalvanicFlag[];
+  note: string;
+  table: { material: string; anodic_index: number }[];
+}
+
+export interface HandoffLine {
+  row_id: number;
+  line_no: number;
+  part_number: string;
+  description: string;
+  material: string;
+  process: string;
+  quantity: number;
+  spec: string;
+  revision: string;
+  explanation: string;
+  explanation_source: 'rules' | 'claude';
+  cost: {
+    should_cost: { low: string; expected: string; high: string; confidence: string };
+    historical: { unit_cost: string; based_on: string[] } | null;
+    low: string;
+    high: string;
+    currency: string;
+  };
+  supplier: { supplier: string; approval: string; certifications: string; best_quote: { unit_price: string; lead_time_days: number | null } | null } | null;
+  alternates: string[];
+  open_questions: string[];
+}
+
+export interface BomHandoff {
+  bom: { id: number; reference: string; status: string; source_name: string; review_count: number };
+  lines: HandoffLine[];
+  total: { low: string; high: string; currency: string };
+  open_question_count: number;
+  galvanic: GalvanicReport;
+  uses_sample_data: boolean;
+  note: string;
 }
 
 // ── Part cost history (SCRUM-28 / SCRUM-58) ─────────────────────────────────

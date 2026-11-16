@@ -133,7 +133,7 @@ class BomCompareView(APIView):
 
         # Neighbours come from the newer version's STEP assembly, else the older one's.
         changed = [c["part_number"] for c in diff["changed"]] + [a["part_number"] for a in diff["added"]]
-        recheck, assembly = {}, None
+        recheck, assembly, target_occurrences = {}, None, None
         for bom in (target, base):
             f = bom.source_file
             if f and (f.file_type or "").lower() in ("step", "stp"):
@@ -141,6 +141,9 @@ class BomCompareView(APIView):
                     data = download_file_from_s3(f.s3_key)
                 except Exception:
                     continue
+                if bom is target:
+                    from .design_change import assembly_occurrences
+                    target_occurrences = assembly_occurrences(data) or None
                 assembly = {"bom_id": bom.pk, "reference": bom.reference, "source_name": bom.source_name}
                 for pn in changed:
                     recheck[pn] = neighbours(data, pn, radius)
@@ -149,7 +152,12 @@ class BomCompareView(APIView):
                         recheck[r["part_number"]] = neighbours(data, r["part_number"], radius)
                 break
 
+        from .galvanic import galvanic_flags
+
+        galvanic = galvanic_flags(_cited_rows(target), target_occurrences,
+                                  _environment(request), radius)
         return Response({
+            "galvanic": galvanic,
             "base": {"id": base.pk, "reference": base.reference, "source_name": base.source_name},
             "target": {"id": target.pk, "reference": target.reference, "source_name": target.source_name},
             **diff,
@@ -157,3 +165,36 @@ class BomCompareView(APIView):
             "recheck": recheck,
             "assembly": assembly,
         })
+
+
+# ── Buyer handoff (SCRUM-69) and galvanic pairs (SCRUM-77) ───────────────────
+
+def _assembly_occurrences(bom: Bom):
+    """Placed parts from the BOM's STEP file, or None when there is no readable assembly."""
+    from files_api.s3_service import download_file_from_s3
+    from .design_change import assembly_occurrences
+
+    f = bom.source_file
+    if not f or (f.file_type or "").lower() not in ("step", "stp"):
+        return None
+    try:
+        return assembly_occurrences(download_file_from_s3(f.s3_key)) or None
+    except Exception:
+        return None
+
+
+def _environment(request) -> str:
+    return "harsh" if request.query_params.get("environment") == "harsh" else "general"
+
+
+class BomHandoffView(APIView):
+    """GET: read-only buyer handoff for one BOM (?environment=harsh tightens galvanic checks)."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        from .handoff import build_handoff
+
+        bom = _user_bom(request, pk)
+        return Response(build_handoff(bom, request.user, environment=_environment(request),
+                                      occurrences=_assembly_occurrences(bom)))
