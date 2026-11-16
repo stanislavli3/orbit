@@ -204,9 +204,10 @@ export function BomAnalyticsDeck({ run }: { run: BomResearchRun }) {
       }
     }
     const supplierArr = [...supplierSpend.entries()].map(([name, spend]) => ({ name, spend })).sort((a, b) => b.spend - a.spend);
-    let cum = 0;
-    const supplierPareto = supplierArr.map((s) => {
-      cum += s.spend;
+    const cumulative: number[] = [];
+    for (const s of supplierArr) cumulative.push((cumulative[cumulative.length - 1] ?? 0) + s.spend);
+    const supplierPareto = supplierArr.map((s, i) => {
+      const cum = cumulative[i];
       return {
         name: s.name.length > 14 ? s.name.slice(0, 14) + '…' : s.name,
         spend: Math.round(s.spend),
