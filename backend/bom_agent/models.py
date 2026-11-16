@@ -315,6 +315,7 @@ class BomRow(models.Model):
     process = models.CharField(max_length=100, blank=True)
     quantity = models.PositiveIntegerField(default=1)
     spec = models.CharField(max_length=200, blank=True)
+    revision = models.CharField(max_length=20, blank=True)
     # 0-1; below bom_extraction.REVIEW_THRESHOLD the row is flagged for review.
     confidence = models.FloatField(default=1.0)
     flags = models.JSONField(default=list)

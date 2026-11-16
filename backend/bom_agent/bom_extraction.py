@@ -2,7 +2,7 @@
 Structured BOM extraction from STEP and PDF files (SCRUM-22).
 
 Plain functions, no Django. ``extract_bom_rows`` returns one dict per BOM line:
-part_number, description, material, process, quantity, spec, confidence (0-1),
+part_number, description, material, process, quantity, spec, revision, confidence (0-1),
 flags (why a row needs review) and sources (where each value came from).
 
 STEP: parts come from PRODUCT entities, quantities from the assembly structure
@@ -79,7 +79,7 @@ def _looks_generated(part_number: str) -> bool:
     )
 
 
-def _row(part_number, description, material, quantity, sources, *, spec="", is_assembly=False):
+def _row(part_number, description, material, quantity, sources, *, spec="", revision="", is_assembly=False):
     """Build one BOM row and score how much a reviewer should trust it."""
     part_number = (part_number or "").strip()
     description = (description or "").strip()
@@ -118,6 +118,7 @@ def _row(part_number, description, material, quantity, sources, *, spec="", is_a
         "process": process,
         "quantity": max(int(quantity), 1),
         "spec": spec[:200],
+        "revision": (revision or "").strip()[:20],
         "confidence": round(max(confidence, 0.05), 2),
         "flags": flags,
         "sources": sources,
@@ -188,6 +189,8 @@ def extract_bom_from_step(data: bytes) -> list[dict]:
 
     products = {i: a for i, a in of_type("PRODUCT") if entities[i][0] == "PRODUCT"}
     formation_product = {i: _ref(a[2]) for i, a in of_type("PRODUCT_DEFINITION_FORMATION") if len(a) > 2}
+    # PRODUCT_DEFINITION_FORMATION's id is the part's version / revision.
+    revisions = {_ref(a[2]): (_str(a[0]), i) for i, a in of_type("PRODUCT_DEFINITION_FORMATION") if len(a) > 2}
     pd_product = {
         i: formation_product.get(_ref(a[2]))
         for i, a in of_type("PRODUCT_DEFINITION")
@@ -242,8 +245,14 @@ def extract_bom_from_step(data: bytes) -> list[dict]:
         }
         if material:
             sources["material"] = f"STEP MATERIAL_DESIGNATION #{material_id}"
+        revision, formation_id = revisions.get(pid, ("", None))
+        if revision:
+            sources["revision"] = f"STEP PRODUCT_DEFINITION_FORMATION #{formation_id}"
         rows.append(
-            _row(part_number, description, material, quantity[pid] or 1, sources, is_assembly=bool(children.get(pid)))
+            _row(
+                part_number, description, material, quantity[pid] or 1, sources,
+                revision=revision, is_assembly=bool(children.get(pid)),
+            )
         )
     return rows
 
@@ -256,6 +265,7 @@ _COLUMNS = {
     "quantity": ("QTY", "QUANTITY"),
     "material": ("MATERIAL", "MATL"),
     "spec": ("SPEC", "TOLERANCE", "FINISH"),
+    "revision": ("REV", "REVISION"),
 }
 
 
@@ -306,6 +316,7 @@ def _parse_table(lines: list[str]) -> list[dict]:
                 int(qty) if qty.isdigit() else 1,
                 sources,
                 spec=values.get("spec", ""),
+                revision=values.get("revision", ""),
             )
             if not qty.isdigit():
                 row["flags"].append(f"Quantity '{qty}' not a number; assumed 1")

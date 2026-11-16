@@ -320,6 +320,7 @@ export interface BomRow {
   process: string;
   quantity: number;
   spec: string;
+  revision: string;
   confidence: number;
   flags: string[];
   sources: Record<string, string>;
@@ -339,6 +340,48 @@ export interface Bom {
   created_at: string;
   review_count: number;
   rows: BomRow[];
+}
+
+// ── Design change review (SCRUM-23 / SCRUM-55) ──────────────────────────────
+
+export interface BomCitation {
+  bom_id: number;
+  reference: string;
+  source_name: string;
+  row_id: number | null;
+  line_no: number | null;
+  part_number: string;
+}
+
+export interface BomFieldChange {
+  field: string;
+  before: string | number;
+  after: string | number;
+}
+
+export interface BomConflict {
+  kind: 'part_number' | 'revision' | 'material' | 'tolerance';
+  title: string;
+  detail: string;
+  citations: BomCitation[];
+}
+
+export interface BomNeighbours {
+  method: 'placement_distance' | 'assembly_structure' | 'not_in_assembly';
+  radius: number;
+  parts: { part_number: string; distance: number | null; reason: string }[];
+}
+
+export interface BomComparison {
+  base: { id: number; reference: string; source_name: string };
+  target: { id: number; reference: string; source_name: string };
+  summary: string;
+  added: { part_number: string; row: BomCitation }[];
+  removed: { part_number: string; row: BomCitation }[];
+  changed: { part_number: string; fields: BomFieldChange[]; rows: BomCitation[] }[];
+  conflicts: BomConflict[];
+  recheck: Record<string, BomNeighbours>;
+  assembly: { bom_id: number; reference: string; source_name: string } | null;
 }
 
 // ── Part cost history (SCRUM-28 / SCRUM-58) ─────────────────────────────────

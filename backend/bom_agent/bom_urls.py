@@ -1,6 +1,7 @@
 from django.urls import path
 from .structured_bom_views import (
     BomApproveView,
+    BomCompareView,
     BomDetailView,
     BomListView,
     BomRowView,
@@ -27,6 +28,7 @@ from .bom_views import (
 
 urlpatterns = [
     path("structured/", BomListView.as_view(), name="bom-list"),
+    path("structured/compare/", BomCompareView.as_view(), name="bom-compare"),
     path("structured/<int:pk>/", BomDetailView.as_view(), name="bom-detail"),
     path("structured/<int:pk>/approve/", BomApproveView.as_view(), name="bom-approve"),
     path("structured/<int:pk>/rows/<int:row_id>/", BomRowView.as_view(), name="bom-row"),

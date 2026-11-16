@@ -13,7 +13,7 @@ from .models import Bom, BomRow
 from .serializers import BomRowSerializer, BomSerializer
 from .tasks import enqueue_bom_extraction
 
-EDITABLE_FIELDS = ("part_number", "description", "material", "process", "quantity", "spec")
+EDITABLE_FIELDS = ("part_number", "description", "material", "process", "quantity", "spec", "revision")
 
 
 def _user_bom(request, pk) -> Bom:
@@ -96,3 +96,64 @@ class FileBomExtractView(APIView):
             )
         enqueue_bom_extraction(file)
         return Response({"status": "extracting"}, status=status.HTTP_202_ACCEPTED)
+
+
+# ── Design change review (SCRUM-23, SCRUM-55) ────────────────────────────────
+
+def _cited_rows(bom: Bom) -> list[dict]:
+    citation = {"bom_id": bom.pk, "reference": bom.reference, "source_name": bom.source_name}
+    return [{**BomRowSerializer(r).data, "bom": citation} for r in bom.rows.all()]
+
+
+class BomCompareView(APIView):
+    """GET ?base=<bom>&target=<bom>[&radius=50]: change summary, conflict flags
+    across the project's files, and the parts to recheck for each changed part."""
+
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        from files_api.s3_service import download_file_from_s3
+        from .design_change import diff_rows, find_conflicts, neighbours, part_key
+
+        try:
+            base_id, target_id = int(request.query_params["base"]), int(request.query_params["target"])
+            radius = float(request.query_params.get("radius", 50))
+        except (KeyError, ValueError):
+            return Response({"detail": "Pass base and target BOM ids (and an optional numeric radius)."},
+                            status=status.HTTP_400_BAD_REQUEST)
+        base, target = _user_bom(request, base_id), _user_bom(request, target_id)
+        diff = diff_rows(_cited_rows(base), _cited_rows(target))
+
+        # Conflicts: the latest BOM of every file in the project, plus the two compared.
+        latest = {}
+        for bom in Bom.objects.filter(project=target.project).exclude(status="failed").prefetch_related("rows"):
+            latest.setdefault(bom.source_file_id or f"bom-{bom.pk}", bom)
+        boms = {b.pk: b for b in [*latest.values(), base, target]}
+        conflicts = find_conflicts([r for b in boms.values() for r in _cited_rows(b)])
+
+        # Neighbours come from the newer version's STEP assembly, else the older one's.
+        changed = [c["part_number"] for c in diff["changed"]] + [a["part_number"] for a in diff["added"]]
+        recheck, assembly = {}, None
+        for bom in (target, base):
+            f = bom.source_file
+            if f and (f.file_type or "").lower() in ("step", "stp"):
+                try:
+                    data = download_file_from_s3(f.s3_key)
+                except Exception:
+                    continue
+                assembly = {"bom_id": bom.pk, "reference": bom.reference, "source_name": bom.source_name}
+                for pn in changed:
+                    recheck[pn] = neighbours(data, pn, radius)
+                for r in diff["removed"]:
+                    if part_key(r["part_number"]) and bom is base:
+                        recheck[r["part_number"]] = neighbours(data, r["part_number"], radius)
+                break
+
+        return Response({
+            "base": {"id": base.pk, "reference": base.reference, "source_name": base.source_name},
+            "target": {"id": target.pk, "reference": target.reference, "source_name": target.source_name},
+            **diff,
+            "conflicts": conflicts,
+            "recheck": recheck,
+            "assembly": assembly,
+        })
