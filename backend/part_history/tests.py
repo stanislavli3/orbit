@@ -131,3 +131,26 @@ def test_history_is_private_to_its_workspace(api_client, other_user, bracket):
     api_client.force_authenticate(other_user)
     assert api_client.get("/api/parts/").json() == []
     assert api_client.get(f"/api/parts/{bracket.pk}/").status_code == 404
+
+
+@pytest.mark.django_db
+def test_seed_demo_is_noop_without_username(monkeypatch):
+    from django.core.management import call_command
+    from django.contrib.auth.models import User
+
+    monkeypatch.delenv("DEMO_SEED_USERNAME", raising=False)
+    call_command("seed_demo")
+    assert not User.objects.exists()
+
+
+@pytest.mark.django_db
+def test_seed_demo_creates_user_and_is_idempotent(monkeypatch):
+    from django.core.management import call_command
+    from django.contrib.auth.models import User
+    from part_history.models import Quote
+
+    monkeypatch.setenv("DEMO_SEED_USERNAME", "clerk_demo")
+    call_command("seed_demo")
+    call_command("seed_demo")
+    owner = User.objects.get(username="clerk_demo")
+    assert Quote.objects.filter(workspace_owner=owner).count() == 4
