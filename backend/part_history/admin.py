@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import HistoricalCost, ImportBatch, Part, Quote, Supplier
+from .models import HandoffStep, HistoricalCost, ImportBatch, Part, Quote, Supplier
 
 
 @admin.register(Part)
@@ -34,3 +34,9 @@ class HistoricalCostAdmin(admin.ModelAdmin):
 class ImportBatchAdmin(admin.ModelAdmin):
     list_display = ["filename", "imported_rows", "rejected_rows", "is_sample", "workspace_owner", "created_at"]
     list_filter = ["is_sample"]
+
+
+@admin.register(HandoffStep)
+class HandoffStepAdmin(admin.ModelAdmin):
+    list_display = ["bom", "part_number", "step", "at", "is_manual"]
+    list_filter = ["step", "is_manual"]
