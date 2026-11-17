@@ -1,0 +1,912 @@
+{
+  "SQ01": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_\n- [2] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00055 line 1 (bracket_assembly.step))_\n- [3] **ORB-1042 \u2014 Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00056 line 1 (bracket_assembly_rev_b.step))_\n- [4] **ORB-1042 \u2014 BRACKET, MOUNTING**: AL 7075-T6, machined, qty 1 _(source: BOM-00058 line 1 (S01_bracket_rev_b_drawing_bom.pdf))_\n- [5] **ORB-0981 \u2014 Bracket, Mounting, Short**: 6061-T6; last cost $3.60 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 4)_\n- [6] **S01_bracket_rev_b_drawing_bom.pdf**:  _(source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6; last cost $4.05 on PO-24017",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 1
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6, machined, qty 1",
+        "citation": "BOM-00055 line 1 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 2
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "7075-T6, machined, qty 1",
+        "citation": "BOM-00056 line 1 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 3
+      },
+      {
+        "title": "ORB-1042 \u2014 BRACKET, MOUNTING",
+        "snippet": "AL 7075-T6, machined, qty 1",
+        "citation": "BOM-00058 line 1 (S01_bracket_rev_b_drawing_bom.pdf)",
+        "link": "/boms/58",
+        "n": 4
+      },
+      {
+        "title": "ORB-0981 \u2014 Bracket, Mounting, Short",
+        "snippet": "6061-T6; last cost $3.60 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 4",
+        "link": "/estimate?part=80",
+        "n": 5
+      },
+      {
+        "title": "S01_bracket_rev_b_drawing_bom.pdf",
+        "snippet": "",
+        "citation": "S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/72/result",
+        "n": 6
+      }
+    ],
+    "latency_ms": 17.7
+  },
+  "SQ02": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **FST-M6-20 \u2014 M6x20 socket head cap screw**: last cost $0.11 on PO-23955 _(source: supplier_spend_sample.csv spend import row 5 (PO-23955))_\n- [2] **SHCS-M6X16 \u2014 Screw SHCS M6x16 ISO 4762**: SS 304; last cost $0.18 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 8)_\n- [3] **SHCS-M6X16 \u2014 SCREW SHCS M6X16 ISO 4762**: SS 304, purchased, qty 4 _(source: BOM-00058 line 3 (S01_bracket_rev_b_drawing_bom.pdf))_\n- [4] **SHCS-M6X16 \u2014 Screw SHCS M6x16 ISO 4762 SS 304**: SS 304, purchased, qty 4 _(source: BOM-00055 line 3 (bracket_assembly.step))_\n- [5] **SHCS-M6X16 \u2014 Screw SHCS M6x16 ISO 4762 SS 304**: SS 304, purchased, qty 4 _(source: BOM-00056 line 3 (bracket_assembly_rev_b.step))_\n- [6] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "FST-M6-20 \u2014 M6x20 socket head cap screw",
+        "snippet": "last cost $0.11 on PO-23955",
+        "citation": "supplier_spend_sample.csv spend import row 5 (PO-23955)",
+        "link": "/estimate?part=90",
+        "n": 1
+      },
+      {
+        "title": "SHCS-M6X16 \u2014 Screw SHCS M6x16 ISO 4762",
+        "snippet": "SS 304; last cost $0.18 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 8",
+        "link": "/estimate?part=84",
+        "n": 2
+      },
+      {
+        "title": "SHCS-M6X16 \u2014 SCREW SHCS M6X16 ISO 4762",
+        "snippet": "SS 304, purchased, qty 4",
+        "citation": "BOM-00058 line 3 (S01_bracket_rev_b_drawing_bom.pdf)",
+        "link": "/boms/58",
+        "n": 3
+      },
+      {
+        "title": "SHCS-M6X16 \u2014 Screw SHCS M6x16 ISO 4762 SS 304",
+        "snippet": "SS 304, purchased, qty 4",
+        "citation": "BOM-00055 line 3 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 4
+      },
+      {
+        "title": "SHCS-M6X16 \u2014 Screw SHCS M6x16 ISO 4762 SS 304",
+        "snippet": "SS 304, purchased, qty 4",
+        "citation": "BOM-00056 line 3 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 5
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6; last cost $4.05 on PO-24017",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 6
+      }
+    ],
+    "latency_ms": 16.7
+  },
+  "SQ03": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_\n- [2] **bracket_assembly_rev_b.step**:  _(source: bracket_assembly_rev_b.step (project: Evaluation corpus (synthetic)))_\n- [3] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_\n- [4] **S01_bracket_rev_b_drawing_bom.pdf**:  _(source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))_\n- [5] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00055 line 1 (bracket_assembly.step))_\n- [6] **ORB-1042 \u2014 Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00056 line 1 (bracket_assembly_rev_b.step))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 1
+      },
+      {
+        "title": "bracket_assembly_rev_b.step",
+        "snippet": "",
+        "citation": "bracket_assembly_rev_b.step (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/68/result",
+        "n": 2
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6; last cost $4.05 on PO-24017",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 3
+      },
+      {
+        "title": "S01_bracket_rev_b_drawing_bom.pdf",
+        "snippet": "",
+        "citation": "S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/72/result",
+        "n": 4
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6, machined, qty 1",
+        "citation": "BOM-00055 line 1 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 5
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "7075-T6, machined, qty 1",
+        "citation": "BOM-00056 line 1 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 6
+      }
+    ],
+    "latency_ms": 17.1
+  },
+  "SQ04": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **ORB-1130 \u2014 Cover Plate 16 GA**: CRS; last cost $2.90 on PO-24188 _(source: supplier_spend_sample.csv spend import row 3 (PO-24188))_\n- [2] **ORB-1130 \u2014 COVER PLATE 16 GA**: CRS, sheet metal, qty 1 _(source: BOM-00061 line 1 (S04_cover_plate_title_block.pdf))_\n- [3] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_\n- [4] **S01_bracket_rev_b_drawing_bom.pdf**:  _(source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))_\n- [5] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "ORB-1130 \u2014 Cover Plate 16 GA",
+        "snippet": "CRS; last cost $2.90 on PO-24188",
+        "citation": "supplier_spend_sample.csv spend import row 3 (PO-24188)",
+        "link": "/estimate?part=82",
+        "n": 1
+      },
+      {
+        "title": "ORB-1130 \u2014 COVER PLATE 16 GA",
+        "snippet": "CRS, sheet metal, qty 1",
+        "citation": "BOM-00061 line 1 (S04_cover_plate_title_block.pdf)",
+        "link": "/boms/61",
+        "n": 2
+      },
+      {
+        "title": "S04_cover_plate_title_block.pdf",
+        "snippet": "",
+        "citation": "S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/75/result",
+        "n": 3
+      },
+      {
+        "title": "S01_bracket_rev_b_drawing_bom.pdf",
+        "snippet": "",
+        "citation": "S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/72/result",
+        "n": 4
+      },
+      {
+        "title": "S03_bracket_mounting_title_block.pdf",
+        "snippet": "",
+        "citation": "S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/74/result",
+        "n": 5
+      }
+    ],
+    "latency_ms": 20.0
+  },
+  "SQ05": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_\n- [2] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00055 line 1 (bracket_assembly.step))_\n- [3] **ORB-1042 \u2014 Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00056 line 1 (bracket_assembly_rev_b.step))_\n- [4] **ORB-1042 \u2014 BRACKET, MOUNTING**: AL 7075-T6, machined, qty 1 _(source: BOM-00058 line 1 (S01_bracket_rev_b_drawing_bom.pdf))_\n- [5] **ORB-0981 \u2014 Bracket, Mounting, Short**: 6061-T6; last cost $3.60 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 4)_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6; last cost $4.05 on PO-24017",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 1
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6, machined, qty 1",
+        "citation": "BOM-00055 line 1 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 2
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "7075-T6, machined, qty 1",
+        "citation": "BOM-00056 line 1 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 3
+      },
+      {
+        "title": "ORB-1042 \u2014 BRACKET, MOUNTING",
+        "snippet": "AL 7075-T6, machined, qty 1",
+        "citation": "BOM-00058 line 1 (S01_bracket_rev_b_drawing_bom.pdf)",
+        "link": "/boms/58",
+        "n": 4
+      },
+      {
+        "title": "ORB-0981 \u2014 Bracket, Mounting, Short",
+        "snippet": "6061-T6; last cost $3.60 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 4",
+        "link": "/estimate?part=80",
+        "n": 5
+      }
+    ],
+    "latency_ms": 18.6
+  },
+  "SQ06": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **ORB-1130 \u2014 Cover Plate 16 GA**: CRS; last cost $2.90 on PO-24188 _(source: supplier_spend_sample.csv spend import row 3 (PO-24188))_\n- [2] **ORB-1130 \u2014 COVER PLATE 16 GA**: CRS, sheet metal, qty 1 _(source: BOM-00061 line 1 (S04_cover_plate_title_block.pdf))_\n- [3] **ORB-1131 \u2014 Cover Plate 14 GA**: CRS; last cost $2.40 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 7)_\n- [4] **ORB-1043 \u2014 Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00055 line 2 (bracket_assembly.step))_\n- [5] **ORB-1043 \u2014 Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00056 line 2 (bracket_assembly_rev_b.step))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "ORB-1130 \u2014 Cover Plate 16 GA",
+        "snippet": "CRS; last cost $2.90 on PO-24188",
+        "citation": "supplier_spend_sample.csv spend import row 3 (PO-24188)",
+        "link": "/estimate?part=82",
+        "n": 1
+      },
+      {
+        "title": "ORB-1130 \u2014 COVER PLATE 16 GA",
+        "snippet": "CRS, sheet metal, qty 1",
+        "citation": "BOM-00061 line 1 (S04_cover_plate_title_block.pdf)",
+        "link": "/boms/61",
+        "n": 2
+      },
+      {
+        "title": "ORB-1131 \u2014 Cover Plate 14 GA",
+        "snippet": "CRS; last cost $2.40 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 7",
+        "link": "/estimate?part=83",
+        "n": 3
+      },
+      {
+        "title": "ORB-1043 \u2014 Cover Plate 16 GA",
+        "snippet": "sheet metal, qty 1",
+        "citation": "BOM-00055 line 2 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 4
+      },
+      {
+        "title": "ORB-1043 \u2014 Cover Plate 16 GA",
+        "snippet": "sheet metal, qty 1",
+        "citation": "BOM-00056 line 2 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 5
+      }
+    ],
+    "latency_ms": 19.5
+  },
+  "SQ07": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **FST-M6-20 \u2014 M6x20 socket head cap screw**: last cost $0.11 on PO-23955 _(source: supplier_spend_sample.csv spend import row 5 (PO-23955))_\n- [2] **SHCS-M6X20 \u2014 Screw SHCS M6x20 ISO 4762**: SS 304; last cost $0.21 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 9)_\n- [3] **SHCS-M6X20 \u2014 SCREW SHCS M6X20 ISO 4762**: SS 304, purchased, qty 6 _(source: BOM-00059 line 3 (S02_pump_assembly_bom.pdf))_\n- [4] **LT-243 \u2014 THREADLOCKER, MEDIUM**: -, qty 1 _(source: BOM-00062 line 3 (S05_spacer_kit_bom.pdf))_\n- [5] **ORB-2001 \u2014 HOUSING, PUMP**: A380 CAST, casting, qty 1 _(source: BOM-00059 line 1 (S02_pump_assembly_bom.pdf))_\n- [6] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "FST-M6-20 \u2014 M6x20 socket head cap screw",
+        "snippet": "last cost $0.11 on PO-23955",
+        "citation": "supplier_spend_sample.csv spend import row 5 (PO-23955)",
+        "link": "/estimate?part=90",
+        "n": 1
+      },
+      {
+        "title": "SHCS-M6X20 \u2014 Screw SHCS M6x20 ISO 4762",
+        "snippet": "SS 304; last cost $0.21 on SAMPLE Program Borealis",
+        "citation": "part_cost_history_sample.csv row 9",
+        "link": "/estimate?part=85",
+        "n": 2
+      },
+      {
+        "title": "SHCS-M6X20 \u2014 SCREW SHCS M6X20 ISO 4762",
+        "snippet": "SS 304, purchased, qty 6",
+        "citation": "BOM-00059 line 3 (S02_pump_assembly_bom.pdf)",
+        "link": "/boms/59",
+        "n": 3
+      },
+      {
+        "title": "LT-243 \u2014 THREADLOCKER, MEDIUM",
+        "snippet": "-, qty 1",
+        "citation": "BOM-00062 line 3 (S05_spacer_kit_bom.pdf)",
+        "link": "/boms/62",
+        "n": 4
+      },
+      {
+        "title": "ORB-2001 \u2014 HOUSING, PUMP",
+        "snippet": "A380 CAST, casting, qty 1",
+        "citation": "BOM-00059 line 1 (S02_pump_assembly_bom.pdf)",
+        "link": "/boms/59",
+        "n": 5
+      },
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 6
+      }
+    ],
+    "latency_ms": 18.3
+  },
+  "SQ08": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_\n- [2] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_\n- [3] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00055 line 1 (bracket_assembly.step))_\n- [4] **ORB-1042 \u2014 Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00056 line 1 (bracket_assembly_rev_b.step))_\n- [5] **ORB-0981 \u2014 Bracket, Mounting, Short**: 6061-T6; last cost $3.60 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 4)_\n- [6] **ORB-1042 \u2014 BRACKET, MOUNTING**: AL 7075-T6, machined, qty 1 _(source: BOM-00058 line 1 (S01_bracket_rev_b_drawing_bom.pdf))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 1
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6; last cost $4.05 on PO-24017",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 2
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6, machined, qty 1",
+        "citation": "BOM-00055 line 1 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 3
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "7075-T6, machined, qty 1",
+        "citation": "BOM-00056 line 1 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 4
+      },
+      {
+        "title": "ORB-0981 \u2014 Bracket, Mounting, Short",
+        "snippet": "6061-T6; last cost $3.60 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 4",
+        "link": "/estimate?part=80",
+        "n": 5
+      },
+      {
+        "title": "ORB-1042 \u2014 BRACKET, MOUNTING",
+        "snippet": "AL 7075-T6, machined, qty 1",
+        "citation": "BOM-00058 line 1 (S01_bracket_rev_b_drawing_bom.pdf)",
+        "link": "/boms/58",
+        "n": 6
+      }
+    ],
+    "latency_ms": 16.3
+  },
+  "SQ09": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_\n- [2] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_\n- [3] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "S04_cover_plate_title_block.pdf",
+        "snippet": "",
+        "citation": "S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/75/result",
+        "n": 1
+      },
+      {
+        "title": "S03_bracket_mounting_title_block.pdf",
+        "snippet": "",
+        "citation": "S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/74/result",
+        "n": 2
+      },
+      {
+        "title": "S02_pump_assembly_bom.pdf",
+        "snippet": "",
+        "citation": "S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/73/result",
+        "n": 3
+      }
+    ],
+    "latency_ms": 16.6
+  },
+  "SQ10": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_\n- [2] **FST-M6-20 \u2014 M6x20 socket head cap screw**: last cost $0.11 on PO-23955 _(source: supplier_spend_sample.csv spend import row 5 (PO-23955))_\n- [3] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_\n- [4] **SHCS-M6X16 \u2014 Screw SHCS M6x16 ISO 4762**: SS 304; last cost $0.18 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 8)_\n- [5] **SHCS-M6X20 \u2014 Screw SHCS M6x20 ISO 4762**: SS 304; last cost $0.21 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 9)_\n- [6] **SHCS-M6X16 \u2014 SCREW SHCS M6X16 ISO 4762**: SS 304, purchased, qty 4 _(source: BOM-00058 line 3 (S01_bracket_rev_b_drawing_bom.pdf))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 1
+      },
+      {
+        "title": "FST-M6-20 \u2014 M6x20 socket head cap screw",
+        "snippet": "last cost $0.11 on PO-23955",
+        "citation": "supplier_spend_sample.csv spend import row 5 (PO-23955)",
+        "link": "/estimate?part=90",
+        "n": 2
+      },
+      {
+        "title": "S02_pump_assembly_bom.pdf",
+        "snippet": "",
+        "citation": "S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/73/result",
+        "n": 3
+      },
+      {
+        "title": "SHCS-M6X16 \u2014 Screw SHCS M6x16 ISO 4762",
+        "snippet": "SS 304; last cost $0.18 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 8",
+        "link": "/estimate?part=84",
+        "n": 4
+      },
+      {
+        "title": "SHCS-M6X20 \u2014 Screw SHCS M6x20 ISO 4762",
+        "snippet": "SS 304; last cost $0.21 on SAMPLE Program Borealis",
+        "citation": "part_cost_history_sample.csv row 9",
+        "link": "/estimate?part=85",
+        "n": 5
+      },
+      {
+        "title": "SHCS-M6X16 \u2014 SCREW SHCS M6X16 ISO 4762",
+        "snippet": "SS 304, purchased, qty 4",
+        "citation": "BOM-00058 line 3 (S01_bracket_rev_b_drawing_bom.pdf)",
+        "link": "/boms/58",
+        "n": 6
+      }
+    ],
+    "latency_ms": 16.5
+  },
+  "SQ11": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_\n- [2] **ORB-2001 \u2014 Housing, Pump**: A380 CAST; last cost $18.50 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 12)_\n- [3] **ORB-2001 \u2014 HOUSING, PUMP**: A380 CAST, casting, qty 1 _(source: BOM-00059 line 1 (S02_pump_assembly_bom.pdf))_\n- [4] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_\n- [5] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "S02_pump_assembly_bom.pdf",
+        "snippet": "",
+        "citation": "S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/73/result",
+        "n": 1
+      },
+      {
+        "title": "ORB-2001 \u2014 Housing, Pump",
+        "snippet": "A380 CAST; last cost $18.50 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 12",
+        "link": "/estimate?part=88",
+        "n": 2
+      },
+      {
+        "title": "ORB-2001 \u2014 HOUSING, PUMP",
+        "snippet": "A380 CAST, casting, qty 1",
+        "citation": "BOM-00059 line 1 (S02_pump_assembly_bom.pdf)",
+        "link": "/boms/59",
+        "n": 3
+      },
+      {
+        "title": "S04_cover_plate_title_block.pdf",
+        "snippet": "",
+        "citation": "S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/75/result",
+        "n": 4
+      },
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 5
+      }
+    ],
+    "latency_ms": 18.9
+  },
+  "SQ12": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **ORB-2002 \u2014 Shaft**: 4140; last cost $12.20 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 13)_\n- [2] **ORB-2002 \u2014 SHAFT**: 4140, machined, qty 1 _(source: BOM-00059 line 2 (S02_pump_assembly_bom.pdf))_\n- [3] **ORB-2002 \u2014 Shaft**: AISI 4140, machined, qty 1 _(source: BOM-00063 line 1 (S06_shaft_single_part.step))_\n- [4] **Lehigh Valley Sheet Metal quote for ORB-1130**: $2.55 USD, quoted 2024-11-20 _(source: supplier_spend_sample.csv spend import row 4 (PO-23901))_\n- [5] **ORB-1043 \u2014 Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00055 line 2 (bracket_assembly.step))_\n- [6] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "ORB-2002 \u2014 Shaft",
+        "snippet": "4140; last cost $12.20 on SAMPLE Program Borealis",
+        "citation": "part_cost_history_sample.csv row 13",
+        "link": "/estimate?part=89",
+        "n": 1
+      },
+      {
+        "title": "ORB-2002 \u2014 SHAFT",
+        "snippet": "4140, machined, qty 1",
+        "citation": "BOM-00059 line 2 (S02_pump_assembly_bom.pdf)",
+        "link": "/boms/59",
+        "n": 2
+      },
+      {
+        "title": "ORB-2002 \u2014 Shaft",
+        "snippet": "AISI 4140, machined, qty 1",
+        "citation": "BOM-00063 line 1 (S06_shaft_single_part.step)",
+        "link": "/boms/63",
+        "n": 3
+      },
+      {
+        "title": "Lehigh Valley Sheet Metal quote for ORB-1130",
+        "snippet": "$2.55 USD, quoted 2024-11-20",
+        "citation": "supplier_spend_sample.csv spend import row 4 (PO-23901)",
+        "link": "/estimate?part=82",
+        "n": 4
+      },
+      {
+        "title": "ORB-1043 \u2014 Cover Plate 16 GA",
+        "snippet": "sheet metal, qty 1",
+        "citation": "BOM-00055 line 2 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 5
+      },
+      {
+        "title": "S02_pump_assembly_bom.pdf",
+        "snippet": "",
+        "citation": "S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/73/result",
+        "n": 6
+      }
+    ],
+    "latency_ms": 17.4
+  },
+  "SQ13": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_\n- [2] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_\n- [3] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_\n- [4] **ORB-1050 \u2014 CABLE CLIP**: PA66, injection molded, qty 1 _(source: BOM-00058 line 5 (S01_bracket_rev_b_drawing_bom.pdf))_\n- [5] **ORB-1050 \u2014 Cable Clip PA66**: PA66, injection molded, qty 1 _(source: BOM-00056 line 5 (bracket_assembly_rev_b.step))_\n- [6] **Keystone CNC quote for ORB-1042**: $4.05 USD, quoted 2025-03-14 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "S03_bracket_mounting_title_block.pdf",
+        "snippet": "",
+        "citation": "S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/74/result",
+        "n": 1
+      },
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 2
+      },
+      {
+        "title": "S04_cover_plate_title_block.pdf",
+        "snippet": "",
+        "citation": "S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/75/result",
+        "n": 3
+      },
+      {
+        "title": "ORB-1050 \u2014 CABLE CLIP",
+        "snippet": "PA66, injection molded, qty 1",
+        "citation": "BOM-00058 line 5 (S01_bracket_rev_b_drawing_bom.pdf)",
+        "link": "/boms/58",
+        "n": 4
+      },
+      {
+        "title": "ORB-1050 \u2014 Cable Clip PA66",
+        "snippet": "PA66, injection molded, qty 1",
+        "citation": "BOM-00056 line 5 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 5
+      },
+      {
+        "title": "Keystone CNC quote for ORB-1042",
+        "snippet": "$4.05 USD, quoted 2025-03-14",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 6
+      }
+    ],
+    "latency_ms": 14.1
+  },
+  "SQ14": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **ORB-0770 \u2014 Spacer, 10 mm**: 6061-T6; last cost $0.95 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 10)_\n- [2] **ORB-0770 \u2014 SPACER, 10 MM**: AL 6061-T6, machined, qty 1 _(source: BOM-00062 line 1 (S05_spacer_kit_bom.pdf))_\n- [3] **ORB-0771 \u2014 Spacer, 12 mm**: 6061-T6; last cost $1.05 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 11)_\n- [4] **Part1 \u2014 Spacer**: qty 2 _(source: BOM-00055 line 4 (bracket_assembly.step))_\n- [5] **S05_spacer_kit_bom.pdf**:  _(source: S05_spacer_kit_bom.pdf (project: Evaluation corpus (synthetic)))_\n- [6] **ORB-0771 \u2014 SPACER, 12 MM**: AL 6061-T6, machined, qty 1 _(source: BOM-00062 line 2 (S05_spacer_kit_bom.pdf))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "ORB-0770 \u2014 Spacer, 10 mm",
+        "snippet": "6061-T6; last cost $0.95 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 10",
+        "link": "/estimate?part=86",
+        "n": 1
+      },
+      {
+        "title": "ORB-0770 \u2014 SPACER, 10 MM",
+        "snippet": "AL 6061-T6, machined, qty 1",
+        "citation": "BOM-00062 line 1 (S05_spacer_kit_bom.pdf)",
+        "link": "/boms/62",
+        "n": 2
+      },
+      {
+        "title": "ORB-0771 \u2014 Spacer, 12 mm",
+        "snippet": "6061-T6; last cost $1.05 on SAMPLE Program Borealis",
+        "citation": "part_cost_history_sample.csv row 11",
+        "link": "/estimate?part=87",
+        "n": 3
+      },
+      {
+        "title": "Part1 \u2014 Spacer",
+        "snippet": "qty 2",
+        "citation": "BOM-00055 line 4 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 4
+      },
+      {
+        "title": "S05_spacer_kit_bom.pdf",
+        "snippet": "",
+        "citation": "S05_spacer_kit_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/76/result",
+        "n": 5
+      },
+      {
+        "title": "ORB-0771 \u2014 SPACER, 12 MM",
+        "snippet": "AL 6061-T6, machined, qty 1",
+        "citation": "BOM-00062 line 2 (S05_spacer_kit_bom.pdf)",
+        "link": "/boms/62",
+        "n": 6
+      }
+    ],
+    "latency_ms": 13.2
+  },
+  "SQ15": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **Part1 \u2014 Spacer**: qty 2 _(source: BOM-00055 line 4 (bracket_assembly.step))_\n- [2] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_\n- [3] **LT-243 \u2014 THREADLOCKER, MEDIUM**: -, qty 1 _(source: BOM-00062 line 3 (S05_spacer_kit_bom.pdf))_\n- [4] **S05_spacer_kit_bom.pdf**:  _(source: S05_spacer_kit_bom.pdf (project: Evaluation corpus (synthetic)))_\n- [5] **ORB-0770 \u2014 Spacer, 10 mm**: 6061-T6; last cost $0.95 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 10)_\n- [6] **ORB-0771 \u2014 Spacer, 12 mm**: 6061-T6; last cost $1.05 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 11)_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "Part1 \u2014 Spacer",
+        "snippet": "qty 2",
+        "citation": "BOM-00055 line 4 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 1
+      },
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 2
+      },
+      {
+        "title": "LT-243 \u2014 THREADLOCKER, MEDIUM",
+        "snippet": "-, qty 1",
+        "citation": "BOM-00062 line 3 (S05_spacer_kit_bom.pdf)",
+        "link": "/boms/62",
+        "n": 3
+      },
+      {
+        "title": "S05_spacer_kit_bom.pdf",
+        "snippet": "",
+        "citation": "S05_spacer_kit_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/76/result",
+        "n": 4
+      },
+      {
+        "title": "ORB-0770 \u2014 Spacer, 10 mm",
+        "snippet": "6061-T6; last cost $0.95 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 10",
+        "link": "/estimate?part=86",
+        "n": 5
+      },
+      {
+        "title": "ORB-0771 \u2014 Spacer, 12 mm",
+        "snippet": "6061-T6; last cost $1.05 on SAMPLE Program Borealis",
+        "citation": "part_cost_history_sample.csv row 11",
+        "link": "/estimate?part=87",
+        "n": 6
+      }
+    ],
+    "latency_ms": 11.5
+  },
+  "SQ16": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **ORB-1130 \u2014 Cover Plate 16 GA**: CRS; last cost $2.90 on PO-24188 _(source: supplier_spend_sample.csv spend import row 3 (PO-24188))_\n- [2] **ORB-1131 \u2014 Cover Plate 14 GA**: CRS; last cost $2.40 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 7)_\n- [3] **ORB-1043 \u2014 Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00055 line 2 (bracket_assembly.step))_\n- [4] **ORB-1043 \u2014 Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00056 line 2 (bracket_assembly_rev_b.step))_\n- [5] **ORB-1130 \u2014 COVER PLATE 16 GA**: CRS, sheet metal, qty 1 _(source: BOM-00061 line 1 (S04_cover_plate_title_block.pdf))_\n- [6] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "ORB-1130 \u2014 Cover Plate 16 GA",
+        "snippet": "CRS; last cost $2.90 on PO-24188",
+        "citation": "supplier_spend_sample.csv spend import row 3 (PO-24188)",
+        "link": "/estimate?part=82",
+        "n": 1
+      },
+      {
+        "title": "ORB-1131 \u2014 Cover Plate 14 GA",
+        "snippet": "CRS; last cost $2.40 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 7",
+        "link": "/estimate?part=83",
+        "n": 2
+      },
+      {
+        "title": "ORB-1043 \u2014 Cover Plate 16 GA",
+        "snippet": "sheet metal, qty 1",
+        "citation": "BOM-00055 line 2 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 3
+      },
+      {
+        "title": "ORB-1043 \u2014 Cover Plate 16 GA",
+        "snippet": "sheet metal, qty 1",
+        "citation": "BOM-00056 line 2 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 4
+      },
+      {
+        "title": "ORB-1130 \u2014 COVER PLATE 16 GA",
+        "snippet": "CRS, sheet metal, qty 1",
+        "citation": "BOM-00061 line 1 (S04_cover_plate_title_block.pdf)",
+        "link": "/boms/61",
+        "n": 5
+      },
+      {
+        "title": "S04_cover_plate_title_block.pdf",
+        "snippet": "",
+        "citation": "S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/75/result",
+        "n": 6
+      }
+    ],
+    "latency_ms": 11.3
+  },
+  "SQ17": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **S01_bracket_rev_b_drawing_bom.pdf**:  _(source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))_\n- [2] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_\n- [3] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_\n- [4] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_\n- [5] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00055 line 1 (bracket_assembly.step))_\n- [6] **ORB-1042 \u2014 Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00056 line 1 (bracket_assembly_rev_b.step))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "S01_bracket_rev_b_drawing_bom.pdf",
+        "snippet": "",
+        "citation": "S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/72/result",
+        "n": 1
+      },
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 2
+      },
+      {
+        "title": "S03_bracket_mounting_title_block.pdf",
+        "snippet": "",
+        "citation": "S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/74/result",
+        "n": 3
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6; last cost $4.05 on PO-24017",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 4
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6, machined, qty 1",
+        "citation": "BOM-00055 line 1 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 5
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "7075-T6, machined, qty 1",
+        "citation": "BOM-00056 line 1 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 6
+      }
+    ],
+    "latency_ms": 11.5
+  },
+  "SQ18": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_\n- [2] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_\n- [3] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00055 line 1 (bracket_assembly.step))_\n- [4] **ORB-1042 \u2014 Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00056 line 1 (bracket_assembly_rev_b.step))_\n- [5] **ORB-0981 \u2014 Bracket, Mounting, Short**: 6061-T6; last cost $3.60 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 4)_\n- [6] **ORB-1042 \u2014 BRACKET, MOUNTING**: AL 7075-T6, machined, qty 1 _(source: BOM-00058 line 1 (S01_bracket_rev_b_drawing_bom.pdf))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "beam_deflection.m",
+        "snippet": "",
+        "citation": "beam_deflection.m (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/70/result",
+        "n": 1
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6; last cost $4.05 on PO-24017",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 2
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6, machined, qty 1",
+        "citation": "BOM-00055 line 1 (bracket_assembly.step)",
+        "link": "/boms/55",
+        "n": 3
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "7075-T6, machined, qty 1",
+        "citation": "BOM-00056 line 1 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 4
+      },
+      {
+        "title": "ORB-0981 \u2014 Bracket, Mounting, Short",
+        "snippet": "6061-T6; last cost $3.60 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 4",
+        "link": "/estimate?part=80",
+        "n": 5
+      },
+      {
+        "title": "ORB-1042 \u2014 BRACKET, MOUNTING",
+        "snippet": "AL 7075-T6, machined, qty 1",
+        "citation": "BOM-00058 line 1 (S01_bracket_rev_b_drawing_bom.pdf)",
+        "link": "/boms/58",
+        "n": 6
+      }
+    ],
+    "latency_ms": 14.6
+  },
+  "SQ19": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_\n- [2] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_\n- [3] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "S02_pump_assembly_bom.pdf",
+        "snippet": "",
+        "citation": "S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/73/result",
+        "n": 1
+      },
+      {
+        "title": "S04_cover_plate_title_block.pdf",
+        "snippet": "",
+        "citation": "S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/75/result",
+        "n": 2
+      },
+      {
+        "title": "S03_bracket_mounting_title_block.pdf",
+        "snippet": "",
+        "citation": "S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic))",
+        "link": "/project/7/file/74/result",
+        "n": 3
+      }
+    ],
+    "latency_ms": 10.9
+  },
+  "SQ20": {
+    "answer": "**Retrieval-only answer** (AI is not configured) \u2014 the most relevant cited snippets:\n\n- [1] **ORB-1044 \u2014 Gusset 6061-T6**: 6061-T6, machined, qty 1 _(source: BOM-00056 line 4 (bracket_assembly_rev_b.step))_\n- [2] **ORB-0770 \u2014 Spacer, 10 mm**: 6061-T6; last cost $0.95 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 10)_\n- [3] **ORB-0771 \u2014 Spacer, 12 mm**: 6061-T6; last cost $1.05 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 11)_\n- [4] **ORB-0770 \u2014 SPACER, 10 MM**: AL 6061-T6, machined, qty 1 _(source: BOM-00062 line 1 (S05_spacer_kit_bom.pdf))_\n- [5] **ORB-0771 \u2014 SPACER, 12 MM**: AL 6061-T6, machined, qty 1 _(source: BOM-00062 line 2 (S05_spacer_kit_bom.pdf))_\n- [6] **ORB-1042 \u2014 Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_",
+    "mode": "retrieval_only",
+    "sources": [
+      {
+        "title": "ORB-1044 \u2014 Gusset 6061-T6",
+        "snippet": "6061-T6, machined, qty 1",
+        "citation": "BOM-00056 line 4 (bracket_assembly_rev_b.step)",
+        "link": "/boms/56",
+        "n": 1
+      },
+      {
+        "title": "ORB-0770 \u2014 Spacer, 10 mm",
+        "snippet": "6061-T6; last cost $0.95 on SAMPLE Program Atlas",
+        "citation": "part_cost_history_sample.csv row 10",
+        "link": "/estimate?part=86",
+        "n": 2
+      },
+      {
+        "title": "ORB-0771 \u2014 Spacer, 12 mm",
+        "snippet": "6061-T6; last cost $1.05 on SAMPLE Program Borealis",
+        "citation": "part_cost_history_sample.csv row 11",
+        "link": "/estimate?part=87",
+        "n": 3
+      },
+      {
+        "title": "ORB-0770 \u2014 SPACER, 10 MM",
+        "snippet": "AL 6061-T6, machined, qty 1",
+        "citation": "BOM-00062 line 1 (S05_spacer_kit_bom.pdf)",
+        "link": "/boms/62",
+        "n": 4
+      },
+      {
+        "title": "ORB-0771 \u2014 SPACER, 12 MM",
+        "snippet": "AL 6061-T6, machined, qty 1",
+        "citation": "BOM-00062 line 2 (S05_spacer_kit_bom.pdf)",
+        "link": "/boms/62",
+        "n": 5
+      },
+      {
+        "title": "ORB-1042 \u2014 Bracket, Mounting",
+        "snippet": "6061-T6; last cost $4.05 on PO-24017",
+        "citation": "supplier_spend_sample.csv spend import row 2 (PO-24017)",
+        "link": "/estimate?part=79",
+        "n": 6
+      }
+    ],
+    "latency_ms": 13.3
+  }
+}

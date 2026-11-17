@@ -1,0 +1,241 @@
+item_id,question,reference_answer,answer,sources,faithfulness (grounded | ungrounded | fabricated),relevance (2 answers it | 1 partly | 0 not),citation_correct (yes | partly | no | n/a (no citations)),correctness (correct | partial | incorrect | refused),labeller,notes
+SQ01,What material is the mounting bracket ORB-1042 in rev B of the bracket assembly?,"7075-T6 aluminium in rev B (it was 6061-T6 in the original assembly, D01).","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **ORB-1042 — Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_
+- [2] **ORB-1042 — Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00046 line 1 (bracket_assembly.step))_
+- [3] **ORB-1042 — Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00047 line 1 (bracket_assembly_rev_b.step))_
+- [4] **ORB-1042 — BRACKET, MOUNTING**: AL 7075-T6, machined, qty 1 _(source: BOM-00049 line 1 (S01_bracket_rev_b_drawing_bom.pdf))_
+- [5] **ORB-0981 — Bracket, Mounting, Short**: 6061-T6; last cost $3.60 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 4)_
+- [6] **S01_bracket_rev_b_drawing_bom.pdf**:  _(source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))_","[1] ORB-1042 — Bracket, Mounting: 6061-T6; last cost $4.05 on PO-24017 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))
+[2] ORB-1042 — Bracket, Mounting: 6061-T6, machined, qty 1 (source: BOM-00046 line 1 (bracket_assembly.step))
+[3] ORB-1042 — Bracket, Mounting: 7075-T6, machined, qty 1 (source: BOM-00047 line 1 (bracket_assembly_rev_b.step))
+[4] ORB-1042 — BRACKET, MOUNTING: AL 7075-T6, machined, qty 1 (source: BOM-00049 line 1 (S01_bracket_rev_b_drawing_bom.pdf))
+[5] ORB-0981 — Bracket, Mounting, Short: 6061-T6; last cost $3.60 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 4)
+[6] S01_bracket_rev_b_drawing_bom.pdf:  (source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))",,,,,labeller2,
+SQ02,How many M6x16 socket head cap screws does the bracket assembly use?,"Four (SHCS-M6X16, 4 occurrences in both the original and rev B).","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **FST-M6-20 — M6x20 socket head cap screw**: last cost $0.11 on PO-23955 _(source: supplier_spend_sample.csv spend import row 5 (PO-23955))_
+- [2] **SHCS-M6X16 — Screw SHCS M6x16 ISO 4762**: SS 304; last cost $0.18 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 8)_
+- [3] **SHCS-M6X16 — SCREW SHCS M6X16 ISO 4762**: SS 304, purchased, qty 4 _(source: BOM-00049 line 3 (S01_bracket_rev_b_drawing_bom.pdf))_
+- [4] **SHCS-M6X16 — Screw SHCS M6x16 ISO 4762 SS 304**: SS 304, purchased, qty 4 _(source: BOM-00046 line 3 (bracket_assembly.step))_
+- [5] **SHCS-M6X16 — Screw SHCS M6x16 ISO 4762 SS 304**: SS 304, purchased, qty 4 _(source: BOM-00047 line 3 (bracket_assembly_rev_b.step))_
+- [6] **ORB-1042 — Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_","[1] FST-M6-20 — M6x20 socket head cap screw: last cost $0.11 on PO-23955 (source: supplier_spend_sample.csv spend import row 5 (PO-23955))
+[2] SHCS-M6X16 — Screw SHCS M6x16 ISO 4762: SS 304; last cost $0.18 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 8)
+[3] SHCS-M6X16 — SCREW SHCS M6X16 ISO 4762: SS 304, purchased, qty 4 (source: BOM-00049 line 3 (S01_bracket_rev_b_drawing_bom.pdf))
+[4] SHCS-M6X16 — Screw SHCS M6x16 ISO 4762 SS 304: SS 304, purchased, qty 4 (source: BOM-00046 line 3 (bracket_assembly.step))
+[5] SHCS-M6X16 — Screw SHCS M6x16 ISO 4762 SS 304: SS 304, purchased, qty 4 (source: BOM-00047 line 3 (bracket_assembly_rev_b.step))
+[6] ORB-1042 — Bracket, Mounting: 6061-T6; last cost $4.05 on PO-24017 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))",,,,,labeller2,
+SQ03,What changed between the original bracket assembly and rev B?,Bracket ORB-1042 moved from 6061-T6 to 7075-T6 (rev B); cover ORB-1043 is rev A; gusset ORB-1044 (6061-T6) and cable clip ORB-1050 (PA66) were added; the two spacers (CAD name Part1) were removed.,"**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_
+- [2] **bracket_assembly_rev_b.step**:  _(source: bracket_assembly_rev_b.step (project: Evaluation corpus (synthetic)))_
+- [3] **ORB-1042 — Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_
+- [4] **S01_bracket_rev_b_drawing_bom.pdf**:  _(source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))_
+- [5] **ORB-1042 — Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00046 line 1 (bracket_assembly.step))_
+- [6] **ORB-1042 — Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00047 line 1 (bracket_assembly_rev_b.step))_","[1] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))
+[2] bracket_assembly_rev_b.step:  (source: bracket_assembly_rev_b.step (project: Evaluation corpus (synthetic)))
+[3] ORB-1042 — Bracket, Mounting: 6061-T6; last cost $4.05 on PO-24017 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))
+[4] S01_bracket_rev_b_drawing_bom.pdf:  (source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))
+[5] ORB-1042 — Bracket, Mounting: 6061-T6, machined, qty 1 (source: BOM-00046 line 1 (bracket_assembly.step))
+[6] ORB-1042 — Bracket, Mounting: 7075-T6, machined, qty 1 (source: BOM-00047 line 1 (bracket_assembly_rev_b.step))",,,,,labeller2,
+SQ04,Which parts in the bracket assembly have no material specified?,"Cover plate ORB-1043 (16 GA, no material in the file) in both versions, and the spacer (Part1) in the original.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **ORB-1130 — Cover Plate 16 GA**: CRS; last cost $2.90 on PO-24188 _(source: supplier_spend_sample.csv spend import row 3 (PO-24188))_
+- [2] **ORB-1130 — COVER PLATE 16 GA**: CRS, sheet metal, qty 1 _(source: BOM-00052 line 1 (S04_cover_plate_title_block.pdf))_
+- [3] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_
+- [4] **S01_bracket_rev_b_drawing_bom.pdf**:  _(source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))_
+- [5] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_","[1] ORB-1130 — Cover Plate 16 GA: CRS; last cost $2.90 on PO-24188 (source: supplier_spend_sample.csv spend import row 3 (PO-24188))
+[2] ORB-1130 — COVER PLATE 16 GA: CRS, sheet metal, qty 1 (source: BOM-00052 line 1 (S04_cover_plate_title_block.pdf))
+[3] S04_cover_plate_title_block.pdf:  (source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))
+[4] S01_bracket_rev_b_drawing_bom.pdf:  (source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))
+[5] S03_bracket_mounting_title_block.pdf:  (source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))",,,,,labeller2,
+SQ05,What have we paid for bracket ORB-1042 before?,"$4.10 (2022, SAMPLE Program Atlas) and $4.35 (2024, SAMPLE Program Borealis) from SAMPLE Acme Machining in the cost history; $4.05 for 500 pcs from Keystone CNC on 2025-03-14 (PO-24017) in the spend export.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **ORB-1042 — Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_
+- [2] **ORB-1042 — Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00046 line 1 (bracket_assembly.step))_
+- [3] **ORB-1042 — Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00047 line 1 (bracket_assembly_rev_b.step))_
+- [4] **ORB-1042 — BRACKET, MOUNTING**: AL 7075-T6, machined, qty 1 _(source: BOM-00049 line 1 (S01_bracket_rev_b_drawing_bom.pdf))_
+- [5] **ORB-0981 — Bracket, Mounting, Short**: 6061-T6; last cost $3.60 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 4)_","[1] ORB-1042 — Bracket, Mounting: 6061-T6; last cost $4.05 on PO-24017 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))
+[2] ORB-1042 — Bracket, Mounting: 6061-T6, machined, qty 1 (source: BOM-00046 line 1 (bracket_assembly.step))
+[3] ORB-1042 — Bracket, Mounting: 7075-T6, machined, qty 1 (source: BOM-00047 line 1 (bracket_assembly_rev_b.step))
+[4] ORB-1042 — BRACKET, MOUNTING: AL 7075-T6, machined, qty 1 (source: BOM-00049 line 1 (S01_bracket_rev_b_drawing_bom.pdf))
+[5] ORB-0981 — Bracket, Mounting, Short: 6061-T6; last cost $3.60 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 4)",,,,,labeller2,
+SQ06,Who has supplied cover plate ORB-1130 and at what unit price?,"SAMPLE Sheetline Fab $2.10 (2023 cost history); Lehigh Valley Sheet Metal $2.55 (1,000 pcs, 2024-11-20); Keystone CNC $2.90 (250 pcs, 2025-06-02).","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **ORB-1130 — Cover Plate 16 GA**: CRS; last cost $2.90 on PO-24188 _(source: supplier_spend_sample.csv spend import row 3 (PO-24188))_
+- [2] **ORB-1130 — COVER PLATE 16 GA**: CRS, sheet metal, qty 1 _(source: BOM-00052 line 1 (S04_cover_plate_title_block.pdf))_
+- [3] **ORB-1131 — Cover Plate 14 GA**: CRS; last cost $2.40 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 7)_
+- [4] **ORB-1043 — Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00046 line 2 (bracket_assembly.step))_
+- [5] **ORB-1043 — Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00047 line 2 (bracket_assembly_rev_b.step))_","[1] ORB-1130 — Cover Plate 16 GA: CRS; last cost $2.90 on PO-24188 (source: supplier_spend_sample.csv spend import row 3 (PO-24188))
+[2] ORB-1130 — COVER PLATE 16 GA: CRS, sheet metal, qty 1 (source: BOM-00052 line 1 (S04_cover_plate_title_block.pdf))
+[3] ORB-1131 — Cover Plate 14 GA: CRS; last cost $2.40 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 7)
+[4] ORB-1043 — Cover Plate 16 GA: sheet metal, qty 1 (source: BOM-00046 line 2 (bracket_assembly.step))
+[5] ORB-1043 — Cover Plate 16 GA: sheet metal, qty 1 (source: BOM-00047 line 2 (bracket_assembly_rev_b.step))",,,,,labeller2,
+SQ07,What lead time did we get on M6x20 socket head cap screws?,"7 days (Delaware Fasteners, part FST-M6-20, PO-23955, 2025-01-08). Note the spend export uses FST-M6-20 while cost history uses SHCS-M6X20.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **FST-M6-20 — M6x20 socket head cap screw**: last cost $0.11 on PO-23955 _(source: supplier_spend_sample.csv spend import row 5 (PO-23955))_
+- [2] **SHCS-M6X20 — Screw SHCS M6x20 ISO 4762**: SS 304; last cost $0.21 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 9)_
+- [3] **SHCS-M6X20 — SCREW SHCS M6X20 ISO 4762**: SS 304, purchased, qty 6 _(source: BOM-00050 line 3 (S02_pump_assembly_bom.pdf))_
+- [4] **LT-243 — THREADLOCKER, MEDIUM**: -, qty 1 _(source: BOM-00053 line 3 (S05_spacer_kit_bom.pdf))_
+- [5] **ORB-2001 — HOUSING, PUMP**: A380 CAST, casting, qty 1 _(source: BOM-00050 line 1 (S02_pump_assembly_bom.pdf))_
+- [6] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_","[1] FST-M6-20 — M6x20 socket head cap screw: last cost $0.11 on PO-23955 (source: supplier_spend_sample.csv spend import row 5 (PO-23955))
+[2] SHCS-M6X20 — Screw SHCS M6x20 ISO 4762: SS 304; last cost $0.21 on SAMPLE Program Borealis (source: part_cost_history_sample.csv row 9)
+[3] SHCS-M6X20 — SCREW SHCS M6X20 ISO 4762: SS 304, purchased, qty 6 (source: BOM-00050 line 3 (S02_pump_assembly_bom.pdf))
+[4] LT-243 — THREADLOCKER, MEDIUM: -, qty 1 (source: BOM-00053 line 3 (S05_spacer_kit_bom.pdf))
+[5] ORB-2001 — HOUSING, PUMP: A380 CAST, casting, qty 1 (source: BOM-00050 line 1 (S02_pump_assembly_bom.pdf))
+[6] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))",,,,,labeller2,
+SQ08,What formula sizes the bracket mounting arm for tip deflection?,beam_deflection.m: delta = load_N * length_m^3 / (3 * E_Pa * I_m4) for a cantilever with a point load at the free end.,"**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_
+- [2] **ORB-1042 — Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_
+- [3] **ORB-1042 — Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00046 line 1 (bracket_assembly.step))_
+- [4] **ORB-1042 — Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00047 line 1 (bracket_assembly_rev_b.step))_
+- [5] **ORB-0981 — Bracket, Mounting, Short**: 6061-T6; last cost $3.60 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 4)_
+- [6] **ORB-1042 — BRACKET, MOUNTING**: AL 7075-T6, machined, qty 1 _(source: BOM-00049 line 1 (S01_bracket_rev_b_drawing_bom.pdf))_","[1] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))
+[2] ORB-1042 — Bracket, Mounting: 6061-T6; last cost $4.05 on PO-24017 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))
+[3] ORB-1042 — Bracket, Mounting: 6061-T6, machined, qty 1 (source: BOM-00046 line 1 (bracket_assembly.step))
+[4] ORB-1042 — Bracket, Mounting: 7075-T6, machined, qty 1 (source: BOM-00047 line 1 (bracket_assembly_rev_b.step))
+[5] ORB-0981 — Bracket, Mounting, Short: 6061-T6; last cost $3.60 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 4)
+[6] ORB-1042 — BRACKET, MOUNTING: AL 7075-T6, machined, qty 1 (source: BOM-00049 line 1 (S01_bracket_rev_b_drawing_bom.pdf))",,,,,labeller2,
+SQ09,What variables are stored in the simulation results file?,"time_s (double 1x4), tip_deflection_m (double 4x1), load_case (double 2x2).","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_
+- [2] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_
+- [3] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_","[1] S04_cover_plate_title_block.pdf:  (source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))
+[2] S03_bracket_mounting_title_block.pdf:  (source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))
+[3] S02_pump_assembly_bom.pdf:  (source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))",,,,,labeller2,
+SQ10,What outer-fibre distance does the bending stress calculation assume?,"c = 0.005 m (half of the 10 mm plate), from local function section_c.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_
+- [2] **FST-M6-20 — M6x20 socket head cap screw**: last cost $0.11 on PO-23955 _(source: supplier_spend_sample.csv spend import row 5 (PO-23955))_
+- [3] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_
+- [4] **SHCS-M6X16 — Screw SHCS M6x16 ISO 4762**: SS 304; last cost $0.18 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 8)_
+- [5] **SHCS-M6X20 — Screw SHCS M6x20 ISO 4762**: SS 304; last cost $0.21 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 9)_
+- [6] **SHCS-M6X16 — SCREW SHCS M6X16 ISO 4762**: SS 304, purchased, qty 4 _(source: BOM-00049 line 3 (S01_bracket_rev_b_drawing_bom.pdf))_","[1] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))
+[2] FST-M6-20 — M6x20 socket head cap screw: last cost $0.11 on PO-23955 (source: supplier_spend_sample.csv spend import row 5 (PO-23955))
+[3] S02_pump_assembly_bom.pdf:  (source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))
+[4] SHCS-M6X16 — Screw SHCS M6x16 ISO 4762: SS 304; last cost $0.18 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 8)
+[5] SHCS-M6X20 — Screw SHCS M6x20 ISO 4762: SS 304; last cost $0.21 on SAMPLE Program Borealis (source: part_cost_history_sample.csv row 9)
+[6] SHCS-M6X16 — SCREW SHCS M6X16 ISO 4762: SS 304, purchased, qty 4 (source: BOM-00049 line 3 (S01_bracket_rev_b_drawing_bom.pdf))",,,,,labeller2,
+SQ11,Which parts of the pump assembly are castings?,"Housing ORB-2001, A380 cast.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_
+- [2] **ORB-2001 — Housing, Pump**: A380 CAST; last cost $18.50 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 12)_
+- [3] **ORB-2001 — HOUSING, PUMP**: A380 CAST, casting, qty 1 _(source: BOM-00050 line 1 (S02_pump_assembly_bom.pdf))_
+- [4] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_
+- [5] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_","[1] S02_pump_assembly_bom.pdf:  (source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))
+[2] ORB-2001 — Housing, Pump: A380 CAST; last cost $18.50 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 12)
+[3] ORB-2001 — HOUSING, PUMP: A380 CAST, casting, qty 1 (source: BOM-00050 line 1 (S02_pump_assembly_bom.pdf))
+[4] S04_cover_plate_title_block.pdf:  (source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))
+[5] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))",,,,,labeller2,
+SQ12,What revision is the ORB-2002 shaft and what steel is it made of?,"Rev C (single-part STEP export), AISI 4140.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **ORB-2002 — Shaft**: 4140; last cost $12.20 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 13)_
+- [2] **ORB-2002 — SHAFT**: 4140, machined, qty 1 _(source: BOM-00050 line 2 (S02_pump_assembly_bom.pdf))_
+- [3] **ORB-2002 — Shaft**: AISI 4140, machined, qty 1 _(source: BOM-00054 line 1 (S06_shaft_single_part.step))_
+- [4] **Lehigh Valley Sheet Metal quote for ORB-1130**: $2.55 USD, quoted 2024-11-20 _(source: supplier_spend_sample.csv spend import row 4 (PO-23901))_
+- [5] **ORB-1043 — Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00046 line 2 (bracket_assembly.step))_
+- [6] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_","[1] ORB-2002 — Shaft: 4140; last cost $12.20 on SAMPLE Program Borealis (source: part_cost_history_sample.csv row 13)
+[2] ORB-2002 — SHAFT: 4140, machined, qty 1 (source: BOM-00050 line 2 (S02_pump_assembly_bom.pdf))
+[3] ORB-2002 — Shaft: AISI 4140, machined, qty 1 (source: BOM-00054 line 1 (S06_shaft_single_part.step))
+[4] Lehigh Valley Sheet Metal quote for ORB-1130: $2.55 USD, quoted 2024-11-20 (source: supplier_spend_sample.csv spend import row 4 (PO-23901))
+[5] ORB-1043 — Cover Plate 16 GA: sheet metal, qty 1 (source: BOM-00046 line 2 (bracket_assembly.step))
+[6] S02_pump_assembly_bom.pdf:  (source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))",,,,,labeller2,
+SQ13,What is the part number of the cable clip and what is it made of?,"ORB-1050, PA66.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_
+- [2] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_
+- [3] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_
+- [4] **ORB-1050 — CABLE CLIP**: PA66, injection molded, qty 1 _(source: BOM-00049 line 5 (S01_bracket_rev_b_drawing_bom.pdf))_
+- [5] **ORB-1050 — Cable Clip PA66**: PA66, injection molded, qty 1 _(source: BOM-00047 line 5 (bracket_assembly_rev_b.step))_
+- [6] **Keystone CNC quote for ORB-1042**: $4.05 USD, quoted 2025-03-14 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_","[1] S03_bracket_mounting_title_block.pdf:  (source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))
+[2] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))
+[3] S04_cover_plate_title_block.pdf:  (source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))
+[4] ORB-1050 — CABLE CLIP: PA66, injection molded, qty 1 (source: BOM-00049 line 5 (S01_bracket_rev_b_drawing_bom.pdf))
+[5] ORB-1050 — Cable Clip PA66: PA66, injection molded, qty 1 (source: BOM-00047 line 5 (bracket_assembly_rev_b.step))
+[6] Keystone CNC quote for ORB-1042: $4.05 USD, quoted 2025-03-14 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))",,,,,labeller2,
+SQ14,How many 10 mm spacers are in the spacer kit?,2 EA (ORB-0770).,"**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **ORB-0770 — Spacer, 10 mm**: 6061-T6; last cost $0.95 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 10)_
+- [2] **ORB-0770 — SPACER, 10 MM**: AL 6061-T6, machined, qty 1 _(source: BOM-00053 line 1 (S05_spacer_kit_bom.pdf))_
+- [3] **ORB-0771 — Spacer, 12 mm**: 6061-T6; last cost $1.05 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 11)_
+- [4] **Part1 — Spacer**: qty 2 _(source: BOM-00046 line 4 (bracket_assembly.step))_
+- [5] **S05_spacer_kit_bom.pdf**:  _(source: S05_spacer_kit_bom.pdf (project: Evaluation corpus (synthetic)))_
+- [6] **ORB-0771 — SPACER, 12 MM**: AL 6061-T6, machined, qty 1 _(source: BOM-00053 line 2 (S05_spacer_kit_bom.pdf))_","[1] ORB-0770 — Spacer, 10 mm: 6061-T6; last cost $0.95 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 10)
+[2] ORB-0770 — SPACER, 10 MM: AL 6061-T6, machined, qty 1 (source: BOM-00053 line 1 (S05_spacer_kit_bom.pdf))
+[3] ORB-0771 — Spacer, 12 mm: 6061-T6; last cost $1.05 on SAMPLE Program Borealis (source: part_cost_history_sample.csv row 11)
+[4] Part1 — Spacer: qty 2 (source: BOM-00046 line 4 (bracket_assembly.step))
+[5] S05_spacer_kit_bom.pdf:  (source: S05_spacer_kit_bom.pdf (project: Evaluation corpus (synthetic)))
+[6] ORB-0771 — SPACER, 12 MM: AL 6061-T6, machined, qty 1 (source: BOM-00053 line 2 (S05_spacer_kit_bom.pdf))",,,,,labeller2,
+SQ15,Which threadlocker does the spacer kit call out and how much?,"LT-243 medium-strength threadlocker, quantity A/R (as required).","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **Part1 — Spacer**: qty 2 _(source: BOM-00046 line 4 (bracket_assembly.step))_
+- [2] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_
+- [3] **LT-243 — THREADLOCKER, MEDIUM**: -, qty 1 _(source: BOM-00053 line 3 (S05_spacer_kit_bom.pdf))_
+- [4] **S05_spacer_kit_bom.pdf**:  _(source: S05_spacer_kit_bom.pdf (project: Evaluation corpus (synthetic)))_
+- [5] **ORB-0770 — Spacer, 10 mm**: 6061-T6; last cost $0.95 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 10)_
+- [6] **ORB-0771 — Spacer, 12 mm**: 6061-T6; last cost $1.05 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 11)_","[1] Part1 — Spacer: qty 2 (source: BOM-00046 line 4 (bracket_assembly.step))
+[2] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))
+[3] LT-243 — THREADLOCKER, MEDIUM: -, qty 1 (source: BOM-00053 line 3 (S05_spacer_kit_bom.pdf))
+[4] S05_spacer_kit_bom.pdf:  (source: S05_spacer_kit_bom.pdf (project: Evaluation corpus (synthetic)))
+[5] ORB-0770 — Spacer, 10 mm: 6061-T6; last cost $0.95 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 10)
+[6] ORB-0771 — Spacer, 12 mm: 6061-T6; last cost $1.05 on SAMPLE Program Borealis (source: part_cost_history_sample.csv row 11)",,,,,labeller2,
+SQ16,What gauge is the cover plate?,16 GA.,"**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **ORB-1130 — Cover Plate 16 GA**: CRS; last cost $2.90 on PO-24188 _(source: supplier_spend_sample.csv spend import row 3 (PO-24188))_
+- [2] **ORB-1131 — Cover Plate 14 GA**: CRS; last cost $2.40 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 7)_
+- [3] **ORB-1043 — Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00046 line 2 (bracket_assembly.step))_
+- [4] **ORB-1043 — Cover Plate 16 GA**: sheet metal, qty 1 _(source: BOM-00047 line 2 (bracket_assembly_rev_b.step))_
+- [5] **ORB-1130 — COVER PLATE 16 GA**: CRS, sheet metal, qty 1 _(source: BOM-00052 line 1 (S04_cover_plate_title_block.pdf))_
+- [6] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_","[1] ORB-1130 — Cover Plate 16 GA: CRS; last cost $2.90 on PO-24188 (source: supplier_spend_sample.csv spend import row 3 (PO-24188))
+[2] ORB-1131 — Cover Plate 14 GA: CRS; last cost $2.40 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 7)
+[3] ORB-1043 — Cover Plate 16 GA: sheet metal, qty 1 (source: BOM-00046 line 2 (bracket_assembly.step))
+[4] ORB-1043 — Cover Plate 16 GA: sheet metal, qty 1 (source: BOM-00047 line 2 (bracket_assembly_rev_b.step))
+[5] ORB-1130 — COVER PLATE 16 GA: CRS, sheet metal, qty 1 (source: BOM-00052 line 1 (S04_cover_plate_title_block.pdf))
+[6] S04_cover_plate_title_block.pdf:  (source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))",,,,,labeller2,
+SQ17,Where are the screws placed in the rev B bracket assembly?,"Four placements at (20,20,12), (-20,20,12), (20,-20,12) and (-20,-20,12) mm.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **S01_bracket_rev_b_drawing_bom.pdf**:  _(source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))_
+- [2] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_
+- [3] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_
+- [4] **ORB-1042 — Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_
+- [5] **ORB-1042 — Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00046 line 1 (bracket_assembly.step))_
+- [6] **ORB-1042 — Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00047 line 1 (bracket_assembly_rev_b.step))_","[1] S01_bracket_rev_b_drawing_bom.pdf:  (source: S01_bracket_rev_b_drawing_bom.pdf (project: Evaluation corpus (synthetic)))
+[2] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))
+[3] S03_bracket_mounting_title_block.pdf:  (source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))
+[4] ORB-1042 — Bracket, Mounting: 6061-T6; last cost $4.05 on PO-24017 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))
+[5] ORB-1042 — Bracket, Mounting: 6061-T6, machined, qty 1 (source: BOM-00046 line 1 (bracket_assembly.step))
+[6] ORB-1042 — Bracket, Mounting: 7075-T6, machined, qty 1 (source: BOM-00047 line 1 (bracket_assembly_rev_b.step))",,,,,labeller2,
+SQ18,How big is the bounding block for the mounting bracket in the layout file?,40 x 30 x 5 mm (BLOCK ORB-1042 at the origin).,"**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **beam_deflection.m**:  _(source: beam_deflection.m (project: Evaluation corpus (synthetic)))_
+- [2] **ORB-1042 — Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_
+- [3] **ORB-1042 — Bracket, Mounting**: 6061-T6, machined, qty 1 _(source: BOM-00046 line 1 (bracket_assembly.step))_
+- [4] **ORB-1042 — Bracket, Mounting**: 7075-T6, machined, qty 1 _(source: BOM-00047 line 1 (bracket_assembly_rev_b.step))_
+- [5] **ORB-0981 — Bracket, Mounting, Short**: 6061-T6; last cost $3.60 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 4)_
+- [6] **ORB-1042 — BRACKET, MOUNTING**: AL 7075-T6, machined, qty 1 _(source: BOM-00049 line 1 (S01_bracket_rev_b_drawing_bom.pdf))_","[1] beam_deflection.m:  (source: beam_deflection.m (project: Evaluation corpus (synthetic)))
+[2] ORB-1042 — Bracket, Mounting: 6061-T6; last cost $4.05 on PO-24017 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))
+[3] ORB-1042 — Bracket, Mounting: 6061-T6, machined, qty 1 (source: BOM-00046 line 1 (bracket_assembly.step))
+[4] ORB-1042 — Bracket, Mounting: 7075-T6, machined, qty 1 (source: BOM-00047 line 1 (bracket_assembly_rev_b.step))
+[5] ORB-0981 — Bracket, Mounting, Short: 6061-T6; last cost $3.60 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 4)
+[6] ORB-1042 — BRACKET, MOUNTING: AL 7075-T6, machined, qty 1 (source: BOM-00049 line 1 (S01_bracket_rev_b_drawing_bom.pdf))",,,,,labeller2,
+SQ19,Which rows in the supplier spend export have data problems?,"Hex nut M6 has no part number; ORB-2001 has a non-numeric unit price ('abc') and is described as 'Shaft 4140' although cost history calls ORB-2001 'Housing, Pump'; two rows (ORB-1130 Keystone CNC and ORB-2001) have no lead time.","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **S02_pump_assembly_bom.pdf**:  _(source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))_
+- [2] **S04_cover_plate_title_block.pdf**:  _(source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))_
+- [3] **S03_bracket_mounting_title_block.pdf**:  _(source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))_","[1] S02_pump_assembly_bom.pdf:  (source: S02_pump_assembly_bom.pdf (project: Evaluation corpus (synthetic)))
+[2] S04_cover_plate_title_block.pdf:  (source: S04_cover_plate_title_block.pdf (project: Evaluation corpus (synthetic)))
+[3] S03_bracket_mounting_title_block.pdf:  (source: S03_bracket_mounting_title_block.pdf (project: Evaluation corpus (synthetic)))",,,,,labeller2,
+SQ20,What is the lowest historical unit cost we have for a 6061-T6 spacer?,"$0.95 for ORB-0770 (Spacer 10 mm, 2021, SAMPLE Program Atlas, SAMPLE Acme Machining).","**Retrieval-only answer** (AI is not configured) — the most relevant cited snippets:
+
+- [1] **ORB-1044 — Gusset 6061-T6**: 6061-T6, machined, qty 1 _(source: BOM-00047 line 4 (bracket_assembly_rev_b.step))_
+- [2] **ORB-0770 — Spacer, 10 mm**: 6061-T6; last cost $0.95 on SAMPLE Program Atlas _(source: part_cost_history_sample.csv row 10)_
+- [3] **ORB-0771 — Spacer, 12 mm**: 6061-T6; last cost $1.05 on SAMPLE Program Borealis _(source: part_cost_history_sample.csv row 11)_
+- [4] **ORB-0770 — SPACER, 10 MM**: AL 6061-T6, machined, qty 1 _(source: BOM-00053 line 1 (S05_spacer_kit_bom.pdf))_
+- [5] **ORB-0771 — SPACER, 12 MM**: AL 6061-T6, machined, qty 1 _(source: BOM-00053 line 2 (S05_spacer_kit_bom.pdf))_
+- [6] **ORB-1042 — Bracket, Mounting**: 6061-T6; last cost $4.05 on PO-24017 _(source: supplier_spend_sample.csv spend import row 2 (PO-24017))_","[1] ORB-1044 — Gusset 6061-T6: 6061-T6, machined, qty 1 (source: BOM-00047 line 4 (bracket_assembly_rev_b.step))
+[2] ORB-0770 — Spacer, 10 mm: 6061-T6; last cost $0.95 on SAMPLE Program Atlas (source: part_cost_history_sample.csv row 10)
+[3] ORB-0771 — Spacer, 12 mm: 6061-T6; last cost $1.05 on SAMPLE Program Borealis (source: part_cost_history_sample.csv row 11)
+[4] ORB-0770 — SPACER, 10 MM: AL 6061-T6, machined, qty 1 (source: BOM-00053 line 1 (S05_spacer_kit_bom.pdf))
+[5] ORB-0771 — SPACER, 12 MM: AL 6061-T6, machined, qty 1 (source: BOM-00053 line 2 (S05_spacer_kit_bom.pdf))
+[6] ORB-1042 — Bracket, Mounting: 6061-T6; last cost $4.05 on PO-24017 (source: supplier_spend_sample.csv spend import row 2 (PO-24017))",,,,,labeller2,

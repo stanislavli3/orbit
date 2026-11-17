@@ -1,0 +1,6309 @@
+{
+  "deliverable": "#30 BOM agent (T5)",
+  "commit": "a715bc4",
+  "synthetic_corpus": true,
+  "n_bom_files": 8,
+  "scenarios": [
+    "quote",
+    "unclear",
+    "decline",
+    "info",
+    "silent"
+  ],
+  "summary": {
+    "cold": {
+      "n_runs": 40,
+      "n_lines": 115,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 115,
+      "lines_with_unconfirmed_rfq_fields": 115,
+      "lines_with_estimate": 100,
+      "lines_with_shortlist": 0,
+      "failure_counts": {
+        "no_supplier_candidate": 115,
+        "critical_fields_unconfirmed": 115
+      },
+      "latency_ms_median": 90.3,
+      "latency_ms_max": 161.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "curated": {
+      "n_runs": 40,
+      "n_lines": 115,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.1,
+      "lines_needing_hard_intervention": 45,
+      "lines_with_unconfirmed_rfq_fields": 115,
+      "lines_with_estimate": 100,
+      "lines_with_shortlist": 70,
+      "failure_counts": {
+        "critical_fields_unconfirmed": 115,
+        "no_supplier_candidate": 45
+      },
+      "latency_ms_median": 89.9,
+      "latency_ms_max": 189.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    }
+  },
+  "by_scenario": {
+    "cold/quote": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 23,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 0,
+      "failure_counts": {
+        "no_supplier_candidate": 23,
+        "critical_fields_unconfirmed": 23
+      },
+      "latency_ms_median": 105.9,
+      "latency_ms_max": 160.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "cold/unclear": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 23,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 0,
+      "failure_counts": {
+        "no_supplier_candidate": 23,
+        "critical_fields_unconfirmed": 23
+      },
+      "latency_ms_median": 99.3,
+      "latency_ms_max": 112.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "cold/decline": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 23,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 0,
+      "failure_counts": {
+        "no_supplier_candidate": 23,
+        "critical_fields_unconfirmed": 23
+      },
+      "latency_ms_median": 122.8,
+      "latency_ms_max": 161.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "cold/info": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 23,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 0,
+      "failure_counts": {
+        "no_supplier_candidate": 23,
+        "critical_fields_unconfirmed": 23
+      },
+      "latency_ms_median": 80.2,
+      "latency_ms_max": 143.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "cold/silent": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 23,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 0,
+      "failure_counts": {
+        "no_supplier_candidate": 23,
+        "critical_fields_unconfirmed": 23
+      },
+      "latency_ms_median": 90.3,
+      "latency_ms_max": 118.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "curated/quote": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.5,
+      "lines_needing_hard_intervention": 9,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 14,
+      "failure_counts": {
+        "critical_fields_unconfirmed": 23,
+        "no_supplier_candidate": 9
+      },
+      "latency_ms_median": 115.3,
+      "latency_ms_max": 184.1,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "curated/unclear": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 9,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 14,
+      "failure_counts": {
+        "critical_fields_unconfirmed": 23,
+        "no_supplier_candidate": 9
+      },
+      "latency_ms_median": 89.1,
+      "latency_ms_max": 156.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "curated/decline": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 9,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 14,
+      "failure_counts": {
+        "critical_fields_unconfirmed": 23,
+        "no_supplier_candidate": 9
+      },
+      "latency_ms_median": 112.3,
+      "latency_ms_max": 189.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "curated/info": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 9,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 14,
+      "failure_counts": {
+        "critical_fields_unconfirmed": 23,
+        "no_supplier_candidate": 9
+      },
+      "latency_ms_median": 114.1,
+      "latency_ms_max": 141.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "curated/silent": {
+      "n_runs": 8,
+      "n_lines": 23,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 9,
+      "lines_with_unconfirmed_rfq_fields": 23,
+      "lines_with_estimate": 20,
+      "lines_with_shortlist": 14,
+      "failure_counts": {
+        "critical_fields_unconfirmed": 23,
+        "no_supplier_candidate": 9
+      },
+      "latency_ms_median": 89.9,
+      "latency_ms_max": 139.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    }
+  },
+  "taxonomy": {
+    "extraction_no_rows": "BOM extraction returned no lines for a file that has a BOM",
+    "no_supplier_candidate": "Shortlist empty: no approved supplier with history for the part or material",
+    "supplier_email_missing": "Shortlisted supplier has no contact e-mail; RFQ cannot be sent",
+    "critical_fields_unconfirmed": "RFQ sent with quote-critical fields 'to be confirmed' (tolerance, stock size, due date...)",
+    "send_failed": "RFQ send raised or stored send_failed",
+    "wrong_end_state": "Reply did not move the RFQ to the expected state",
+    "reply_misparsed": "Quote committed with wrong price / lead time / MOQ",
+    "research_api_error": "LLM sourcing agent: API error",
+    "research_insufficient_data": "LLM sourcing agent flagged insufficient data",
+    "research_zero_quotes": "LLM sourcing agent ended with no quotes and no flag"
+  },
+  "research_agent": {
+    "ran": false,
+    "reason": "ANTHROPIC_API_KEY not set"
+  },
+  "runs": [
+    {
+      "run": "D01-quote-cold",
+      "doc_id": "D01",
+      "scenario": "quote",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 105.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 4,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-unclear-cold",
+      "doc_id": "D01",
+      "scenario": "unclear",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 103.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 4,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-decline-cold",
+      "doc_id": "D01",
+      "scenario": "decline",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 122.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 4,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-info-cold",
+      "doc_id": "D01",
+      "scenario": "info",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 108.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 4,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-silent-cold",
+      "doc_id": "D01",
+      "scenario": "silent",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 90.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 4,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-quote-cold",
+      "doc_id": "D02",
+      "scenario": "quote",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 141.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-unclear-cold",
+      "doc_id": "D02",
+      "scenario": "unclear",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 112.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-decline-cold",
+      "doc_id": "D02",
+      "scenario": "decline",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 124.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-info-cold",
+      "doc_id": "D02",
+      "scenario": "info",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 143.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-silent-cold",
+      "doc_id": "D02",
+      "scenario": "silent",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 118.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-quote-cold",
+      "doc_id": "S01",
+      "scenario": "quote",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 160.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-unclear-cold",
+      "doc_id": "S01",
+      "scenario": "unclear",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 103.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-decline-cold",
+      "doc_id": "S01",
+      "scenario": "decline",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 161.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-info-cold",
+      "doc_id": "S01",
+      "scenario": "info",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 137.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-silent-cold",
+      "doc_id": "S01",
+      "scenario": "silent",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 109.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 5,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-quote-cold",
+      "doc_id": "S02",
+      "scenario": "quote",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 109.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-unclear-cold",
+      "doc_id": "S02",
+      "scenario": "unclear",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 99.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-decline-cold",
+      "doc_id": "S02",
+      "scenario": "decline",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 129.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-info-cold",
+      "doc_id": "S02",
+      "scenario": "info",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 80.2,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-silent-cold",
+      "doc_id": "S02",
+      "scenario": "silent",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 86.7,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-quote-cold",
+      "doc_id": "S03",
+      "scenario": "quote",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 44.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-unclear-cold",
+      "doc_id": "S03",
+      "scenario": "unclear",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 42.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-decline-cold",
+      "doc_id": "S03",
+      "scenario": "decline",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 53.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-info-cold",
+      "doc_id": "S03",
+      "scenario": "info",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 38.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-silent-cold",
+      "doc_id": "S03",
+      "scenario": "silent",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 38.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-quote-cold",
+      "doc_id": "S04",
+      "scenario": "quote",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 43.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-unclear-cold",
+      "doc_id": "S04",
+      "scenario": "unclear",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 42.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-decline-cold",
+      "doc_id": "S04",
+      "scenario": "decline",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 44.7,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-info-cold",
+      "doc_id": "S04",
+      "scenario": "info",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 37.2,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-silent-cold",
+      "doc_id": "S04",
+      "scenario": "silent",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 32.2,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-quote-cold",
+      "doc_id": "S05",
+      "scenario": "quote",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 76.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-unclear-cold",
+      "doc_id": "S05",
+      "scenario": "unclear",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 78.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-decline-cold",
+      "doc_id": "S05",
+      "scenario": "decline",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 90.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-info-cold",
+      "doc_id": "S05",
+      "scenario": "info",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 72.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-silent-cold",
+      "doc_id": "S05",
+      "scenario": "silent",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 92.7,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-quote-cold",
+      "doc_id": "S06",
+      "scenario": "quote",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 42.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-unclear-cold",
+      "doc_id": "S06",
+      "scenario": "unclear",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 33.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-decline-cold",
+      "doc_id": "S06",
+      "scenario": "decline",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 42.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-info-cold",
+      "doc_id": "S06",
+      "scenario": "info",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 43.7,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-silent-cold",
+      "doc_id": "S06",
+      "scenario": "silent",
+      "workspace": "cold",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 42.1,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-quote-curated",
+      "doc_id": "D01",
+      "scenario": "quote",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 151.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 2,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-unclear-curated",
+      "doc_id": "D01",
+      "scenario": "unclear",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 126.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 2,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-decline-curated",
+      "doc_id": "D01",
+      "scenario": "decline",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 1,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 138.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 2,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-info-curated",
+      "doc_id": "D01",
+      "scenario": "info",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 141.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 2,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D01-silent-curated",
+      "doc_id": "D01",
+      "scenario": "silent",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "Part1",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 124.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 4,
+      "task_success": true,
+      "hard_interventions": 2,
+      "soft_interventions": 4,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-quote-curated",
+      "doc_id": "D02",
+      "scenario": "quote",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 184.1,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-unclear-curated",
+      "doc_id": "D02",
+      "scenario": "unclear",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 135.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-decline-curated",
+      "doc_id": "D02",
+      "scenario": "decline",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 1,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 189.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-info-curated",
+      "doc_id": "D02",
+      "scenario": "info",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 128.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "D02-silent-curated",
+      "doc_id": "D02",
+      "scenario": "silent",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 4,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 124.1,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-quote-curated",
+      "doc_id": "S01",
+      "scenario": "quote",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 174.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-unclear-curated",
+      "doc_id": "S01",
+      "scenario": "unclear",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 156.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-decline-curated",
+      "doc_id": "S01",
+      "scenario": "decline",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 1,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 176.7,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-info-curated",
+      "doc_id": "S01",
+      "scenario": "info",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 136.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S01-silent-curated",
+      "doc_id": "S01",
+      "scenario": "silent",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-1043",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X16",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 4,
+          "part_number": "ORB-1044",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 5,
+          "part_number": "ORB-1050",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 4,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 4,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 5,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 5,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 139.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 5,
+      "task_success": true,
+      "hard_interventions": 3,
+      "soft_interventions": 5,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-quote-curated",
+      "doc_id": "S02",
+      "scenario": "quote",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 115.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": true
+    },
+    {
+      "run": "S02-unclear-curated",
+      "doc_id": "S02",
+      "scenario": "unclear",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 89.1,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-decline-curated",
+      "doc_id": "S02",
+      "scenario": "decline",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 87.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-info-curated",
+      "doc_id": "S02",
+      "scenario": "info",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 76.7,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S02-silent-curated",
+      "doc_id": "S02",
+      "scenario": "silent",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2001",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "SHCS-M6X20",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 86.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-quote-curated",
+      "doc_id": "S03",
+      "scenario": "quote",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 37.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": true
+    },
+    {
+      "run": "S03-unclear-curated",
+      "doc_id": "S03",
+      "scenario": "unclear",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 43.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-decline-curated",
+      "doc_id": "S03",
+      "scenario": "decline",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 1,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 48.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-info-curated",
+      "doc_id": "S03",
+      "scenario": "info",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 30.6,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S03-silent-curated",
+      "doc_id": "S03",
+      "scenario": "silent",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1042",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 2,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 31.2,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-quote-curated",
+      "doc_id": "S04",
+      "scenario": "quote",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 3,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 35.8,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": true
+    },
+    {
+      "run": "S04-unclear-curated",
+      "doc_id": "S04",
+      "scenario": "unclear",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 3,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 34.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-decline-curated",
+      "doc_id": "S04",
+      "scenario": "decline",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 3,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 2,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 43.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-info-curated",
+      "doc_id": "S04",
+      "scenario": "info",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 3,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 33.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S04-silent-curated",
+      "doc_id": "S04",
+      "scenario": "silent",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-1130",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 3,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 47.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-quote-curated",
+      "doc_id": "S05",
+      "scenario": "quote",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 97.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-unclear-curated",
+      "doc_id": "S05",
+      "scenario": "unclear",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 85.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-decline-curated",
+      "doc_id": "S05",
+      "scenario": "decline",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 112.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-info-curated",
+      "doc_id": "S05",
+      "scenario": "info",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 114.1,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S05-silent-curated",
+      "doc_id": "S05",
+      "scenario": "silent",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-0770",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 2,
+          "part_number": "ORB-0771",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        },
+        {
+          "line_no": 3,
+          "part_number": "LT-243",
+          "interventions": [
+            "no_supplier_candidate",
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": false,
+          "shortlist_size": 0,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 2,
+          "category": "critical_fields_unconfirmed"
+        },
+        {
+          "line": 3,
+          "category": "no_supplier_candidate"
+        },
+        {
+          "line": 3,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 89.9,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 3,
+      "task_success": true,
+      "hard_interventions": 1,
+      "soft_interventions": 3,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-quote-curated",
+      "doc_id": "S06",
+      "scenario": "quote",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "quoted",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 37.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": true
+    },
+    {
+      "run": "S06-unclear-curated",
+      "doc_id": "S06",
+      "scenario": "unclear",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "needs_review",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 45.5,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-decline-curated",
+      "doc_id": "S06",
+      "scenario": "decline",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "declined",
+          "next_suppliers": 0,
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 48.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-info-curated",
+      "doc_id": "S06",
+      "scenario": "info",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "info_requested",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 57.1,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    },
+    {
+      "run": "S06-silent-curated",
+      "doc_id": "S06",
+      "scenario": "silent",
+      "workspace": "curated",
+      "lines": [
+        {
+          "line_no": 1,
+          "part_number": "ORB-2002",
+          "interventions": [
+            "critical_fields_unconfirmed"
+          ],
+          "estimate": true,
+          "shortlist_size": 1,
+          "unconfirmed_fields": 3,
+          "end_state": "escalated",
+          "state_ok": true
+        }
+      ],
+      "failures": [
+        {
+          "line": 1,
+          "category": "critical_fields_unconfirmed"
+        }
+      ],
+      "latency_ms": 64.3,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0,
+      "n_lines": 1,
+      "task_success": true,
+      "hard_interventions": 0,
+      "soft_interventions": 1,
+      "autonomous_success": false,
+      "autonomous_if_unconfirmed_fields_accepted": false
+    }
+  ]
+}

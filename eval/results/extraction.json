@@ -1,0 +1,1327 @@
+{
+  "deliverable": "#25",
+  "commit": "a715bc4",
+  "synthetic_corpus": true,
+  "bom": {
+    "n_files": 9,
+    "n_labelled_lines": 23,
+    "n_extracted_rows": 23,
+    "n_unmatched_predictions": 0,
+    "n_missed_lines": 0,
+    "fields": {
+      "part_number": {
+        "tp": 22,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.9565217391304348,
+        "recall": 1.0,
+        "f1": 0.9777777777777777
+      },
+      "quantity": {
+        "tp": 20,
+        "fp": 3,
+        "fn": 2,
+        "precision": 0.8695652173913043,
+        "recall": 0.9090909090909091,
+        "f1": 0.888888888888889
+      },
+      "material": {
+        "tp": 19,
+        "fp": 1,
+        "fn": 0,
+        "precision": 0.95,
+        "recall": 1.0,
+        "f1": 0.9743589743589743
+      },
+      "process": {
+        "tp": 19,
+        "fp": 2,
+        "fn": 1,
+        "precision": 0.9047619047619048,
+        "recall": 0.95,
+        "f1": 0.9268292682926829
+      },
+      "revision": {
+        "tp": 9,
+        "fp": 1,
+        "fn": 2,
+        "precision": 0.9,
+        "recall": 0.8181818181818182,
+        "f1": 0.8571428571428572
+      }
+    },
+    "by_origin": {
+      "repo sample": {
+        "part_number": {
+          "tp": 8,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.8888888888888888,
+          "recall": 1.0,
+          "f1": 0.9411764705882353
+        },
+        "quantity": {
+          "tp": 9,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "material": {
+          "tp": 6,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "process": {
+          "tp": 7,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.875,
+          "recall": 1.0,
+          "f1": 0.9333333333333333
+        },
+        "revision": {
+          "tp": 4,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "synthetic": {
+        "part_number": {
+          "tp": 14,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "quantity": {
+          "tp": 11,
+          "fp": 3,
+          "fn": 2,
+          "precision": 0.7857142857142857,
+          "recall": 0.8461538461538461,
+          "f1": 0.8148148148148148
+        },
+        "material": {
+          "tp": 13,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.9285714285714286,
+          "recall": 1.0,
+          "f1": 0.962962962962963
+        },
+        "process": {
+          "tp": 12,
+          "fp": 1,
+          "fn": 1,
+          "precision": 0.9230769230769231,
+          "recall": 0.9230769230769231,
+          "f1": 0.9230769230769231
+        },
+        "revision": {
+          "tp": 5,
+          "fp": 1,
+          "fn": 2,
+          "precision": 0.8333333333333334,
+          "recall": 0.7142857142857143,
+          "f1": 0.7692307692307692
+        }
+      }
+    },
+    "by_file_type": {
+      "step": {
+        "part_number": {
+          "tp": 9,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.9,
+          "recall": 1.0,
+          "f1": 0.9473684210526316
+        },
+        "quantity": {
+          "tp": 10,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "material": {
+          "tp": 7,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "process": {
+          "tp": 8,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.8888888888888888,
+          "recall": 1.0,
+          "f1": 0.9411764705882353
+        },
+        "revision": {
+          "tp": 5,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        }
+      },
+      "pdf": {
+        "part_number": {
+          "tp": 13,
+          "fp": 0,
+          "fn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        "quantity": {
+          "tp": 10,
+          "fp": 3,
+          "fn": 2,
+          "precision": 0.7692307692307693,
+          "recall": 0.8333333333333334,
+          "f1": 0.8
+        },
+        "material": {
+          "tp": 12,
+          "fp": 1,
+          "fn": 0,
+          "precision": 0.9230769230769231,
+          "recall": 1.0,
+          "f1": 0.9600000000000001
+        },
+        "process": {
+          "tp": 11,
+          "fp": 1,
+          "fn": 1,
+          "precision": 0.9166666666666666,
+          "recall": 0.9166666666666666,
+          "f1": 0.9166666666666666
+        },
+        "revision": {
+          "tp": 4,
+          "fp": 1,
+          "fn": 2,
+          "precision": 0.8,
+          "recall": 0.6666666666666666,
+          "f1": 0.7272727272727272
+        }
+      }
+    },
+    "calibration_material": {
+      "n": 23,
+      "ece": 0.0891,
+      "bins": [
+        {
+          "bin": "[0.0,0.2)",
+          "n": 0,
+          "mean_confidence": null,
+          "accuracy": null
+        },
+        {
+          "bin": "[0.2,0.4)",
+          "n": 1,
+          "mean_confidence": 0.35,
+          "accuracy": 1.0
+        },
+        {
+          "bin": "[0.4,0.6)",
+          "n": 0,
+          "mean_confidence": null,
+          "accuracy": null
+        },
+        {
+          "bin": "[0.6,0.8)",
+          "n": 7,
+          "mean_confidence": 0.714,
+          "accuracy": 0.857
+        },
+        {
+          "bin": "[0.8,1.0]",
+          "n": 15,
+          "mean_confidence": 0.973,
+          "accuracy": 1.0
+        }
+      ]
+    },
+    "calibration_all_fields": {
+      "n": 23,
+      "ece": 0.2587,
+      "bins": [
+        {
+          "bin": "[0.0,0.2)",
+          "n": 0,
+          "mean_confidence": null,
+          "accuracy": null
+        },
+        {
+          "bin": "[0.2,0.4)",
+          "n": 1,
+          "mean_confidence": 0.35,
+          "accuracy": 0.0
+        },
+        {
+          "bin": "[0.4,0.6)",
+          "n": 0,
+          "mean_confidence": null,
+          "accuracy": null
+        },
+        {
+          "bin": "[0.6,0.8)",
+          "n": 7,
+          "mean_confidence": 0.714,
+          "accuracy": 0.286
+        },
+        {
+          "bin": "[0.8,1.0]",
+          "n": 15,
+          "mean_confidence": 0.973,
+          "accuracy": 0.8
+        }
+      ]
+    },
+    "abstention_material": [
+      {
+        "threshold": 0.35,
+        "kept": 23,
+        "coverage": 1.0,
+        "accuracy": 0.957
+      },
+      {
+        "threshold": 0.6,
+        "kept": 22,
+        "coverage": 0.957,
+        "accuracy": 0.955
+      },
+      {
+        "threshold": 0.7,
+        "kept": 21,
+        "coverage": 0.913,
+        "accuracy": 1.0
+      },
+      {
+        "threshold": 0.75,
+        "kept": 19,
+        "coverage": 0.826,
+        "accuracy": 1.0
+      },
+      {
+        "threshold": 0.9,
+        "kept": 15,
+        "coverage": 0.652,
+        "accuracy": 1.0
+      },
+      {
+        "threshold": 1.0,
+        "kept": 11,
+        "coverage": 0.478,
+        "accuracy": 1.0
+      }
+    ],
+    "per_doc": [
+      {
+        "doc_id": "D01",
+        "file": "samples/bracket_assembly.step",
+        "origin": "repo sample",
+        "labelled_lines": 4,
+        "extracted_rows": 4,
+        "extract_ms": 3.07,
+        "role": "bom"
+      },
+      {
+        "doc_id": "D02",
+        "file": "samples/bracket_assembly_rev_b.step",
+        "origin": "repo sample",
+        "labelled_lines": 5,
+        "extracted_rows": 5,
+        "extract_ms": 0.73,
+        "role": "bom"
+      },
+      {
+        "doc_id": "D03",
+        "file": "samples/bracket_assembly_layout.step",
+        "origin": "repo sample",
+        "labelled_lines": 0,
+        "extracted_rows": 0,
+        "extract_ms": 0.11,
+        "role": "negative"
+      },
+      {
+        "doc_id": "S01",
+        "file": "eval/corpus/files/S01_bracket_rev_b_drawing_bom.pdf",
+        "origin": "synthetic",
+        "labelled_lines": 5,
+        "extracted_rows": 5,
+        "extract_ms": 81.05,
+        "role": "bom"
+      },
+      {
+        "doc_id": "S02",
+        "file": "eval/corpus/files/S02_pump_assembly_bom.pdf",
+        "origin": "synthetic",
+        "labelled_lines": 3,
+        "extracted_rows": 3,
+        "extract_ms": 1.83,
+        "role": "bom"
+      },
+      {
+        "doc_id": "S03",
+        "file": "eval/corpus/files/S03_bracket_mounting_title_block.pdf",
+        "origin": "synthetic",
+        "labelled_lines": 1,
+        "extracted_rows": 1,
+        "extract_ms": 1.81,
+        "role": "bom"
+      },
+      {
+        "doc_id": "S04",
+        "file": "eval/corpus/files/S04_cover_plate_title_block.pdf",
+        "origin": "synthetic",
+        "labelled_lines": 1,
+        "extracted_rows": 1,
+        "extract_ms": 1.22,
+        "role": "bom"
+      },
+      {
+        "doc_id": "S05",
+        "file": "eval/corpus/files/S05_spacer_kit_bom.pdf",
+        "origin": "synthetic",
+        "labelled_lines": 3,
+        "extracted_rows": 3,
+        "extract_ms": 1.55,
+        "role": "bom"
+      },
+      {
+        "doc_id": "S06",
+        "file": "eval/corpus/files/S06_shaft_single_part.step",
+        "origin": "synthetic",
+        "labelled_lines": 1,
+        "extracted_rows": 1,
+        "extract_ms": 0.1,
+        "role": "bom"
+      }
+    ],
+    "lines": [
+      {
+        "doc_id": "D01",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "1",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-1042",
+          "pred": "ORB-1042",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "6061-T6",
+          "pred": "6061-T6",
+          "ok": true
+        },
+        "process": {
+          "gold": "MACHINED",
+          "pred": "MACHINED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "D01",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "2",
+        "confidence": 0.75,
+        "flags": [
+          "No material found"
+        ],
+        "part_number": {
+          "gold": "ORB-1043",
+          "pred": "ORB-1043",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "process": {
+          "gold": "SHEET METAL",
+          "pred": "SHEET METAL",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "D01",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "3",
+        "confidence": 0.9,
+        "flags": [
+          "Material inferred from description"
+        ],
+        "part_number": {
+          "gold": "SHCS-M6X16",
+          "pred": "SHCS-M6X16",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "4",
+          "pred": "4",
+          "ok": true
+        },
+        "material": {
+          "gold": "SS 304",
+          "pred": "SS 304",
+          "ok": true
+        },
+        "process": {
+          "gold": "PURCHASED",
+          "pred": "PURCHASED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "D01",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "4",
+        "confidence": 0.35,
+        "flags": [
+          "Part number looks auto-generated by the CAD tool",
+          "No material found",
+          "Process unknown"
+        ],
+        "part_number": {
+          "gold": "",
+          "pred": "PART1",
+          "ok": false
+        },
+        "quantity": {
+          "gold": "2",
+          "pred": "2",
+          "ok": true
+        },
+        "material": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "process": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "D02",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "1",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-1042",
+          "pred": "ORB-1042",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "7075-T6",
+          "pred": "7075-T6",
+          "ok": true
+        },
+        "process": {
+          "gold": "MACHINED",
+          "pred": "MACHINED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "B",
+          "pred": "B",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "D02",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "2",
+        "confidence": 0.75,
+        "flags": [
+          "No material found"
+        ],
+        "part_number": {
+          "gold": "ORB-1043",
+          "pred": "ORB-1043",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "process": {
+          "gold": "SHEET METAL",
+          "pred": "SHEET METAL",
+          "ok": true
+        },
+        "revision": {
+          "gold": "A",
+          "pred": "A",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "D02",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "3",
+        "confidence": 0.9,
+        "flags": [
+          "Material inferred from description"
+        ],
+        "part_number": {
+          "gold": "SHCS-M6X16",
+          "pred": "SHCS-M6X16",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "4",
+          "pred": "4",
+          "ok": true
+        },
+        "material": {
+          "gold": "SS 304",
+          "pred": "SS 304",
+          "ok": true
+        },
+        "process": {
+          "gold": "PURCHASED",
+          "pred": "PURCHASED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "D02",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "4",
+        "confidence": 0.9,
+        "flags": [
+          "Material inferred from description"
+        ],
+        "part_number": {
+          "gold": "ORB-1044",
+          "pred": "ORB-1044",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "6061-T6",
+          "pred": "6061-T6",
+          "ok": true
+        },
+        "process": {
+          "gold": "",
+          "pred": "MACHINED",
+          "ok": false
+        },
+        "revision": {
+          "gold": "A",
+          "pred": "A",
+          "ok": true
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "D02",
+        "origin": "repo sample",
+        "file_type": "step",
+        "gold_line": "5",
+        "confidence": 0.9,
+        "flags": [
+          "Material inferred from description"
+        ],
+        "part_number": {
+          "gold": "ORB-1050",
+          "pred": "ORB-1050",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "PA66",
+          "pred": "PA66",
+          "ok": true
+        },
+        "process": {
+          "gold": "INJECTION MOLDED",
+          "pred": "INJECTION MOLDED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "A",
+          "pred": "A",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "S01",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "1",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-1042",
+          "pred": "ORB-1042",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "7075-T6",
+          "pred": "7075-T6",
+          "ok": true
+        },
+        "process": {
+          "gold": "MACHINED",
+          "pred": "MACHINED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "B",
+          "pred": "B",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "S01",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "2",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-1043",
+          "pred": "ORB-1043",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "CRS",
+          "pred": "CRS",
+          "ok": true
+        },
+        "process": {
+          "gold": "SHEET METAL",
+          "pred": "SHEET METAL",
+          "ok": true
+        },
+        "revision": {
+          "gold": "A",
+          "pred": "A",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "S01",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "3",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "SHCS-M6X16",
+          "pred": "SHCS-M6X16",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "4",
+          "pred": "4",
+          "ok": true
+        },
+        "material": {
+          "gold": "SS 304",
+          "pred": "SS 304",
+          "ok": true
+        },
+        "process": {
+          "gold": "PURCHASED",
+          "pred": "PURCHASED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "-",
+          "ok": false
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "S01",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "4",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-1044",
+          "pred": "ORB-1044",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "6061-T6",
+          "pred": "6061-T6",
+          "ok": true
+        },
+        "process": {
+          "gold": "",
+          "pred": "MACHINED",
+          "ok": false
+        },
+        "revision": {
+          "gold": "A",
+          "pred": "A",
+          "ok": true
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "S01",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "5",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-1050",
+          "pred": "ORB-1050",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "PA66",
+          "pred": "PA66",
+          "ok": true
+        },
+        "process": {
+          "gold": "INJECTION MOLDED",
+          "pred": "INJECTION MOLDED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "A",
+          "pred": "A",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "S02",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "1",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-2001",
+          "pred": "ORB-2001",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "A380 CAST",
+          "pred": "A380 CAST",
+          "ok": true
+        },
+        "process": {
+          "gold": "CASTING",
+          "pred": "CASTING",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "S02",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "2",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-2002",
+          "pred": "ORB-2002",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "4140",
+          "pred": "4140",
+          "ok": true
+        },
+        "process": {
+          "gold": "MACHINED",
+          "pred": "MACHINED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "S02",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "3",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "SHCS-M6X20",
+          "pred": "SHCS-M6X20",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "6",
+          "pred": "6",
+          "ok": true
+        },
+        "material": {
+          "gold": "SS 304",
+          "pred": "SS 304",
+          "ok": true
+        },
+        "process": {
+          "gold": "PURCHASED",
+          "pred": "PURCHASED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": true
+      },
+      {
+        "doc_id": "S03",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "1",
+        "confidence": 0.75,
+        "flags": [
+          "No BOM table; read the title block and assumed quantity 1"
+        ],
+        "part_number": {
+          "gold": "ORB-1042",
+          "pred": "ORB-1042",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "7075-T6",
+          "pred": "7075-T6",
+          "ok": true
+        },
+        "process": {
+          "gold": "MACHINED",
+          "pred": "MACHINED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "B",
+          "pred": "",
+          "ok": false
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "S04",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "1",
+        "confidence": 0.75,
+        "flags": [
+          "No BOM table; read the title block and assumed quantity 1"
+        ],
+        "part_number": {
+          "gold": "ORB-1130",
+          "pred": "ORB-1130",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "CRS",
+          "pred": "CRS",
+          "ok": true
+        },
+        "process": {
+          "gold": "SHEET METAL",
+          "pred": "SHEET METAL",
+          "ok": true
+        },
+        "revision": {
+          "gold": "C",
+          "pred": "",
+          "ok": false
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "S05",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "1",
+        "confidence": 0.7,
+        "flags": [
+          "Quantity '2 EA' not a number; assumed 1"
+        ],
+        "part_number": {
+          "gold": "ORB-0770",
+          "pred": "ORB-0770",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "2",
+          "pred": "1",
+          "ok": false
+        },
+        "material": {
+          "gold": "6061-T6",
+          "pred": "6061-T6",
+          "ok": true
+        },
+        "process": {
+          "gold": "MACHINED",
+          "pred": "MACHINED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "S05",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "2",
+        "confidence": 0.7,
+        "flags": [
+          "Quantity '2 EA' not a number; assumed 1"
+        ],
+        "part_number": {
+          "gold": "ORB-0771",
+          "pred": "ORB-0771",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "2",
+          "pred": "1",
+          "ok": false
+        },
+        "material": {
+          "gold": "6061-T6",
+          "pred": "6061-T6",
+          "ok": true
+        },
+        "process": {
+          "gold": "MACHINED",
+          "pred": "MACHINED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "S05",
+        "origin": "synthetic",
+        "file_type": "pdf",
+        "gold_line": "3",
+        "confidence": 0.6,
+        "flags": [
+          "Process unknown",
+          "Quantity 'A/R' not a number; assumed 1"
+        ],
+        "part_number": {
+          "gold": "LT-243",
+          "pred": "LT-243",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "",
+          "pred": "1",
+          "ok": false
+        },
+        "material": {
+          "gold": "",
+          "pred": "-",
+          "ok": false
+        },
+        "process": {
+          "gold": "PURCHASED",
+          "pred": "",
+          "ok": false
+        },
+        "revision": {
+          "gold": "",
+          "pred": "",
+          "ok": true
+        },
+        "all_fields_ok": false
+      },
+      {
+        "doc_id": "S06",
+        "origin": "synthetic",
+        "file_type": "step",
+        "gold_line": "1",
+        "confidence": 1.0,
+        "flags": [],
+        "part_number": {
+          "gold": "ORB-2002",
+          "pred": "ORB-2002",
+          "ok": true
+        },
+        "quantity": {
+          "gold": "1",
+          "pred": "1",
+          "ok": true
+        },
+        "material": {
+          "gold": "4140",
+          "pred": "4140",
+          "ok": true
+        },
+        "process": {
+          "gold": "MACHINED",
+          "pred": "MACHINED",
+          "ok": true
+        },
+        "revision": {
+          "gold": "C",
+          "pred": "C",
+          "ok": true
+        },
+        "all_fields_ok": true
+      }
+    ]
+  },
+  "matlab": {
+    "n_items": 5,
+    "n_field_checks": 15,
+    "n_correct": 15,
+    "checks": [
+      {
+        "doc_id": "D04",
+        "item": "beam_deflection",
+        "field": "name",
+        "ok": true
+      },
+      {
+        "doc_id": "D04",
+        "item": "beam_deflection",
+        "field": "inputs",
+        "ok": true
+      },
+      {
+        "doc_id": "D04",
+        "item": "beam_deflection",
+        "field": "outputs",
+        "ok": true
+      },
+      {
+        "doc_id": "D04",
+        "item": "section_c",
+        "field": "name",
+        "ok": true
+      },
+      {
+        "doc_id": "D04",
+        "item": "section_c",
+        "field": "inputs",
+        "ok": true
+      },
+      {
+        "doc_id": "D04",
+        "item": "section_c",
+        "field": "outputs",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "time_s",
+        "field": "name",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "time_s",
+        "field": "class",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "time_s",
+        "field": "shape",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "tip_deflection_m",
+        "field": "name",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "tip_deflection_m",
+        "field": "class",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "tip_deflection_m",
+        "field": "shape",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "load_case",
+        "field": "name",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "load_case",
+        "field": "class",
+        "ok": true
+      },
+      {
+        "doc_id": "D05",
+        "item": "load_case",
+        "field": "shape",
+        "ok": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,87 @@
+{
+  "deliverable": "#31 COGS (T7)",
+  "commit": "a715bc4",
+  "price_source": "platform.claude.com/docs/en/about-claude/pricing, retrieved 2026-11-17",
+  "unit_costs": {
+    "extraction": {
+      "usd": 0.003655,
+      "source": "sep6",
+      "basis": "M1 tokens per file ingestion (Sep 6 register)",
+      "n": "not stated"
+    },
+    "query": {
+      "usd": 0.0156,
+      "source": "sep6",
+      "basis": "M2 tokens per question (Sep 6 register)",
+      "n": "not stated"
+    },
+    "agent_line": {
+      "usd": 0.204725,
+      "source": "sep6",
+      "basis": "M3 tokens per sourced BOM line, 2 runs (Sep 6 register)",
+      "n": "2 runs"
+    }
+  },
+  "unit_cost_sources": [
+    "sep6"
+  ],
+  "usage": {
+    "seats": 8,
+    "files": 300,
+    "questions": 600,
+    "bom_lines": 150,
+    "label": "Sep 6 archetype A1-A4 (assumption, awaiting interview evidence)"
+  },
+  "per_customer_month": {
+    "files": 1.1,
+    "questions": 9.36,
+    "bom_lines": 30.71,
+    "total": 41.17,
+    "per_seat": 5.15
+  },
+  "margins": [
+    {
+      "price_per_seat": 25,
+      "ai_only_margin": 0.79417375,
+      "margin_with_platform_pilot (5 customers)": 0.28117375,
+      "margin_with_platform_growth (25)": 0.46517375,
+      "margin_with_platform_scale (100)": 0.53502375
+    },
+    {
+      "price_per_seat": 39,
+      "ai_only_margin": 0.8680600961538462,
+      "margin_with_platform_pilot (5 customers)": 0.5392139423076923,
+      "margin_with_platform_growth (25)": 0.6571626602564102,
+      "margin_with_platform_scale (100)": 0.7019383012820513
+    },
+    {
+      "price_per_seat": 59,
+      "ai_only_margin": 0.9127854872881356,
+      "margin_with_platform_pilot (5 customers)": 0.6954126059322034,
+      "margin_with_platform_growth (25)": 0.7733787076271187,
+      "margin_with_platform_scale (100)": 0.8029761652542373
+    }
+  ],
+  "margin_breakpoints": [
+    {
+      "price_per_seat": 25,
+      "bom_lines_per_customer_month_at_70pct": 242,
+      "per_seat": 30.3
+    },
+    {
+      "price_per_seat": 39,
+      "bom_lines_per_customer_month_at_70pct": 406,
+      "per_seat": 50.8
+    },
+    {
+      "price_per_seat": 59,
+      "bom_lines_per_customer_month_at_70pct": 640,
+      "per_seat": 80.1
+    }
+  ],
+  "platform_per_customer": {
+    "pilot (5 customers)": 102.6,
+    "growth (25)": 65.8,
+    "scale (100)": 51.83
+  }
+}
