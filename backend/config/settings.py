@@ -145,7 +145,11 @@ LOGGING = {
     "disable_existing_loggers": False,
     "handlers": {"console": {"class": "logging.StreamHandler"}},
     # Structured job events: `job_failed {json}` and `job_retry {json}`.
-    "loggers": {"orbit.jobs": {"handlers": ["console"], "level": "INFO"}},
+    # `llm_usage {json}`: tokens + $ per Claude call (core.usage).
+    "loggers": {
+        "orbit.jobs": {"handlers": ["console"], "level": "INFO"},
+        "orbit.usage": {"handlers": ["console"], "level": "INFO"},
+    },
 }
 
 

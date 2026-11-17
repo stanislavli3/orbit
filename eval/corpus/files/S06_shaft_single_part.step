@@ -1,0 +1,17 @@
+ISO-10303-21;
+HEADER;
+FILE_DESCRIPTION(('Shaft - synthetic evaluation file'),'2;1');
+FILE_NAME('S06_shaft_single_part.step','2026-11-17T00:00:00',('Orbit eval'),(''),'','','');
+FILE_SCHEMA(('AUTOMOTIVE_DESIGN { 1 0 10303 214 1 1 1 1 }'));
+ENDSEC;
+DATA;
+#1=APPLICATION_CONTEXT('automotive design');
+#2=PRODUCT_CONTEXT('',#1,'mechanical');
+#3=PRODUCT_DEFINITION_CONTEXT('part definition',#1,'design');
+#10=PRODUCT('ORB-2002','Shaft','Drive shaft',(#2));
+#11=PRODUCT_DEFINITION_FORMATION('C','',#10);
+#12=PRODUCT_DEFINITION('design','',#11,#3);
+#13=PRODUCT_DEFINITION_SHAPE('','',#12);
+#14=MATERIAL_DESIGNATION('AISI 4140',(#13));
+ENDSEC;
+END-ISO-10303-21;

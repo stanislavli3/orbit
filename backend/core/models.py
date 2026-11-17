@@ -45,3 +45,43 @@ class JobAttempt(models.Model):
                 fields=["job_type", "target_id"], name="unique_job_attempt"
             )
         ]
+
+
+class LlmUsage(models.Model):
+    """One Claude call: tokens, dollar cost and latency (assignment #23).
+
+    Written by ``core.usage.tracked_create``; summed by ``eval/cogs.py`` into
+    cost per extraction / query / agent run / seat (#31).
+    """
+
+    PATH_CHOICES = [
+        ("extraction", "Extraction"),
+        ("query", "Query"),
+        ("agent", "Agent"),
+        ("enrichment", "Enrichment"),
+    ]
+
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    path = models.CharField(max_length=20, choices=PATH_CHOICES, db_index=True)
+    operation = models.CharField(max_length=60)
+    model = models.CharField(max_length=80, blank=True)
+    input_tokens = models.PositiveIntegerField(default=0)
+    output_tokens = models.PositiveIntegerField(default=0)
+    cache_creation_input_tokens = models.PositiveIntegerField(default=0)
+    cache_read_input_tokens = models.PositiveIntegerField(default=0)
+    web_search_requests = models.PositiveIntegerField(default=0)
+    # Null when the model has no price in core.usage.PRICES.
+    cost_usd = models.DecimalField(max_digits=12, decimal_places=6, null=True, blank=True)
+    latency_ms = models.PositiveIntegerField(null=True, blank=True)
+    user = models.ForeignKey(
+        "auth.User", null=True, blank=True, on_delete=models.SET_NULL, related_name="+"
+    )
+    # e.g. "file:12", "bom_run:3/item:9" — what the call was for.
+    target = models.CharField(max_length=120, blank=True)
+    error = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.path}/{self.operation} {self.model} ${self.cost_usd}"

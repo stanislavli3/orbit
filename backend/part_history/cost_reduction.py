@@ -190,6 +190,7 @@ def _claude_questions(row, suggestions) -> list[str]:
         return []
     try:
         from bom_agent.team_requests import _client
+        from core.usage import tracked_create
 
         prompt = (
             "You are a senior cost engineer. Given this part and rules-based suggestions, return a JSON list of up "
@@ -197,7 +198,8 @@ def _claude_questions(row, suggestions) -> list[str]:
             f"Part: {row.part_number} {row.description}; material {row.material}; qty {row.quantity}; spec "
             f"{getattr(row, 'spec', '')}\nSuggestions: {json.dumps([s['title'] for s in suggestions])}"
         )
-        response = _client().messages.create(
+        response = tracked_create(
+            _client(), path="enrichment", operation="cost_reduction_questions", target=f"bom_row:{row.pk}",
             model="claude-haiku-4-5-20251001", max_tokens=300, messages=[{"role": "user", "content": prompt}]
         )
         questions = json.loads(response.content[0].text.strip())

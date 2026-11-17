@@ -73,6 +73,7 @@ def _claude_explanations(lines: list[dict]) -> dict:
         return {}
     try:
         from bom_agent.team_requests import _client
+        from core.usage import tracked_create
 
         payload = [{"row_id": l["row_id"], "part_number": l["part_number"], "description": l["description"],
                     "material": l["material"], "process": l["process"], "quantity": l["quantity"]} for l in lines]
@@ -81,7 +82,8 @@ def _claude_explanations(lines: list[dict]) -> dict:
             "(what it is, how it is made, what matters for buying). Do not invent facts. Return JSON only: "
             '{"<row_id>": "<explanation>", ...}\n' + json.dumps(payload)
         )
-        response = _client().messages.create(
+        response = tracked_create(
+            _client(), path="enrichment", operation="handoff_explanations",
             model="claude-haiku-4-5-20251001", max_tokens=1500, messages=[{"role": "user", "content": prompt}]
         )
         data = json.loads(response.content[0].text.strip())

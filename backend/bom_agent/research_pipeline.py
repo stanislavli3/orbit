@@ -24,6 +24,7 @@ from datetime import datetime, timezone
 import anthropic
 
 from core.jobs import is_transient, record_failure
+from core.usage import tracked_create
 
 
 # ── Lazy client ───────────────────────────────────────────────────────────────
@@ -88,7 +89,9 @@ def _call_claude_with_backoff(run, item, *, messages, system, tools, max_tokens=
     """
     for attempt in range(max_retries):
         try:
-            return _client().messages.create(
+            return tracked_create(
+                _client(), path="agent", operation="research_step", user=run.created_by,
+                target=f"bom_run:{run.pk}/item:{item.pk}",
                 model="claude-sonnet-4-6",
                 max_tokens=max_tokens,
                 system=system,
@@ -494,7 +497,9 @@ Write a concise summary covering: recommended material, best supplier pick (with
 key cost drivers, and top risk. Plain prose, no bullet lists, no headers."""
 
     try:
-        response = _client().messages.create(
+        response = tracked_create(
+            _client(), path="agent", operation="research_summary", user=run.created_by,
+            target=f"bom_run:{run.pk}/item:{item.pk}",
             model="claude-haiku-4-5-20251001",
             max_tokens=200,
             messages=[{"role": "user", "content": prompt}],

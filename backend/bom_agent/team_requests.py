@@ -5,6 +5,8 @@ from datetime import timedelta
 import anthropic
 from django.utils import timezone
 
+from core.usage import tracked_create
+
 from .models import BomLineItem, TeamContact, TeamRequest
 
 
@@ -163,7 +165,9 @@ Requirements:
 """
 
     try:
-        response = _client().messages.create(
+        response = tracked_create(
+            _client(), path="agent", operation="team_request_email", user=getattr(run, "created_by", None),
+            target=f"bom_run:{getattr(run, 'pk', '')}",
             model="claude-haiku-4-5-20251001",
             max_tokens=500,
             messages=[{"role": "user", "content": prompt}],
@@ -205,7 +209,8 @@ Return JSON with:
 - summary: short sentence
 """
         try:
-            response = _client().messages.create(
+            response = tracked_create(
+                _client(), path="agent", operation="team_reply_parse", target=f"team_request:{team_request.pk}",
                 model="claude-haiku-4-5-20251001",
                 max_tokens=300,
                 messages=[{"role": "user", "content": prompt}],

@@ -1,0 +1,6 @@
+doc_id,kind,name,inputs,outputs,class,shape,basis
+D04,function,beam_deflection,load_N;length_m;E_Pa;I_m4,delta;stress,,,line 1 of the .m file
+D04,function,section_c,,c,,,line 10 of the .m file
+D05,variable,time_s,,,double,1x4,"read independently with scipy.io.loadmat (scipy 1.x, not Orbit's parser)"
+D05,variable,tip_deflection_m,,,double,4x1,same
+D05,variable,load_case,,,double,2x2,same

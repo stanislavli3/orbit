@@ -11,6 +11,8 @@ import os
 import anthropic
 from django.shortcuts import get_object_or_404
 
+from core.usage import tracked_create
+
 from bom_agent.models import Bom, BomRow
 from part_history.models import Part
 from .search import unified_search
@@ -82,8 +84,9 @@ def ask(user, question: str, bom_id=None, row_id=None) -> dict:
             "cite them inline like [1]. If the sources don't answer it, say so.\n\nSources:\n" + context
         )
         try:
-            msg = anthropic.Anthropic(api_key=api_key).messages.create(
-                model=MODEL, max_tokens=800, system=system,
+            msg = tracked_create(
+                anthropic.Anthropic(api_key=api_key), path="query", operation="ask_orbit", user=user,
+                target=focus, model=MODEL, max_tokens=800, system=system,
                 messages=[{"role": "user", "content": question}],
             )
             return {"answer": msg.content[0].text.strip(), "mode": "ai", "focus": focus, "sources": sources}

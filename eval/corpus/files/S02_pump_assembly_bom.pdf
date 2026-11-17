@@ -1,0 +1,32 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 947 >>
+stream
+BT /F1 9 Tf 1 0 0 1 40 760 Tm (SYNTHETIC EVALUATION DRAWING - ORBIT BIS 372 - NOT A CUSTOMER FILE) Tj 1 0 0 1 40 746 Tm (PUMP ASSEMBLY - BILL OF MATERIALS) Tj 1 0 0 1 40 40 Tm (UNLESS OTHERWISE SPECIFIED DIMENSIONS ARE IN MM. TOLERANCES: X.X +/-0.2  X.XX +/-0.05) Tj 1 0 0 1 40 28 Tm (THIRD ANGLE PROJECTION    SCALE 1:1    SHEET 1 OF 1) Tj 1 0 0 1 40 700 Tm (ITEM) Tj 1 0 0 1 80 700 Tm (P/N) Tj 1 0 0 1 160 700 Tm (DESC) Tj 1 0 0 1 330 700 Tm (QTY) Tj 1 0 0 1 380 700 Tm (MATL) Tj 1 0 0 1 40 686 Tm (1) Tj 1 0 0 1 80 686 Tm (ORB-2001) Tj 1 0 0 1 160 686 Tm (HOUSING, PUMP) Tj 1 0 0 1 330 686 Tm (1) Tj 1 0 0 1 380 686 Tm (A380 CAST) Tj 1 0 0 1 40 672 Tm (2) Tj 1 0 0 1 80 672 Tm (ORB-2002) Tj 1 0 0 1 160 672 Tm (SHAFT) Tj 1 0 0 1 330 672 Tm (1) Tj 1 0 0 1 380 672 Tm (4140) Tj 1 0 0 1 40 658 Tm (3) Tj 1 0 0 1 80 658 Tm (SHCS-M6X20) Tj 1 0 0 1 160 658 Tm (SCREW SHCS M6X20 ISO 4762) Tj 1 0 0 1 330 658 Tm (6) Tj 1 0 0 1 380 658 Tm (SS 304) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001239 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1309
+%%EOF
