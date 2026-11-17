@@ -7,6 +7,8 @@ import json
 import os
 import anthropic
 
+from core.usage import tracked_create
+
 
 _MODEL = "claude-haiku-4-5-20251001"  # fast + cheap for description generation
 
@@ -60,7 +62,8 @@ Write a concise, factual description (2-4 sentences) of what this file likely co
 
     try:
         client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
+        message = tracked_create(
+            client, path="extraction", operation="file_description", target=file_name,
             model=_MODEL,
             max_tokens=256,
             messages=[{"role": "user", "content": prompt}],
@@ -155,7 +158,8 @@ Rules:
 
     try:
         client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
+        message = tracked_create(
+            client, path="extraction", operation="engineering_profile", target=file_name,
             model=_MODEL,
             max_tokens=512,
             messages=[{"role": "user", "content": prompt}],

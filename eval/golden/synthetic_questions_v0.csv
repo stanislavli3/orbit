@@ -1,0 +1,21 @@
+id,question,relevant_doc_ids,category,reference_answer,key_facts
+SQ01,What material is the mounting bracket ORB-1042 in rev B of the bracket assembly?,D02;S01;S03,material,"7075-T6 aluminium in rev B (it was 6061-T6 in the original assembly, D01).",7075-T6
+SQ02,How many M6x16 socket head cap screws does the bracket assembly use?,D01;D02;S01,quantity,"Four (SHCS-M6X16, 4 occurrences in both the original and rev B).",SHCS-M6X16;4
+SQ03,What changed between the original bracket assembly and rev B?,D01;D02,revision change,Bracket ORB-1042 moved from 6061-T6 to 7075-T6 (rev B); cover ORB-1043 is rev A; gusset ORB-1044 (6061-T6) and cable clip ORB-1050 (PA66) were added; the two spacers (CAD name Part1) were removed.,7075-T6;ORB-1044;ORB-1050
+SQ04,Which parts in the bracket assembly have no material specified?,D01;D02,data quality,"Cover plate ORB-1043 (16 GA, no material in the file) in both versions, and the spacer (Part1) in the original.",ORB-1043
+SQ05,What have we paid for bracket ORB-1042 before?,D06;D07,cost history,"$4.10 (2022, SAMPLE Program Atlas) and $4.35 (2024, SAMPLE Program Borealis) from SAMPLE Acme Machining in the cost history; $4.05 for 500 pcs from Keystone CNC on 2025-03-14 (PO-24017) in the spend export.",4.10;4.35
+SQ06,Who has supplied cover plate ORB-1130 and at what unit price?,D06;D07,supplier,"SAMPLE Sheetline Fab $2.10 (2023 cost history); Lehigh Valley Sheet Metal $2.55 (1,000 pcs, 2024-11-20); Keystone CNC $2.90 (250 pcs, 2025-06-02).",2.10;2.55;2.90
+SQ07,What lead time did we get on M6x20 socket head cap screws?,D07,supplier,"7 days (Delaware Fasteners, part FST-M6-20, PO-23955, 2025-01-08). Note the spend export uses FST-M6-20 while cost history uses SHCS-M6X20.",7
+SQ08,What formula sizes the bracket mounting arm for tip deflection?,D04,analysis,beam_deflection.m: delta = load_N * length_m^3 / (3 * E_Pa * I_m4) for a cantilever with a point load at the free end.,beam_deflection
+SQ09,What variables are stored in the simulation results file?,D05,analysis,"time_s (double 1x4), tip_deflection_m (double 4x1), load_case (double 2x2).",time_s;tip_deflection_m;load_case
+SQ10,What outer-fibre distance does the bending stress calculation assume?,D04,analysis,"c = 0.005 m (half of the 10 mm plate), from local function section_c.",0.005
+SQ11,Which parts of the pump assembly are castings?,S02;D06,process,"Housing ORB-2001, A380 cast.",ORB-2001
+SQ12,What revision is the ORB-2002 shaft and what steel is it made of?,S06;S02;D06,revision change,"Rev C (single-part STEP export), AISI 4140.",4140
+SQ13,What is the part number of the cable clip and what is it made of?,D02;S01,material,"ORB-1050, PA66.",ORB-1050;PA66
+SQ14,How many 10 mm spacers are in the spacer kit?,S05,quantity,2 EA (ORB-0770).,ORB-0770
+SQ15,Which threadlocker does the spacer kit call out and how much?,S05,quantity,"LT-243 medium-strength threadlocker, quantity A/R (as required).",LT-243
+SQ16,What gauge is the cover plate?,D01;D02;S01;S04,material,16 GA.,16 GA
+SQ17,Where are the screws placed in the rev B bracket assembly?,D02,geometry,"Four placements at (20,20,12), (-20,20,12), (20,-20,12) and (-20,-20,12) mm.",20.0
+SQ18,How big is the bounding block for the mounting bracket in the layout file?,D03,geometry,40 x 30 x 5 mm (BLOCK ORB-1042 at the origin).,40.
+SQ19,Which rows in the supplier spend export have data problems?,D07,data quality,"Hex nut M6 has no part number; ORB-2001 has a non-numeric unit price ('abc') and is described as 'Shaft 4140' although cost history calls ORB-2001 'Housing, Pump'; two rows (ORB-1130 Keystone CNC and ORB-2001) have no lead time.",abc
+SQ20,What is the lowest historical unit cost we have for a 6061-T6 spacer?,D06,cost history,"$0.95 for ORB-0770 (Spacer 10 mm, 2021, SAMPLE Program Atlas, SAMPLE Acme Machining).",0.95

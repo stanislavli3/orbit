@@ -9,6 +9,7 @@ from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from core.usage import tracked_create
 from projects.models import Project
 from files_api.models import UploadedFile
 from .models import ChatSession, ChatMessage
@@ -72,7 +73,9 @@ class ChatView(APIView):
         messages_payload.append({"role": "user", "content": message})
 
         try:
-            completion = client.messages.create(
+            completion = tracked_create(
+                client, path="query", operation="assistant_chat", user=request.user,
+                target=f"session:{session.session_id}",
                 model="claude-sonnet-4-6",
                 max_tokens=1024,
                 system=system_prompt,

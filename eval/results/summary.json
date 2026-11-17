@@ -1,0 +1,210 @@
+{
+  "commit": "a715bc4",
+  "api_key_present": false,
+  "questions": "synthetic_questions_v0.csv",
+  "extraction_fields": {
+    "part_number": {
+      "tp": 22,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.9565217391304348,
+      "recall": 1.0,
+      "f1": 0.9777777777777777
+    },
+    "quantity": {
+      "tp": 20,
+      "fp": 3,
+      "fn": 2,
+      "precision": 0.8695652173913043,
+      "recall": 0.9090909090909091,
+      "f1": 0.888888888888889
+    },
+    "material": {
+      "tp": 19,
+      "fp": 1,
+      "fn": 0,
+      "precision": 0.95,
+      "recall": 1.0,
+      "f1": 0.9743589743589743
+    },
+    "process": {
+      "tp": 19,
+      "fp": 2,
+      "fn": 1,
+      "precision": 0.9047619047619048,
+      "recall": 0.95,
+      "f1": 0.9268292682926829
+    },
+    "revision": {
+      "tp": 9,
+      "fp": 1,
+      "fn": 2,
+      "precision": 0.9,
+      "recall": 0.8181818181818182,
+      "f1": 0.8571428571428572
+    }
+  },
+  "retrieval_mean_over_repeats": {
+    "orbit_unified": {
+      "recall@1": {
+        "mean": 0.2417,
+        "min": 0.2417,
+        "max": 0.2417
+      },
+      "recall@5": {
+        "mean": 0.7175,
+        "min": 0.7125,
+        "max": 0.7375
+      },
+      "recall@10": {
+        "mean": 0.95,
+        "min": 0.95,
+        "max": 0.95
+      },
+      "hit@5": {
+        "mean": 0.76,
+        "min": 0.75,
+        "max": 0.8
+      },
+      "mrr": {
+        "mean": 0.5333,
+        "min": 0.533,
+        "max": 0.5347
+      },
+      "ndcg@10": {
+        "mean": 0.6466,
+        "min": 0.6464,
+        "max": 0.6473
+      }
+    },
+    "orbit_chat_rag": {
+      "recall@1": {
+        "mean": 0.2208,
+        "min": 0.2208,
+        "max": 0.2208
+      },
+      "recall@5": {
+        "mean": 0.5067,
+        "min": 0.5,
+        "max": 0.5167
+      },
+      "recall@10": {
+        "mean": 0.6958,
+        "min": 0.6958,
+        "max": 0.6958
+      },
+      "hit@5": {
+        "mean": 0.6,
+        "min": 0.6,
+        "max": 0.6
+      },
+      "mrr": {
+        "mean": 0.4839,
+        "min": 0.4768,
+        "max": 0.4863
+      },
+      "ndcg@10": {
+        "mean": 0.5048,
+        "min": 0.4991,
+        "max": 0.5064
+      }
+    },
+    "bm25_reference": {
+      "recall@1": {
+        "mean": 0.25,
+        "min": 0.25,
+        "max": 0.25
+      },
+      "recall@5": {
+        "mean": 0.7333,
+        "min": 0.7333,
+        "max": 0.7333
+      },
+      "recall@10": {
+        "mean": 0.9,
+        "min": 0.9,
+        "max": 0.9
+      },
+      "hit@5": {
+        "mean": 0.85,
+        "min": 0.85,
+        "max": 0.85
+      },
+      "mrr": {
+        "mean": 0.5363,
+        "min": 0.5363,
+        "max": 0.5363
+      },
+      "ndcg@10": {
+        "mean": 0.6323,
+        "min": 0.6323,
+        "max": 0.6323
+      }
+    }
+  },
+  "answer_quality": {
+    "orbit_modes": [
+      "retrieval_only"
+    ],
+    "context_has_key_facts_rate": 0.55,
+    "citation_validity_rate": 1.0,
+    "judge_ran": false
+  },
+  "head_to_head": {
+    "complete": false,
+    "assistant_source": null,
+    "blind_sheet": "eval/results/h2h_blind_sheet_TEMPLATE.csv"
+  },
+  "agent": {
+    "cold": {
+      "n_runs": 40,
+      "n_lines": 115,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.0,
+      "lines_needing_hard_intervention": 115,
+      "lines_with_unconfirmed_rfq_fields": 115,
+      "lines_with_estimate": 100,
+      "lines_with_shortlist": 0,
+      "failure_counts": {
+        "no_supplier_candidate": 115,
+        "critical_fields_unconfirmed": 115
+      },
+      "latency_ms_median": 90.3,
+      "latency_ms_max": 161.4,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    },
+    "curated": {
+      "n_runs": 40,
+      "n_lines": 115,
+      "task_success_rate": 1.0,
+      "autonomous_success_rate": 0.0,
+      "autonomous_if_unconfirmed_fields_accepted_rate": 0.1,
+      "lines_needing_hard_intervention": 45,
+      "lines_with_unconfirmed_rfq_fields": 115,
+      "lines_with_estimate": 100,
+      "lines_with_shortlist": 70,
+      "failure_counts": {
+        "critical_fields_unconfirmed": 115,
+        "no_supplier_candidate": 45
+      },
+      "latency_ms_median": 89.9,
+      "latency_ms_max": 189.0,
+      "llm_calls": 0,
+      "llm_cost_usd": 0.0
+    }
+  },
+  "cogs": {
+    "unit_cost_sources": [
+      "sep6"
+    ],
+    "per_customer_month": {
+      "files": 1.1,
+      "questions": 9.36,
+      "bom_lines": 30.71,
+      "total": 41.17,
+      "per_seat": 5.15
+    }
+  }
+}

@@ -5,7 +5,7 @@
 # Every day:   make dev
 # Shut down:   make stop
 
-.PHONY: dev dev-local worker setup stop restart logs migrate help
+.PHONY: dev dev-local worker setup stop restart logs migrate eval help
 
 # ── Python resolution ──────────────────────────────────────────────────────────
 # Prefer the project venv; otherwise fall back to python then python3 on PATH (handles spaces).
@@ -129,6 +129,10 @@ restart: stop dev
 
 ## migrate: Run Django database migrations
 migrate: _migrate
+
+## eval: Run the evaluation harness (extraction, retrieval, answers, head-to-head, agent, COGS)
+eval:
+	"$(PYTHON)" eval/run_all.py
 
 ## logs: Tail backend and frontend logs (when run in background)
 

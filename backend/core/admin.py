@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 
-from .models import JobFailure
+from .models import JobFailure, LlmUsage
 
 
 @admin.register(JobFailure)
@@ -28,3 +28,15 @@ class JobFailureAdmin(admin.ModelAdmin):
     @admin.action(description="Mark selected failures resolved")
     def mark_resolved(self, request, queryset):
         queryset.filter(resolved_at__isnull=True).update(resolved_at=timezone.now())
+
+
+@admin.register(LlmUsage)
+class LlmUsageAdmin(admin.ModelAdmin):
+    list_display = ["created_at", "path", "operation", "model", "input_tokens", "output_tokens",
+                    "web_search_requests", "cost_usd", "latency_ms", "error"]
+    list_filter = ["path", "operation", "model"]
+    search_fields = ["operation", "target", "error"]
+    date_hierarchy = "created_at"
+
+    def has_add_permission(self, request):
+        return False

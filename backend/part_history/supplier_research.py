@@ -15,6 +15,7 @@ import re
 
 from bom_agent import research_pipeline
 from bom_agent.bom_extraction import find_material
+from core.usage import tracked_create
 from .models import Supplier, SupplierResearch
 
 NO_KEY_NOTE = ("Web research needs ANTHROPIC_API_KEY. Showing non-approved suppliers already in "
@@ -98,7 +99,8 @@ def _parse(text: str) -> list[dict]:
 
 
 def _web_candidates(row) -> list[dict]:
-    response = research_pipeline._client().messages.create(
+    response = tracked_create(
+        research_pipeline._client(), path="agent", operation="supplier_web_research", target=f"bom_row:{row.pk}",
         model=MODEL,
         max_tokens=2048,
         tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": 3}],

@@ -1,0 +1,32 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 478 >>
+stream
+BT /F1 9 Tf 1 0 0 1 40 760 Tm (SYNTHETIC EVALUATION DRAWING - ORBIT BIS 372 - NOT A CUSTOMER FILE) Tj 1 0 0 1 40 746 Tm (DETAIL DRAWING) Tj 1 0 0 1 40 40 Tm (UNLESS OTHERWISE SPECIFIED DIMENSIONS ARE IN MM. TOLERANCES: X.X +/-0.2  X.XX +/-0.05) Tj 1 0 0 1 40 28 Tm (THIRD ANGLE PROJECTION    SCALE 1:1    SHEET 1 OF 1) Tj 1 0 0 1 380 130 Tm (TITLE: COVER PLATE 16 GA) Tj 1 0 0 1 380 117 Tm (DWG NO: ORB-1130) Tj 1 0 0 1 380 104 Tm (MATL: CRS) Tj 1 0 0 1 380 91 Tm (REV: C) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000000770 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+840
+%%EOF

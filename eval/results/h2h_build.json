@@ -1,0 +1,15 @@
+{
+  "deliverable": "#28 head-to-head (T6)",
+  "commit": "a715bc4",
+  "questions_file": "synthetic_questions_v0.csv",
+  "n_questions": 20,
+  "seed": 372,
+  "orbit_modes": [
+    "retrieval_only"
+  ],
+  "assistant_source": null,
+  "blind_sheet": "eval/results/h2h_blind_sheet_TEMPLATE.csv",
+  "complete": false,
+  "key": null,
+  "warning": "Orbit answered in retrieval-only mode (no API key): its answers are snippet lists, which a scorer can recognise, and they are not what the product does with AI on. Do not report a head-to-head built this way."
+}
